@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Camera, Upload, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -53,10 +52,6 @@ const ImageUpload = ({ onTextExtracted, onClose }: ImageUploadProps) => {
     try {
       const result = await chatApi.extractText(file);
       onTextExtracted(result.text);
-      toast({
-        title: "Text extracted successfully",
-        description: "The text from your image has been added to your message."
-      });
       onClose();
     } catch (error) {
       console.error('Error extracting text:', error);

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { FileText, Calculator, MessageSquare, Bookmark, Send, Mic, Globe, Plus, ArrowUp, Lightbulb, MoreHorizontal, Camera } from 'lucide-react';
+import { FileText, Calculator, MessageSquare, Bookmark, Send, Mic, Globe, Plus, ArrowUp, Lightbulb, MoreHorizontal, Camera, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { chatApi } from '@/services/api';
 import ImageUpload from './ImageUpload';
@@ -12,6 +12,7 @@ const ChatInput = () => {
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showImageUpload, setShowImageUpload] = useState(false);
+  const [extractedText, setExtractedText] = useState('');
   const { toast } = useToast();
   const params = useParams();
   const navigate = useNavigate();
@@ -93,9 +94,22 @@ const ChatInput = () => {
     setMessage(prev => `${actionMsg}${prev}`);
   };
 
-  const handleTextExtracted = (extractedText: string) => {
+  const handleTextExtracted = (extractedTextResult: string) => {
+    setExtractedText(extractedTextResult);
+    toast({
+      title: "Text extracted successfully",
+      description: "The text from your image has been added above the input box."
+    });
+  };
+
+  const handleCloseExtractedText = () => {
+    setExtractedText('');
+  };
+
+  const handleUseExtractedText = () => {
     const prefix = message ? `${message}\n\nExtracted text from image:\n` : 'Extracted text from image:\n';
     setMessage(`${prefix}${extractedText}`);
+    setExtractedText('');
   };
 
   return (
@@ -103,6 +117,32 @@ const ChatInput = () => {
       <div className="border-t border-gray-100 bg-white py-1 px-4 sm:px-0">
         <form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
           <div className="flex flex-col space-y-1">
+            {/* Extracted Text Bubble */}
+            {extractedText && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-2 relative">
+                <button
+                  type="button"
+                  onClick={handleCloseExtractedText}
+                  className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+                <div className="pr-8">
+                  <p className="text-sm font-medium text-blue-800 mb-1">Extracted Text:</p>
+                  <p className="text-sm text-gray-700 whitespace-pre-wrap max-h-32 overflow-y-auto">
+                    {extractedText}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleUseExtractedText}
+                    className="mt-2 text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition-colors"
+                  >
+                    Add to message
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Input Field */}
             <div className="flex items-center bg-white border border-gray-200 rounded-full shadow-sm px-3 py-2 focus-within:ring-2 focus-within:ring-primary transition-all">
               <input
