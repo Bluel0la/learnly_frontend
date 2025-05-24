@@ -1,0 +1,171 @@
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Settings, Moon, Sun, User, LogIn, LogOut, Menu } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { tokenStorage, authApi } from '@/services/api';
+
+const Navbar = () => {
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const [isDarkMode, setIsDarkMode] = React.useState(false);
+  const [isAuthenticated, setIsAuthenticated] = React.useState(false);
+
+  // Check authentication status on component mount and when localStorage changes
+  useEffect(() => {
+    const checkAuthStatus = () => {
+      setIsAuthenticated(tokenStorage.isAuthenticated());
+    };
+    
+    // Check initial auth status
+    checkAuthStatus();
+    
+    // Listen for storage events (in case another tab logs in/out)
+    window.addEventListener('storage', checkAuthStatus);
+    
+    return () => {
+      window.removeEventListener('storage', checkAuthStatus);
+    };
+  }, []);
+
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+    toast({
+      title: `${!isDarkMode ? 'Dark' : 'Light'} mode activated`,
+      description: "Theme preference saved",
+    });
+    // Theme toggle functionality would be implemented here
+  };
+  
+  const handleLogout = async () => {
+    try {
+      await authApi.logout();
+      setIsAuthenticated(false);
+      toast({
+        title: "Logged out successfully",
+        description: "You've been logged out of your account"
+      });
+      navigate('/');
+    } catch (error) {
+      toast({
+        title: "Logout failed",
+        description: "An error occurred while logging out.",
+        variant: "destructive"
+      });
+      // Still remove token from storage if the API call fails
+      tokenStorage.removeToken();
+      setIsAuthenticated(false);
+    }
+  };
+
+  return (
+    <nav className="w-full bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-10">
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
+        {/* Logo */}
+        <Link to="/" className="flex items-center space-x-2">
+          <img 
+            src="/lovable-uploads/049297b5-b176-4687-b854-f87a9f0100ff.png" 
+            alt="Learnly Logo" 
+            className="h-8 w-auto"
+          />
+          <span className="text-xl font-serif font-bold text-primary">Learnly</span>
+        </Link>
+
+        {/* Right Action Buttons - Desktop */}
+        <div className="hidden md:flex items-center space-x-2">
+          {isAuthenticated ? (
+            <>
+              <Button variant="ghost" size="icon" onClick={handleLogout}>
+                <LogOut className="h-5 w-5" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => toast({ title: "Settings" })}>
+                <Settings className="h-5 w-5" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={toggleTheme}>
+                {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              </Button>
+              <Button variant="ghost" size="icon" asChild>
+                <Link to="/profile">
+                  <User className="h-5 w-5" />
+                </Link>
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="ghost" size="icon" asChild>
+                <Link to="/login">
+                  <LogIn className="h-5 w-5" />
+                </Link>
+              </Button>
+              <Button variant="ghost" size="icon" onClick={toggleTheme}>
+                {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              </Button>
+            </>
+          )}
+        </div>
+
+        {/* Mobile Menu */}
+        <div className="md:hidden">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right">
+              <div className="flex flex-col space-y-4 mt-8">
+                <Link to="/" className="flex items-center space-x-2 mb-6">
+                  <img 
+                    src="/lovable-uploads/049297b5-b176-4687-b854-f87a9f0100ff.png" 
+                    alt="Learnly Logo" 
+                    className="h-8 w-auto"
+                  />
+                  <span className="text-xl font-serif font-bold text-primary">Learnly</span>
+                </Link>
+                <Link to="/chat" className="text-lg py-2 hover:text-primary transition-colors">
+                  Chat
+                </Link>
+                <Link to="/flashcards" className="text-lg py-2 hover:text-primary transition-colors">
+                  Flashcards
+                </Link>
+                <Link to="/quizzes" className="text-lg py-2 hover:text-primary transition-colors">
+                  Quizzes
+                </Link>
+                <Link to="/resources" className="text-lg py-2 hover:text-primary transition-colors">
+                  Resources
+                </Link>
+                {isAuthenticated && (
+                  <Link to="/profile" className="text-lg py-2 hover:text-primary transition-colors">
+                    Profile
+                  </Link>
+                )}
+                <div className="flex items-center justify-between pt-4 mt-4 border-t border-gray-200">
+                  <Button variant="outline" size="icon" onClick={toggleTheme}>
+                    {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                  </Button>
+                  <Button variant="outline" size="icon" onClick={() => toast({ title: "Settings" })}>
+                    <Settings className="h-5 w-5" />
+                  </Button>
+                  {isAuthenticated ? (
+                    <Button variant="outline" size="icon" onClick={handleLogout}>
+                      <LogOut className="h-5 w-5" />
+                    </Button>
+                  ) : (
+                    <Button variant="outline" size="icon" asChild>
+                      <Link to="/login">
+                        <LogIn className="h-5 w-5" />
+                      </Link>
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+export default Navbar;

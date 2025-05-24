@@ -1,0 +1,185 @@
+
+import React, { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { FileText, Calculator, MessageSquare, Bookmark, Send, Mic, Globe, Plus, ArrowUp, Lightbulb, MoreHorizontal, Camera } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { chatApi } from '@/services/api';
+import ImageUpload from './ImageUpload';
+
+const ChatInput = () => {
+  const [message, setMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showImageUpload, setShowImageUpload] = useState(false);
+  const { toast } = useToast();
+  const params = useParams();
+  const navigate = useNavigate();
+  const sessionId = params.sessionId;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (message.trim() && !isSubmitting) {
+      setIsSubmitting(true);
+      
+      try {
+        if (!sessionId) {
+          // Start a new chat session
+          const newSession = await chatApi.startSession({
+            chat_title: message.length > 20 ? `${message.substring(0, 20)}...` : message
+          });
+          
+          // Send the message in the new session
+          await chatApi.sendMessage({
+            prompt: message,
+            chat_id: newSession.chat_id
+          });
+          
+          // Navigate to the new chat session
+          navigate(`/chat/${newSession.chat_id}`);
+          toast({
+            title: "New chat started",
+            description: "Your message has been sent"
+          });
+        } else {
+          // Send message in existing session
+          await chatApi.sendMessage({
+            prompt: message,
+            chat_id: sessionId
+          });
+          
+          // Refresh the page to show the updated conversation
+          window.location.reload();
+        }
+        
+        setMessage('');
+      } catch (error) {
+        console.error('Error sending message:', error);
+        toast({
+          title: "Error",
+          description: "Failed to send message",
+          variant: "destructive"
+        });
+      } finally {
+        setIsSubmitting(false);
+      }
+    }
+  };
+
+  const handleSmartButton = (action: string) => {
+    let actionMsg = '';
+    
+    switch (action) {
+      case 'summarize':
+        actionMsg = 'Please summarize this for me: ';
+        break;
+      case 'solve':
+        actionMsg = 'Please solve this math problem: ';
+        break;
+      case 'explain':
+        actionMsg = 'Can you explain this concept: ';
+        break;
+      case 'image':
+        setShowImageUpload(true);
+        return;
+      case 'save':
+        toast({
+          title: "Save feature",
+          description: "This feature is coming soon"
+        });
+        return;
+    }
+    
+    setMessage(prev => `${actionMsg}${prev}`);
+  };
+
+  const handleTextExtracted = (extractedText: string) => {
+    const prefix = message ? `${message}\n\nExtracted text from image:\n` : 'Extracted text from image:\n';
+    setMessage(`${prefix}${extractedText}`);
+  };
+
+  return (
+    <>
+      <div className="border-t border-gray-100 bg-white py-1 px-4 sm:px-0">
+        <form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
+          <div className="flex flex-col space-y-1">
+            {/* Input Field */}
+            <div className="flex items-center bg-white border border-gray-200 rounded-full shadow-sm px-3 py-2 focus-within:ring-2 focus-within:ring-primary transition-all">
+              <input
+                type="text"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder={sessionId ? "Continue the conversation..." : "Message AI tutor..."}
+                className="flex-1 bg-transparent border-none outline-none text-sm placeholder-gray-400"
+                disabled={isSubmitting}
+              />
+
+              {/* Send Button */}
+              <button
+                type="submit"
+                disabled={!message.trim() || isSubmitting}
+                className={`ml-2 rounded-full p-2 transition ${
+                  message.trim() && !isSubmitting
+                    ? 'bg-black text-white hover:bg-gray-900'
+                    : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                }`}
+              >
+                {isSubmitting ? (
+                  <div className="h-5 w-5 border-2 border-t-transparent border-white rounded-full animate-spin"></div>
+                ) : (
+                  <ArrowUp className="h-5 w-5" />
+                )}
+              </button>
+            </div>
+            
+            {/* Smart Action Buttons moved below the input */}
+            <div className="flex items-center justify-center space-x-2 mx-auto">
+              <SmartIcon icon={<Plus className="h-4 w-4" />} />
+              <SmartIcon icon={<Globe className="h-4 w-4" />} />
+              <SmartIcon icon={<Lightbulb className="h-4 w-4" />} />
+              <SmartIcon icon={<FileText className="h-4 w-4" />} onClick={() => handleSmartButton('summarize')} />
+              <SmartIcon icon={<Calculator className="h-4 w-4" />} onClick={() => handleSmartButton('solve')} />
+              <SmartIcon icon={<MessageSquare className="h-4 w-4" />} onClick={() => handleSmartButton('explain')} />
+              <SmartIcon icon={<Camera className="h-4 w-4" />} onClick={() => handleSmartButton('image')} />
+              <SmartIcon icon={<Mic className="h-4 w-4" />} />
+              <SmartIcon icon={<MoreHorizontal className="h-4 w-4" />} />
+            </div>
+          </div>
+        </form>
+
+        <div className="text-xs text-center text-gray-500 mt-1 mb-0">
+          Your AI tutor is here to help with explanations, not to provide answers for graded assignments.
+        </div>
+      </div>
+
+      {/* Image Upload Modal */}
+      {showImageUpload && (
+        <ImageUpload 
+          onTextExtracted={handleTextExtracted}
+          onClose={() => setShowImageUpload(false)}
+        />
+      )}
+    </>
+  );
+};
+
+const SmartIcon = ({
+  icon,
+  onClick,
+}: {
+  icon: React.ReactNode;
+  onClick?: () => void;
+}) => {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="hover:bg-gray-100 rounded-full p-1 transition"
+      disabled={false}
+    >
+      {icon}
+    </button>
+  );
+};
+
+export default ChatInput;
