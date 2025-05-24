@@ -3,6 +3,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useParams } from 'react-router-dom';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChatMessage, chatApi } from '@/services/api';
+import MessageActions from './MessageActions';
 
 type MessageType = 'user' | 'ai';
 
@@ -11,11 +12,8 @@ type UIMessage = {
   type: MessageType;
   content: string;
   timestamp: Date;
+  originalPrompt?: string; // For redo functionality
 };
-
-interface ChatMessagesProps {
-  sessionId?: string;
-}
 
 const TYPING_PROMPTS = [
   "What is photosynthesis?",
@@ -99,7 +97,8 @@ const ChatMessages = ({ sessionId: propSessionId }: ChatMessagesProps) => {
               id: `${index}b`,
               type: 'ai',
               content: message.response,
-              timestamp: new Date(message.timestamp)
+              timestamp: new Date(message.timestamp),
+              originalPrompt: message.query // Store original prompt for redo
             };
             
             return [userMessage, aiMessage];
@@ -138,6 +137,48 @@ const ChatMessages = ({ sessionId: propSessionId }: ChatMessagesProps) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  const handleCopy = (content: string) => {
+    navigator.clipboard.writeText(content);
+    toast({
+      title: "Copied to clipboard",
+      description: "The message has been copied to your clipboard"
+    });
+  };
+
+  const handleRedo = async (originalPrompt: string) => {
+    if (!sessionId || !originalPrompt) return;
+    
+    try {
+      await chatApi.sendMessage({
+        prompt: originalPrompt,
+        chat_id: sessionId
+      });
+      
+      // Refresh the page to show the updated conversation
+      window.location.reload();
+      
+      toast({
+        title: "Message resent",
+        description: "Your prompt has been resent to get a new response"
+      });
+    } catch (error) {
+      console.error('Error resending message:', error);
+      toast({
+        title: "Error",
+        description: "Failed to resend message",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleEdit = (messageId: string, originalPrompt: string) => {
+    // Create a custom event to trigger edit mode in ChatInput
+    const editEvent = new CustomEvent('editMessage', {
+      detail: { messageId, originalPrompt }
+    });
+    window.dispatchEvent(editEvent);
+  };
+
   return (
     <ScrollArea className="h-full">
       <div className="py-4">
@@ -170,6 +211,16 @@ const ChatMessages = ({ sessionId: propSessionId }: ChatMessagesProps) => {
                   <div className="whitespace-pre-line">
                     {message.content}
                   </div>
+                  {message.type === 'ai' && (
+                    <MessageActions
+                      content={message.content}
+                      originalPrompt={message.originalPrompt || ''}
+                      messageId={message.id}
+                      onCopy={handleCopy}
+                      onRedo={handleRedo}
+                      onEdit={handleEdit}
+                    />
+                  )}
                 </div>
               </div>
             ))}

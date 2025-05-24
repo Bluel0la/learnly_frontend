@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,10 +12,28 @@ const ChatInput = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showImageUpload, setShowImageUpload] = useState(false);
   const [extractedText, setExtractedText] = useState('');
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const { toast } = useToast();
   const params = useParams();
   const navigate = useNavigate();
   const sessionId = params.sessionId;
+
+  // Listen for edit events from MessageActions
+  useEffect(() => {
+    const handleEditMessage = (event: CustomEvent) => {
+      const { messageId, originalPrompt } = event.detail;
+      setMessage(originalPrompt);
+      setIsEditMode(true);
+      setEditingMessageId(messageId);
+    };
+
+    window.addEventListener('editMessage', handleEditMessage as EventListener);
+    
+    return () => {
+      window.removeEventListener('editMessage', handleEditMessage as EventListener);
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,6 +71,8 @@ const ChatInput = () => {
         }
         
         setMessage('');
+        setIsEditMode(false);
+        setEditingMessageId(null);
       } catch (error) {
         console.error('Error sending message:', error);
         toast({
@@ -64,6 +84,12 @@ const ChatInput = () => {
         setIsSubmitting(false);
       }
     }
+  };
+
+  const handleCancelEdit = () => {
+    setMessage('');
+    setIsEditMode(false);
+    setEditingMessageId(null);
   };
 
   const handleSmartButton = (action: string) => {
@@ -110,6 +136,22 @@ const ChatInput = () => {
       <div className="border-t border-gray-100 bg-white py-1 px-4 sm:px-0">
         <form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
           <div className="flex flex-col space-y-1">
+            {/* Edit Mode Indicator */}
+            {isEditMode && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2 mb-2 flex items-center justify-between">
+                <span className="text-sm text-yellow-800">
+                  Editing message - make your changes and press send
+                </span>
+                <button
+                  type="button"
+                  onClick={handleCancelEdit}
+                  className="text-yellow-600 hover:text-yellow-800 transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+
             {/* Extracted Text Bubble */}
             {extractedText && (
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-2 relative">
@@ -135,7 +177,13 @@ const ChatInput = () => {
                 type="text"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder={sessionId ? "Continue the conversation..." : "Message AI tutor..."}
+                placeholder={
+                  isEditMode 
+                    ? "Edit your message..." 
+                    : sessionId 
+                      ? "Continue the conversation..." 
+                      : "Message AI tutor..."
+                }
                 className="flex-1 bg-transparent border-none outline-none text-sm placeholder-gray-400"
                 disabled={isSubmitting}
               />
@@ -158,18 +206,20 @@ const ChatInput = () => {
               </button>
             </div>
             
-            {/* Smart Action Buttons moved below the input */}
-            <div className="flex items-center justify-center space-x-2 mx-auto">
-              <SmartIcon icon={<Plus className="h-4 w-4" />} />
-              <SmartIcon icon={<Globe className="h-4 w-4" />} />
-              <SmartIcon icon={<Lightbulb className="h-4 w-4" />} />
-              <SmartIcon icon={<FileText className="h-4 w-4" />} onClick={() => handleSmartButton('summarize')} />
-              <SmartIcon icon={<Calculator className="h-4 w-4" />} onClick={() => handleSmartButton('solve')} />
-              <SmartIcon icon={<MessageSquare className="h-4 w-4" />} onClick={() => handleSmartButton('explain')} />
-              <SmartIcon icon={<Camera className="h-4 w-4" />} onClick={() => handleSmartButton('image')} />
-              <SmartIcon icon={<Mic className="h-4 w-4" />} />
-              <SmartIcon icon={<MoreHorizontal className="h-4 w-4" />} />
-            </div>
+            {/* Smart Action Buttons - hide in edit mode */}
+            {!isEditMode && (
+              <div className="flex items-center justify-center space-x-2 mx-auto">
+                <SmartIcon icon={<Plus className="h-4 w-4" />} />
+                <SmartIcon icon={<Globe className="h-4 w-4" />} />
+                <SmartIcon icon={<Lightbulb className="h-4 w-4" />} />
+                <SmartIcon icon={<FileText className="h-4 w-4" />} onClick={() => handleSmartButton('summarize')} />
+                <SmartIcon icon={<Calculator className="h-4 w-4" />} onClick={() => handleSmartButton('solve')} />
+                <SmartIcon icon={<MessageSquare className="h-4 w-4" />} onClick={() => handleSmartButton('explain')} />
+                <SmartIcon icon={<Camera className="h-4 w-4" />} onClick={() => handleSmartButton('image')} />
+                <SmartIcon icon={<Mic className="h-4 w-4" />} />
+                <SmartIcon icon={<MoreHorizontal className="h-4 w-4" />} />
+              </div>
+            )}
           </div>
         </form>
 
