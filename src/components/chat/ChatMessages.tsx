@@ -15,6 +15,10 @@ type UIMessage = {
   originalPrompt?: string; // For redo functionality
 };
 
+interface ChatMessagesProps {
+  sessionId?: string;
+}
+
 const TYPING_PROMPTS = [
   "What is photosynthesis?",
   "Explain the water cycle",
