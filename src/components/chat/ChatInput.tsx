@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -105,9 +106,6 @@ const ChatInput = () => {
       case 'explain':
         actionMsg = 'Can you explain this concept: ';
         break;
-      case 'image':
-        setShowImageUpload(true);
-        return;
       case 'save':
         toast({
           title: "Save feature",
@@ -173,6 +171,15 @@ const ChatInput = () => {
 
             {/* Input Field */}
             <div className="flex items-center bg-white border border-gray-200 rounded-full shadow-sm px-3 py-2 focus-within:ring-2 focus-within:ring-primary transition-all">
+              {/* Image Upload Button */}
+              <button
+                type="button"
+                onClick={() => setShowImageUpload(true)}
+                className="mr-2 hover:bg-gray-100 rounded-full p-1 transition text-gray-500 hover:text-gray-700"
+              >
+                <Camera className="h-5 w-5" />
+              </button>
+
               <input
                 type="text"
                 value={message}
@@ -206,7 +213,7 @@ const ChatInput = () => {
               </button>
             </div>
             
-            {/* Smart Action Buttons - hide in edit mode */}
+            {/* Smart Action Buttons - hide in edit mode and remove camera button */}
             {!isEditMode && (
               <div className="flex items-center justify-center space-x-2 mx-auto">
                 <SmartIcon icon={<Plus className="h-4 w-4" />} />
@@ -215,7 +222,6 @@ const ChatInput = () => {
                 <SmartIcon icon={<FileText className="h-4 w-4" />} onClick={() => handleSmartButton('summarize')} />
                 <SmartIcon icon={<Calculator className="h-4 w-4" />} onClick={() => handleSmartButton('solve')} />
                 <SmartIcon icon={<MessageSquare className="h-4 w-4" />} onClick={() => handleSmartButton('explain')} />
-                <SmartIcon icon={<Camera className="h-4 w-4" />} onClick={() => handleSmartButton('image')} />
                 <SmartIcon icon={<Mic className="h-4 w-4" />} />
                 <SmartIcon icon={<MoreHorizontal className="h-4 w-4" />} />
               </div>
