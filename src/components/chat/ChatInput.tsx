@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -106,12 +105,6 @@ const ChatInput = () => {
     setExtractedText('');
   };
 
-  const handleUseExtractedText = () => {
-    const prefix = message ? `${message}\n\nExtracted text from image:\n` : 'Extracted text from image:\n';
-    setMessage(`${prefix}${extractedText}`);
-    setExtractedText('');
-  };
-
   return (
     <>
       <div className="border-t border-gray-100 bg-white py-1 px-4 sm:px-0">
@@ -132,13 +125,6 @@ const ChatInput = () => {
                   <p className="text-sm text-gray-700 whitespace-pre-wrap max-h-32 overflow-y-auto">
                     {extractedText}
                   </p>
-                  <button
-                    type="button"
-                    onClick={handleUseExtractedText}
-                    className="mt-2 text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition-colors"
-                  >
-                    Add to message
-                  </button>
                 </div>
               </div>
             )}
