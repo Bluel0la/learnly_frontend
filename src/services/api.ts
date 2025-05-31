@@ -125,7 +125,12 @@ export const authApi = {
         throw new Error(errorData.detail || 'Login failed');
       }
       
-      return response.json();
+      const result = await response.json();
+      
+      // Set token with expiration when login is successful
+      tokenStorage.setToken(result.access_token);
+      
+      return result;
     } catch (error) {
       console.error('Login error:', error);
       if (error instanceof TypeError && error.message.includes('NetworkError')) {
@@ -225,14 +230,37 @@ export const authApi = {
   }
 };
 
-// Token management
+// Token management with expiration
 export const tokenStorage = {
   setToken: (token: string): void => {
-    localStorage.setItem('learnly_auth_token', token);
+    const expirationTime = Date.now() + (60 * 60 * 1000); // 60 minutes from now
+    const tokenData = {
+      token,
+      expiresAt: expirationTime
+    };
+    localStorage.setItem('learnly_auth_token', JSON.stringify(tokenData));
   },
   
   getToken: (): string | null => {
-    return localStorage.getItem('learnly_auth_token');
+    const tokenDataString = localStorage.getItem('learnly_auth_token');
+    if (!tokenDataString) return null;
+    
+    try {
+      const tokenData = JSON.parse(tokenDataString);
+      
+      // Check if token has expired
+      if (Date.now() > tokenData.expiresAt) {
+        // Token expired, remove it
+        tokenStorage.removeToken();
+        return null;
+      }
+      
+      return tokenData.token;
+    } catch (error) {
+      // If parsing fails, remove corrupted data
+      tokenStorage.removeToken();
+      return null;
+    }
   },
   
   removeToken: (): void => {
@@ -240,7 +268,16 @@ export const tokenStorage = {
   },
   
   isAuthenticated: (): boolean => {
-    return !!localStorage.getItem('learnly_auth_token');
+    return !!tokenStorage.getToken();
+  },
+  
+  // Check if token is expired and trigger logout if needed
+  checkTokenExpiration: (): boolean => {
+    const token = tokenStorage.getToken();
+    if (!token) {
+      return false;
+    }
+    return true;
   }
 };
 

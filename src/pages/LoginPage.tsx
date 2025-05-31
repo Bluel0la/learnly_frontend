@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -94,6 +93,8 @@ const LoginPage = () => {
     
     try {
       setIsSignupLoading(true);
+      
+      // Create the account
       await authApi.signup({
         firstname,
         lastname,
@@ -101,14 +102,19 @@ const LoginPage = () => {
         password
       });
       
+      // Automatically log in the user with their new credentials
+      const loginResponse = await authApi.login({ email, password });
+      
+      // Store token
+      tokenStorage.setToken(loginResponse.access_token);
+      
       toast({
-        title: "Account created",
-        description: "Welcome to Learnly! Please log in with your new account."
+        title: "Account created successfully",
+        description: "Welcome to Learnly! You've been automatically signed in."
       });
       
-      // Switch to login tab
-      const loginTab = document.querySelector('[data-state="inactive"][data-value="login"]') as HTMLElement;
-      if (loginTab) loginTab.click();
+      // Redirect to home page
+      navigate('/');
     } catch (error) {
       toast({
         title: "Registration failed",

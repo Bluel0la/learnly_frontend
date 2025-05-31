@@ -14,17 +14,27 @@ const AuthRedirect = ({ children }: AuthRedirectProps) => {
   const { toast } = useToast();
   
   useEffect(() => {
-    // Don't redirect if already on login or signup page
-    const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
+    const checkAuth = () => {
+      // Don't redirect if already on login or signup page
+      const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
+      
+      if (!tokenStorage.isAuthenticated() && !isAuthPage) {
+        toast({
+          title: "Session expired",
+          description: "Please log in to continue",
+          variant: "destructive"
+        });
+        navigate('/login', { state: { from: location.pathname } });
+      }
+    };
+
+    // Check immediately
+    checkAuth();
     
-    if (!tokenStorage.isAuthenticated() && !isAuthPage) {
-      toast({
-        title: "Authentication required",
-        description: "Please log in to access this page",
-        variant: "destructive"
-      });
-      navigate('/login', { state: { from: location.pathname } });
-    }
+    // Set up interval to check token expiration every minute
+    const interval = setInterval(checkAuth, 60000); // Check every minute
+    
+    return () => clearInterval(interval);
   }, [location.pathname, navigate, toast]);
 
   return <>{children}</>;
