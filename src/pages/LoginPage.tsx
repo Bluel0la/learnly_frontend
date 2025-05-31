@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { authApi } from '@/services/api';
+import { authApi, type LoginRequest } from '@/services/api';
 import { loginFormSchema, signupFormSchema, type LoginFormData, type SignupFormData } from '@/lib/validation';
 import { sanitizeText } from '@/lib/security';
 
