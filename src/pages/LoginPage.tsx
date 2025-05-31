@@ -1,179 +1,126 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useSearchParams, Navigate } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/hooks/use-toast';
-import { authApi, type LoginRequest } from '@/services/api';
-import { loginFormSchema, signupFormSchema, type LoginFormData, type SignupFormData } from '@/lib/validation';
-import { sanitizeText } from '@/lib/security';
-
-// Import the new components
 import LoginForm from '@/components/auth/LoginForm';
 import SignupForm from '@/components/auth/SignupForm';
+import { useToast } from '@/hooks/use-toast';
+import { authApi, LoginRequest, SignupRequest } from '@/services/api';
+import { secureTokenStorage } from '@/services/secureTokenStorage';
 
 const LoginPage = () => {
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
-  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   
-  // Form states
-  const [firstname, setFirstname] = useState('');
-  const [lastname, setLastname] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  
-  // Loading states
-  const [isLoginLoading, setIsLoginLoading] = useState(false);
-  const [isSignupLoading, setIsSignupLoading] = useState(false);
+  // Check if user is already authenticated
+  if (secureTokenStorage.getToken()) {
+    return <Navigate to="/chat" replace />;
+  }
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const defaultTab = searchParams.get('tab') === 'signup' ? 'signup' : 'login';
+
+  const handleLogin = async (data: { email?: string; password?: string }) => {
+    if (!data.email || !data.password) {
+      toast({
+        title: "Error",
+        description: "Email and password are required",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsLoading(true);
     try {
-      // Validate form data
-      const formData: LoginFormData = {
-        email: sanitizeText(email),
-        password: password // Don't sanitize password as it might contain special chars
+      const loginData: LoginRequest = {
+        email: data.email,
+        password: data.password
       };
       
-      const validatedData = loginFormSchema.parse(formData);
+      const response = await authApi.login(loginData);
       
-      setIsLoginLoading(true);
-      const response = await authApi.login(validatedData);
+      secureTokenStorage.setToken(response.access_token);
       
       toast({
-        title: "Login successful",
-        description: "Welcome back to Learnly"
+        title: "Success",
+        description: "Logged in successfully!"
       });
       
-      // Redirect to home page or dashboard
-      navigate('/');
-    } catch (error: any) {
-      if (error.errors) {
-        // Zod validation errors
-        const firstError = error.errors[0];
-        toast({
-          title: "Validation Error",
-          description: firstError.message,
-          variant: "destructive"
-        });
-      } else {
-        toast({
-          title: "Login failed",
-          description: error instanceof Error ? error.message : "Please check your credentials and try again",
-          variant: "destructive"
-        });
-      }
+      window.location.href = '/chat';
+    } catch (error) {
+      console.error('Login error:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to log in",
+        variant: "destructive"
+      });
     } finally {
-      setIsLoginLoading(false);
+      setIsLoading(false);
     }
   };
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleSignup = async (data: SignupRequest) => {
+    setIsLoading(true);
     try {
-      // Validate form data
-      const formData: SignupFormData = {
-        firstname: sanitizeText(firstname),
-        lastname: sanitizeText(lastname),
-        email: sanitizeText(email),
-        password: password,
-        confirmPassword: confirmPassword
-      };
-      
-      const validatedData = signupFormSchema.parse(formData);
-      
-      setIsSignupLoading(true);
-      
-      // Create the account
-      await authApi.signup({
-        firstname: validatedData.firstname,
-        lastname: validatedData.lastname,
-        email: validatedData.email,
-        password: validatedData.password
-      });
-      
-      // Automatically log in the user with their new credentials
-      const loginResponse = await authApi.login({ 
-        email: validatedData.email, 
-        password: validatedData.password 
-      });
+      await authApi.signup(data);
       
       toast({
-        title: "Account created successfully",
-        description: "Welcome to Learnly! You've been automatically signed in."
+        title: "Success",
+        description: "Account created successfully! Please log in."
       });
       
-      // Redirect to home page
-      navigate('/');
-    } catch (error: any) {
-      if (error.errors) {
-        // Zod validation errors
-        const firstError = error.errors[0];
-        toast({
-          title: "Validation Error",
-          description: firstError.message,
-          variant: "destructive"
-        });
-      } else {
-        toast({
-          title: "Registration failed",
-          description: error instanceof Error ? error.message : "Please try again with different information",
-          variant: "destructive"
-        });
-      }
+      // Switch to login tab after successful signup
+      const url = new URL(window.location.href);
+      url.searchParams.set('tab', 'login');
+      window.history.pushState({}, '', url.toString());
+    } catch (error) {
+      console.error('Signup error:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to create account",
+        variant: "destructive"
+      });
     } finally {
-      setIsSignupLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div className="text-center">
+          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+            Welcome to Learnly
+          </h2>
+          <p className="mt-2 text-sm text-gray-600">
+            Your AI-powered learning companion
+          </p>
+        </div>
+        
         <Card>
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-serif">Learnly</CardTitle>
-            <CardDescription>
-              Your personal AI tutor for better learning
+          <CardHeader>
+            <CardTitle className="text-center">Get Started</CardTitle>
+            <CardDescription className="text-center">
+              Sign in to your account or create a new one
             </CardDescription>
           </CardHeader>
-          
-          <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="login">
-              <LoginForm 
-                email={email}
-                setEmail={setEmail}
-                password={password}
-                setPassword={setPassword}
-                handleLogin={handleLogin}
-                isLoginLoading={isLoginLoading}
-              />
-            </TabsContent>
-            
-            <TabsContent value="signup">
-              <SignupForm 
-                firstname={firstname}
-                setFirstname={setFirstname}
-                lastname={lastname}
-                setLastname={setLastname}
-                email={email}
-                setEmail={setEmail}
-                password={password}
-                setPassword={setPassword}
-                confirmPassword={confirmPassword}
-                setConfirmPassword={setConfirmPassword}
-                handleSignUp={handleSignUp}
-                isSignupLoading={isSignupLoading}
-              />
-            </TabsContent>
-          </Tabs>
+          <CardContent>
+            <Tabs defaultValue={defaultTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="login">Login</TabsTrigger>
+                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="login" className="space-y-4">
+                <LoginForm onSubmit={handleLogin} isLoading={isLoading} />
+              </TabsContent>
+              
+              <TabsContent value="signup" className="space-y-4">
+                <SignupForm onSubmit={handleSignup} isLoading={isLoading} />
+              </TabsContent>
+            </Tabs>
+          </CardContent>
         </Card>
       </div>
     </div>

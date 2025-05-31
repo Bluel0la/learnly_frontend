@@ -135,4 +135,25 @@
   .action-button {
     @apply inline-flex items-center justify-center p-2 rounded-full bg-white border border-gray-200 text-gray-700 hover:bg-gray-100;
   }
+  
+  /* LaTeX rendering styles */
+  .latex-content {
+    @apply leading-relaxed;
+  }
+  
+  .latex-content .katex {
+    @apply text-base;
+  }
+  
+  .latex-content .katex-display {
+    @apply my-4 overflow-x-auto;
+  }
+  
+  .latex-content code {
+    @apply bg-gray-100 px-1 py-0.5 rounded text-sm font-mono;
+  }
+  
+  .latex-content strong {
+    @apply font-semibold;
+  }
 }

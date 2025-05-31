@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChatMessage, chatApi } from '@/services/api';
 import MessageActions from './MessageActions';
+import LaTeXRenderer from './LaTeXRenderer';
 
 type MessageType = 'user' | 'ai';
 
@@ -183,6 +184,11 @@ const ChatMessages = ({ sessionId: propSessionId }: ChatMessagesProps) => {
     window.dispatchEvent(editEvent);
   };
 
+  // Function to detect if content contains LaTeX
+  const hasLaTeX = (content: string) => {
+    return /\$\$[\s\S]*?\$\$|\$[^$\n]+?\$/.test(content);
+  };
+
   return (
     <ScrollArea className="h-full">
       <div className="py-4">
@@ -213,7 +219,11 @@ const ChatMessages = ({ sessionId: propSessionId }: ChatMessagesProps) => {
                     </span>
                   </div>
                   <div className="whitespace-pre-line">
-                    {message.content}
+                    {hasLaTeX(message.content) ? (
+                      <LaTeXRenderer content={message.content} />
+                    ) : (
+                      message.content
+                    )}
                   </div>
                   {message.type === 'ai' && (
                     <MessageActions
