@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { CardContent, CardFooter } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
-import PasswordStrength from './PasswordStrength';
+import EnhancedPasswordStrength from './EnhancedPasswordStrength';
 
 interface SignupFormProps {
   firstname: string;
@@ -48,6 +48,7 @@ const SignupForm = ({
               value={firstname}
               onChange={(e) => setFirstname(e.target.value)}
               required
+              maxLength={50}
             />
           </div>
           <div className="space-y-2">
@@ -59,6 +60,7 @@ const SignupForm = ({
               value={lastname}
               onChange={(e) => setLastname(e.target.value)}
               required
+              maxLength={50}
             />
           </div>
         </div>
@@ -85,7 +87,7 @@ const SignupForm = ({
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <PasswordStrength password={password} />
+          <EnhancedPasswordStrength password={password} />
         </div>
         
         <div className="space-y-2">
@@ -98,6 +100,9 @@ const SignupForm = ({
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
           />
+          {confirmPassword && password !== confirmPassword && (
+            <p className="text-sm text-red-600">Passwords don't match</p>
+          )}
         </div>
       </CardContent>
       

@@ -64,14 +64,15 @@ export interface ExtractTextResponse {
 
 // Helper function to create authenticated headers
 const getAuthHeaders = (): HeadersInit => {
-  const token = tokenStorage.getToken();
+  const token = secureTokenStorage.getToken();
   if (!token) throw new Error('Not authenticated');
 
   return {
     'Authorization': `Bearer ${token}`,
     'Content-Type': 'application/json',
     'Accept': 'application/json',
-    'Access-Control-Allow-Origin': '*'
+    'Access-Control-Allow-Origin': '*',
+    ...getSecurityHeaders()
   };
 };
 
@@ -79,13 +80,19 @@ const getAuthHeaders = (): HeadersInit => {
 export const authApi = {
   // Register a new user
   signup: async (userData: SignupRequest): Promise<any> => {
+    // Rate limiting check
+    if (!rateLimiter.isAllowed('signup', 3, 15 * 60 * 1000)) {
+      throw new Error('Too many signup attempts. Please try again later.');
+    }
+
     try {
       const response = await fetch(`${API_BASE_URL}/auth/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'Access-Control-Allow-Origin': '*'
+          'Access-Control-Allow-Origin': '*',
+          ...getSecurityHeaders()
         },
         body: JSON.stringify(userData),
         mode: 'cors',
@@ -108,13 +115,19 @@ export const authApi = {
   
   // Login a user
   login: async (credentials: LoginRequest): Promise<LoginResponse> => {
+    // Rate limiting check
+    if (!rateLimiter.isAllowed(`login_${credentials.email}`, 5, 15 * 60 * 1000)) {
+      throw new Error('Too many login attempts. Please try again later.');
+    }
+
     try {
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'Access-Control-Allow-Origin': '*'
+          'Access-Control-Allow-Origin': '*',
+          ...getSecurityHeaders()
         },
         body: JSON.stringify(credentials),
         mode: 'cors',
@@ -128,7 +141,10 @@ export const authApi = {
       const result = await response.json();
       
       // Set token with expiration when login is successful
-      tokenStorage.setToken(result.access_token);
+      secureTokenStorage.setToken(result.access_token);
+      
+      // Reset rate limiting on successful login
+      rateLimiter.reset(`login_${credentials.email}`);
       
       return result;
     } catch (error) {
@@ -143,7 +159,7 @@ export const authApi = {
   // Logout a user
   logout: async (): Promise<void> => {
     try {
-      const token = tokenStorage.getToken();
+      const token = secureTokenStorage.getToken();
       if (!token) return;
 
       const response = await fetch(`${API_BASE_URL}/auth/logout`, {
@@ -160,7 +176,7 @@ export const authApi = {
       console.error('Logout error:', error);
     } finally {
       // Always remove token from storage, even if request fails
-      tokenStorage.removeToken();
+      secureTokenStorage.removeToken();
     }
   },
 
@@ -222,7 +238,7 @@ export const authApi = {
       }
       
       // Remove token after successful deletion
-      tokenStorage.removeToken();
+      secureTokenStorage.removeToken();
     } catch (error) {
       console.error('Account deletion error:', error);
       throw error;
@@ -230,56 +246,8 @@ export const authApi = {
   }
 };
 
-// Token management with expiration
-export const tokenStorage = {
-  setToken: (token: string): void => {
-    const expirationTime = Date.now() + (60 * 60 * 1000); // 60 minutes from now
-    const tokenData = {
-      token,
-      expiresAt: expirationTime
-    };
-    localStorage.setItem('learnly_auth_token', JSON.stringify(tokenData));
-  },
-  
-  getToken: (): string | null => {
-    const tokenDataString = localStorage.getItem('learnly_auth_token');
-    if (!tokenDataString) return null;
-    
-    try {
-      const tokenData = JSON.parse(tokenDataString);
-      
-      // Check if token has expired
-      if (Date.now() > tokenData.expiresAt) {
-        // Token expired, remove it
-        tokenStorage.removeToken();
-        return null;
-      }
-      
-      return tokenData.token;
-    } catch (error) {
-      // If parsing fails, remove corrupted data
-      tokenStorage.removeToken();
-      return null;
-    }
-  },
-  
-  removeToken: (): void => {
-    localStorage.removeItem('learnly_auth_token');
-  },
-  
-  isAuthenticated: (): boolean => {
-    return !!tokenStorage.getToken();
-  },
-  
-  // Check if token is expired and trigger logout if needed
-  checkTokenExpiration: (): boolean => {
-    const token = tokenStorage.getToken();
-    if (!token) {
-      return false;
-    }
-    return true;
-  }
-};
+// Export secure token storage instead of old one
+export const tokenStorage = secureTokenStorage;
 
 // Chat API service
 export const chatApi = {

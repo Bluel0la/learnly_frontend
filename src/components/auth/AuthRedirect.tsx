@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { tokenStorage } from '@/services/api';
+import { secureTokenStorage } from '@/services/secureTokenStorage';
 
 interface AuthRedirectProps {
   children: React.ReactNode;
@@ -18,7 +18,7 @@ const AuthRedirect = ({ children }: AuthRedirectProps) => {
       // Don't redirect if already on login or signup page
       const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
       
-      if (!tokenStorage.isAuthenticated() && !isAuthPage) {
+      if (!secureTokenStorage.isAuthenticated() && !isAuthPage) {
         toast({
           title: "Session expired",
           description: "Please log in to continue",
