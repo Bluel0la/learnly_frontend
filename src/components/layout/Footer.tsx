@@ -25,9 +25,7 @@ const Footer = () => {
           </a>
         </div>
         
-        <div className="text-xs text-gray-500 w-full md:w-auto order-2 md:order-3">
-          Built with ❤️ using LLaMA + LangChain + FAISS
-        </div>
+       
       </div>
     </footer>
   );
