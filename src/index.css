@@ -136,17 +136,28 @@
     @apply inline-flex items-center justify-center p-2 rounded-full bg-white border border-gray-200 text-gray-700 hover:bg-gray-100;
   }
   
-  /* LaTeX rendering styles */
+  /* Improved LaTeX rendering styles */
   .latex-content {
-    @apply leading-relaxed;
+    @apply leading-relaxed text-left;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
   
   .latex-content .katex {
     @apply text-base;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    font-size: 1rem !important;
   }
   
   .latex-content .katex-display {
-    @apply my-4 overflow-x-auto;
+    @apply my-4 overflow-x-auto text-left;
+    text-align: left !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  
+  .latex-content .katex .base {
+    display: inline-block;
+    vertical-align: baseline;
   }
   
   .latex-content code {

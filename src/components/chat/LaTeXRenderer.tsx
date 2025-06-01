@@ -46,7 +46,7 @@ const LaTeXRenderer: React.FC<LaTeXRendererProps> = ({ content }) => {
       parts.push(
         <div 
           key={`block-${blockIndex}`} 
-          className="my-4 overflow-x-auto text-center"
+          className="my-4 overflow-x-auto text-left"
           dangerouslySetInnerHTML={{ __html: renderedMath }}
         />
       );
@@ -91,6 +91,7 @@ const LaTeXRenderer: React.FC<LaTeXRendererProps> = ({ content }) => {
       parts.push(
         <span 
           key={`${keyPrefix}-inline-${matchIndex}`}
+          className="inline-block align-baseline"
           dangerouslySetInnerHTML={{ __html: renderedMath }}
         />
       );
@@ -127,7 +128,7 @@ const LaTeXRenderer: React.FC<LaTeXRendererProps> = ({ content }) => {
   };
   
   return (
-    <div className="latex-content">
+    <div className="latex-content text-left">
       {renderContent(content)}
     </div>
   );
