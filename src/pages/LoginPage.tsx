@@ -14,6 +14,17 @@ const LoginPage = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   
+  // Login form state
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  
+  // Signup form state
+  const [signupFirstname, setSignupFirstname] = useState('');
+  const [signupLastname, setSignupLastname] = useState('');
+  const [signupEmail, setSignupEmail] = useState('');
+  const [signupPassword, setSignupPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  
   // Check if user is already authenticated
   if (secureTokenStorage.getToken()) {
     return <Navigate to="/chat" replace />;
@@ -21,10 +32,11 @@ const LoginPage = () => {
 
   const defaultTab = searchParams.get('tab') === 'signup' ? 'signup' : 'login';
 
-  const handleLogin = async (email: string, password: string) => {
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsLoading(true);
     try {
-      const response = await authApi.login({ email, password });
+      const response = await authApi.login({ email: loginEmail, password: loginPassword });
       
       secureTokenStorage.setToken(response.access_token);
       
@@ -46,10 +58,27 @@ const LoginPage = () => {
     }
   };
 
-  const handleSignup = async (data: SignupRequest) => {
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (signupPassword !== confirmPassword) {
+      toast({
+        title: "Error",
+        description: "Passwords don't match",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setIsLoading(true);
     try {
-      await authApi.signup(data);
+      const signupData: SignupRequest = {
+        firstname: signupFirstname,
+        lastname: signupLastname,
+        email: signupEmail,
+        password: signupPassword
+      };
+      
+      await authApi.signup(signupData);
       
       toast({
         title: "Success",
@@ -99,11 +128,31 @@ const LoginPage = () => {
               </TabsList>
               
               <TabsContent value="login" className="space-y-4">
-                <LoginForm onLogin={handleLogin} isLoading={isLoading} />
+                <LoginForm 
+                  email={loginEmail}
+                  setEmail={setLoginEmail}
+                  password={loginPassword}
+                  setPassword={setLoginPassword}
+                  handleLogin={handleLogin}
+                  isLoginLoading={isLoading}
+                />
               </TabsContent>
               
               <TabsContent value="signup" className="space-y-4">
-                <SignupForm onSignup={handleSignup} isLoading={isLoading} />
+                <SignupForm 
+                  firstname={signupFirstname}
+                  setFirstname={setSignupFirstname}
+                  lastname={signupLastname}
+                  setLastname={setSignupLastname}
+                  email={signupEmail}
+                  setEmail={setSignupEmail}
+                  password={signupPassword}
+                  setPassword={setSignupPassword}
+                  confirmPassword={confirmPassword}
+                  setConfirmPassword={setConfirmPassword}
+                  handleSignUp={handleSignup}
+                  isSignupLoading={isLoading}
+                />
               </TabsContent>
             </Tabs>
           </CardContent>
