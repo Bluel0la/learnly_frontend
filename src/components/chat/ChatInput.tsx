@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -115,91 +116,85 @@ const ChatInput = () => {
 
   return (
     <>
-      <div className="fixed bottom-0 inset-x-0 z-50 border-t border-gray-200 bg-white px-4 py-2 sm:px-6">
-        <form onSubmit={handleSubmit} className="max-w-3xl mx-auto space-y-2">
-          {isEditMode && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2 flex items-center justify-between">
-              <span className="text-sm text-yellow-800">Editing message - make your changes and press send</span>
-              <button type="button" onClick={handleCancelEdit} className="text-yellow-600 hover:text-yellow-800">
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-          )}
+      <div className="w-full max-w-4xl mx-auto p-4 space-y-3">
+        {isEditMode && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-center justify-between">
+            <span className="text-sm text-yellow-800">Editing message - make your changes and press send</span>
+            <button type="button" onClick={handleCancelEdit} className="text-yellow-600 hover:text-yellow-800">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        )}
 
-          {extractedText && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 relative">
-              <button
-                type="button"
-                onClick={handleCloseExtractedText}
-                className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
-              >
-                <X className="h-4 w-4" />
-              </button>
-              <div className="pr-8">
-                <p className="text-sm font-medium text-blue-800 mb-1">Extracted Text:</p>
-                <p className="text-sm text-gray-700 whitespace-pre-wrap max-h-32 overflow-y-auto">
-                  {extractedText}
-                </p>
-              </div>
+        {extractedText && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 relative">
+            <button
+              type="button"
+              onClick={handleCloseExtractedText}
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            <div className="pr-8">
+              <p className="text-sm font-medium text-blue-800 mb-1">Extracted Text:</p>
+              <p className="text-sm text-gray-700 whitespace-pre-wrap max-h-32 overflow-y-auto">
+                {extractedText}
+              </p>
             </div>
-          )}
+          </div>
+        )}
 
-          <div className="flex items-center border border-gray-300 rounded-full shadow-sm px-3 py-2 bg-white">
+        <form onSubmit={handleSubmit} className="relative">
+          <div className="relative flex items-center bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-shadow focus-within:shadow-md focus-within:border-gray-300">
             <button
               type="button"
               onClick={() => setShowImageUpload(true)}
-              className="mr-2 hover:bg-gray-100 rounded-full p-1 text-gray-500 hover:text-gray-700"
+              className="flex-shrink-0 ml-3 p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              <Camera className="h-5 w-5" />
+              <Camera className="h-5 w-5 text-gray-500" />
             </button>
 
-            <input
-              type="text"
+            <textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder={
                 isEditMode ? "Edit your message..." :
                 sessionId ? "Continue the conversation..." :
-                "Message AI tutor..."
+                "Message Learnly..."
               }
-              className="flex-1 bg-transparent outline-none text-sm placeholder-gray-400"
+              className="flex-1 resize-none bg-transparent py-4 px-3 text-sm placeholder-gray-500 border-none outline-none max-h-32 min-h-[24px]"
               disabled={isSubmitting}
+              rows={1}
+              style={{ lineHeight: '1.5' }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSubmit(e);
+                }
+              }}
             />
 
             <button
               type="submit"
               disabled={!message.trim() || isSubmitting}
-              className={`ml-2 rounded-full p-2 transition ${
+              className={`flex-shrink-0 mr-3 p-2 rounded-lg transition-colors ${
                 message.trim() && !isSubmitting
-                  ? 'bg-black text-white hover:bg-gray-900'
+                  ? 'bg-black text-white hover:bg-gray-800'
                   : 'bg-gray-100 text-gray-400 cursor-not-allowed'
               }`}
             >
               {isSubmitting ? (
-                <div className="h-5 w-5 border-2 border-t-transparent border-white rounded-full animate-spin" />
+                <div className="h-5 w-5 border-2 border-t-transparent border-current rounded-full animate-spin" />
               ) : (
                 <ArrowUp className="h-5 w-5" />
               )}
             </button>
           </div>
-
-          {!isEditMode && (
-            <div className="flex justify-center space-x-2">
-              <SmartIcon icon={<Plus className="h-4 w-4" />} />
-              <SmartIcon icon={<Globe className="h-4 w-4" />} />
-              <SmartIcon icon={<Lightbulb className="h-4 w-4" />} />
-              <SmartIcon icon={<FileText className="h-4 w-4" />} onClick={() => handleSmartButton('summarize')} />
-              <SmartIcon icon={<Calculator className="h-4 w-4" />} onClick={() => handleSmartButton('solve')} />
-              <SmartIcon icon={<MessageSquare className="h-4 w-4" />} onClick={() => handleSmartButton('explain')} />
-              <SmartIcon icon={<Mic className="h-4 w-4" />} />
-              <SmartIcon icon={<MoreHorizontal className="h-4 w-4" />} />
-            </div>
-          )}
-
-          <div className="text-xs text-center text-gray-500">
-            Your AI tutor is here to help with explanations, not to provide answers for graded assignments.
-          </div>
         </form>
+
+        <div className="text-xs text-center text-gray-500 mt-2">
+          Your AI tutor is here to help with explanations, not to provide answers for graded assignments.
+        </div>
       </div>
 
       {showImageUpload && (
@@ -211,21 +206,5 @@ const ChatInput = () => {
     </>
   );
 };
-
-const SmartIcon = ({
-  icon,
-  onClick,
-}: {
-  icon: React.ReactNode;
-  onClick?: () => void;
-}) => (
-  <button
-    type="button"
-    onClick={onClick}
-    className="hover:bg-gray-100 rounded-full p-1 transition"
-  >
-    {icon}
-  </button>
-);
 
 export default ChatInput;
