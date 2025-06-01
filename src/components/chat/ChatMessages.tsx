@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useParams } from 'react-router-dom';
@@ -160,7 +159,6 @@ const ChatMessages = ({ sessionId: propSessionId }: ChatMessagesProps) => {
         chat_id: sessionId
       });
       
-      // Refresh the page to show the updated conversation
       window.location.reload();
       
       toast({
@@ -178,28 +176,26 @@ const ChatMessages = ({ sessionId: propSessionId }: ChatMessagesProps) => {
   };
 
   const handleEdit = (messageId: string, originalPrompt: string) => {
-    // Create a custom event to trigger edit mode in ChatInput
     const editEvent = new CustomEvent('editMessage', {
       detail: { messageId, originalPrompt }
     });
     window.dispatchEvent(editEvent);
   };
 
-  // Function to detect if content contains LaTeX
   const hasLaTeX = (content: string) => {
     return /\$\$[\s\S]*?\$\$|\$[^$\n]+?\$/.test(content);
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <ScrollArea className="flex-1 px-4">
-        <div className="py-4">
+    <div className="h-full flex flex-col">
+      <ScrollArea className="flex-1">
+        <div className="p-4">
           {isLoading ? (
-            <div className="flex items-center justify-center h-full min-h-[400px]">
+            <div className="flex items-center justify-center h-64">
               <div className="animate-pulse text-gray-500">Loading conversation...</div>
             </div>
           ) : messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full min-h-[400px]">
+            <div className="flex flex-col items-center justify-center h-64">
               <div className="text-center text-gray-500">
                 <p className="text-lg font-semibold mb-4">Start a new conversation</p>
                 <div className="mb-4">
@@ -208,7 +204,7 @@ const ChatMessages = ({ sessionId: propSessionId }: ChatMessagesProps) => {
               </div>
             </div>
           ) : (
-            <div className="max-w-3xl mx-auto space-y-4 pb-4">
+            <div className="max-w-3xl mx-auto space-y-4">
               {messages.map((message) => (
                 <div key={message.id} className="flex flex-col">
                   <div className={getMessageClassName(message)}>

@@ -1,54 +1,29 @@
 
-import React, { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import React from 'react';
+import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
+import AppSidebar from './AppSidebar';
 import Navbar from './Navbar';
-import Sidebar from './Sidebar';
+import Footer from './Footer';
 
-type LayoutProps = {
-  children: React.ReactNode;
-  requireAuth?: boolean;
-};
-
-const Layout = ({ children }: LayoutProps) => {
-  const location = useLocation();
-  const isAuth = location.pathname === '/login' || location.pathname === '/signup';
-  const [isMobileLayout, setIsMobileLayout] = React.useState(false);
-
-  useEffect(() => {
-    const checkScreenSize = () => {
-      setIsMobileLayout(window.innerWidth < 768);
-    };
-
-    checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-
-    return () => {
-      window.removeEventListener('resize', checkScreenSize);
-    };
-  }, []);
-
-  // Don't show sidebar and regular layout for auth pages
-  if (isAuth) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
-        <main className="flex-1">
-          {children}
-        </main>
-      </div>
-    );
-  }
-
+const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      <div className="flex flex-1 overflow-hidden">
-        {!isMobileLayout && <Sidebar />}
-        <main className="flex-1 overflow-auto p-4">
-          {children}
-        </main>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
+        <AppSidebar />
+        <SidebarInset className="flex flex-col">
+          <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+            <SidebarTrigger className="-ml-1" />
+            <div className="flex-1">
+              <Navbar />
+            </div>
+          </header>
+          <main className="flex-1 overflow-hidden">
+            {children}
+          </main>
+          <Footer />
+        </SidebarInset>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 

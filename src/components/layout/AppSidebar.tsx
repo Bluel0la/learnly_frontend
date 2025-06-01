@@ -1,0 +1,167 @@
+
+import React, { useEffect, useState } from 'react';
+import { Search, BookOpen, Calculator, FileText, MessageSquare, Library, HelpCircle, User } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { Link, useLocation } from 'react-router-dom';
+import { ChatSession, chatApi } from '@/services/api';
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarInput,
+} from '@/components/ui/sidebar';
+
+const AppSidebar = () => {
+  const { toast } = useToast();
+  const location = useLocation();
+  
+  const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSessions = async () => {
+      try {
+        setIsLoading(true);
+        const userSessions = await chatApi.getSessions();
+        setSessions(userSessions);
+      } catch (error) {
+        console.error('Error fetching sessions:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load chat sessions",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSessions();
+  }, [toast]);
+
+  const filteredSessions = sessions
+    .filter(session => 
+      searchQuery === '' || 
+      session.chat_title.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+  const getSessionIcon = (title: string) => {
+    const lowerTitle = title.toLowerCase();
+    if (lowerTitle.includes('math') || lowerTitle.includes('calc') || lowerTitle.includes('equation')) {
+      return <Calculator className="h-4 w-4 text-green-500" />;
+    } else if (lowerTitle.includes('summary') || lowerTitle.includes('explain')) {
+      return <FileText className="h-4 w-4 text-blue-500" />;
+    } else if (lowerTitle.includes('flash') || lowerTitle.includes('card')) {
+      return <BookOpen className="h-4 w-4 text-accent" />;
+    } else {
+      return <MessageSquare className="h-4 w-4 text-gray-500" />;
+    }
+  };
+
+  const isActive = (path: string) => {
+    if (path === "/chat") {
+      return location.pathname === "/chat" || location.pathname === "/";
+    }
+    return location.pathname === path;
+  };
+
+  const isSessionActive = (id: string) => {
+    return location.pathname === `/chat/${id}`;
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+  };
+
+  const navigationItems = [
+    { title: "Chat", url: "/chat", icon: MessageSquare },
+    { title: "Flashcards", url: "/flashcards", icon: BookOpen },
+    { title: "Quizzes", url: "/quizzes", icon: HelpCircle },
+    { title: "Resources", url: "/resources", icon: Library },
+    { title: "Profile", url: "/profile", icon: User },
+  ];
+
+  return (
+    <Sidebar>
+      <SidebarHeader>
+        <div className="flex items-center gap-2 px-2 py-2">
+          <BookOpen className="h-6 w-6 text-primary" />
+          <span className="font-bold text-lg">Learnly</span>
+        </div>
+        <div className="px-2">
+          <SidebarInput
+            type="text"
+            placeholder="Search sessions..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      </SidebarHeader>
+      
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {navigationItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                    <Link to={item.url}>
+                      <item.icon className="h-5 w-5" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Recent Sessions</SidebarGroupLabel>
+          <SidebarGroupContent>
+            {isLoading ? (
+              <div className="flex justify-center py-4">
+                <div className="h-5 w-5 border-2 border-t-transparent border-gray-500 rounded-full animate-spin"></div>
+              </div>
+            ) : (
+              <SidebarMenu>
+                {filteredSessions.map((session) => (
+                  <SidebarMenuItem key={session.chat_id}>
+                    <SidebarMenuButton asChild isActive={isSessionActive(session.chat_id)}>
+                      <Link to={`/chat/${session.chat_id}`}>
+                        {getSessionIcon(session.chat_title)}
+                        <div className="flex flex-col items-start overflow-hidden">
+                          <span className="text-sm font-medium truncate w-full">{session.chat_title}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {formatDate(session.created_at)}
+                          </span>
+                        </div>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+                
+                {filteredSessions.length === 0 && !isLoading && (
+                  <div className="text-center p-4 text-muted-foreground text-sm">
+                    No chat sessions found
+                  </div>
+                )}
+              </SidebarMenu>
+            )}
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+    </Sidebar>
+  );
+};
+
+export default AppSidebar;
