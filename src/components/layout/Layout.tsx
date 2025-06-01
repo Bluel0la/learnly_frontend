@@ -17,7 +17,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <main className="flex-1">
           {children}
         </main>
-        {/*<Footer />*/}
+        <Footer />
       </div>
     );
   }
@@ -36,7 +36,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           <main className="flex-1 overflow-hidden">
             {children}
           </main>
-          <Footer />
+         { /*<Footer />*/}
         </SidebarInset>
       </div>
     </SidebarProvider>
