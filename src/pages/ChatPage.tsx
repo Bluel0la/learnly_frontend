@@ -14,7 +14,7 @@ const ChatPage = ({ sessionId }: ChatPageProps) => {
         <ChatMessages sessionId={sessionId} />
       </div>
       <div className="flex-shrink-0 border-t border-gray-200 bg-white p-4 sticky bottom-0 z-40">
-       {/* <ChatInput />*/}
+        <ChatInput />
       </div>
     </div>
   );
