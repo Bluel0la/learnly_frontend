@@ -13,7 +13,7 @@ const ChatPage = ({ sessionId }: ChatPageProps) => {
       <div className="flex-1 min-h-0 overflow-hidden">
         <ChatMessages sessionId={sessionId} />
       </div>
-      <div className="flex-shrink-0 border-t border-gray-200 bg-white p-4 sticky bottom-0 z-40">
+      <div className="flex-shrink-0 right-[25] border-t border-gray-200 bg-white p-4 sticky bottom-0 z-40">
         <ChatInput />
       </div>
     </div>
