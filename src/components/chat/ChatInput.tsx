@@ -131,8 +131,8 @@ const ChatInput = () => {
 
   return (
     <>
-      <div className="border-t border-gray-100 bg-white py-1 px-4 sm:px-0">
-        <form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
+      <div className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-gray-200 shadow-lg px-2 sm:px-0">
+        <form onSubmit={handleSubmit} className="max-w-3xl mx-auto py-2">
           <div className="flex flex-col space-y-1">
             {/* Edit Mode Indicator */}
             {isEditMode && (
@@ -161,7 +161,9 @@ const ChatInput = () => {
                   <X className="h-4 w-4" />
                 </button>
                 <div className="pr-8">
-                  <p className="text-sm font-medium text-blue-800 mb-1">Extracted Text:</p>
+                  <p className="text-sm font-medium text-blue-800 mb-1">
+                    Extracted Text:
+                  </p>
                   <p className="text-sm text-gray-700 whitespace-pre-wrap max-h-32 overflow-y-auto">
                     {extractedText}
                   </p>
@@ -185,11 +187,11 @@ const ChatInput = () => {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder={
-                  isEditMode 
-                    ? "Edit your message..." 
-                    : sessionId 
-                      ? "Continue the conversation..." 
-                      : "Message AI tutor..."
+                  isEditMode
+                    ? "Edit your message..."
+                    : sessionId
+                    ? "Continue the conversation..."
+                    : "Message AI tutor..."
                 }
                 className="flex-1 bg-transparent border-none outline-none text-sm placeholder-gray-400"
                 disabled={isSubmitting}
@@ -201,8 +203,8 @@ const ChatInput = () => {
                 disabled={!message.trim() || isSubmitting}
                 className={`ml-2 rounded-full p-2 transition ${
                   message.trim() && !isSubmitting
-                    ? 'bg-black text-white hover:bg-gray-900'
-                    : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    ? "bg-black text-white hover:bg-gray-900"
+                    : "bg-gray-100 text-gray-400 cursor-not-allowed"
                 }`}
               >
                 {isSubmitting ? (
@@ -212,16 +214,25 @@ const ChatInput = () => {
                 )}
               </button>
             </div>
-            
+
             {/* Smart Action Buttons - hide in edit mode and remove camera button */}
             {!isEditMode && (
               <div className="flex items-center justify-center space-x-2 mx-auto">
                 <SmartIcon icon={<Plus className="h-4 w-4" />} />
                 <SmartIcon icon={<Globe className="h-4 w-4" />} />
                 <SmartIcon icon={<Lightbulb className="h-4 w-4" />} />
-                <SmartIcon icon={<FileText className="h-4 w-4" />} onClick={() => handleSmartButton('summarize')} />
-                <SmartIcon icon={<Calculator className="h-4 w-4" />} onClick={() => handleSmartButton('solve')} />
-                <SmartIcon icon={<MessageSquare className="h-4 w-4" />} onClick={() => handleSmartButton('explain')} />
+                <SmartIcon
+                  icon={<FileText className="h-4 w-4" />}
+                  onClick={() => handleSmartButton("summarize")}
+                />
+                <SmartIcon
+                  icon={<Calculator className="h-4 w-4" />}
+                  onClick={() => handleSmartButton("solve")}
+                />
+                <SmartIcon
+                  icon={<MessageSquare className="h-4 w-4" />}
+                  onClick={() => handleSmartButton("explain")}
+                />
                 <SmartIcon icon={<Mic className="h-4 w-4" />} />
                 <SmartIcon icon={<MoreHorizontal className="h-4 w-4" />} />
               </div>
@@ -230,13 +241,14 @@ const ChatInput = () => {
         </form>
 
         <div className="text-xs text-center text-gray-500 mt-1 mb-0">
-          Your AI tutor is here to help with explanations, not to provide answers for graded assignments.
+          Your AI tutor is here to help with explanations, not to provide
+          answers for graded assignments.
         </div>
       </div>
 
       {/* Image Upload Modal */}
       {showImageUpload && (
-        <ImageUpload 
+        <ImageUpload
           onTextExtracted={handleTextExtracted}
           onClose={() => setShowImageUpload(false)}
         />
