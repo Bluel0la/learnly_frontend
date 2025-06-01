@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import LoginForm from '@/components/auth/LoginForm';
 import SignupForm from '@/components/auth/SignupForm';
 import { useToast } from '@/hooks/use-toast';
-import { authApi, LoginRequest, SignupRequest } from '@/services/api';
+import { authApi, SignupRequest } from '@/services/api';
 import { secureTokenStorage } from '@/services/secureTokenStorage';
 
 const LoginPage = () => {
@@ -21,24 +21,10 @@ const LoginPage = () => {
 
   const defaultTab = searchParams.get('tab') === 'signup' ? 'signup' : 'login';
 
-  const handleLogin = async (data: { email?: string; password?: string }) => {
-    if (!data.email || !data.password) {
-      toast({
-        title: "Error",
-        description: "Email and password are required",
-        variant: "destructive"
-      });
-      return;
-    }
-
+  const handleLogin = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const loginData: LoginRequest = {
-        email: data.email,
-        password: data.password
-      };
-      
-      const response = await authApi.login(loginData);
+      const response = await authApi.login({ email, password });
       
       secureTokenStorage.setToken(response.access_token);
       
@@ -113,11 +99,11 @@ const LoginPage = () => {
               </TabsList>
               
               <TabsContent value="login" className="space-y-4">
-                <LoginForm onSubmit={handleLogin} isLoading={isLoading} />
+                <LoginForm onLogin={handleLogin} isLoading={isLoading} />
               </TabsContent>
               
               <TabsContent value="signup" className="space-y-4">
-                <SignupForm onSubmit={handleSignup} isLoading={isLoading} />
+                <SignupForm onSignup={handleSignup} isLoading={isLoading} />
               </TabsContent>
             </Tabs>
           </CardContent>

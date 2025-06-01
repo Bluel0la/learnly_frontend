@@ -1,7 +1,5 @@
 
 import React from 'react';
-import 'katex/dist/katex.min.css';
-import { InlineMath, BlockMath } from 'react-katex';
 
 interface LaTeXRendererProps {
   content: string;
@@ -10,9 +8,9 @@ interface LaTeXRendererProps {
 const LaTeXRenderer: React.FC<LaTeXRendererProps> = ({ content }) => {
   // Function to process and render LaTeX content
   const renderContent = (text: string) => {
-    // Handle block math ($$...$$)
+    // Handle block math ($$...$$) - for now, just display as formatted text
     const blockMathRegex = /\$\$([\s\S]*?)\$\$/g;
-    // Handle inline math ($...$)
+    // Handle inline math ($...$) - for now, just display as formatted text
     const inlineMathRegex = /\$([^$\n]+?)\$/g;
     
     let processedContent = text;
@@ -40,21 +38,14 @@ const LaTeXRenderer: React.FC<LaTeXRendererProps> = ({ content }) => {
         parts.push(...renderInlineContent(textBefore, `text-${index}-before`));
       }
       
-      // Add the math block
-      try {
-        parts.push(
-          <div key={`block-${index}`} className="my-4 overflow-x-auto">
-            <BlockMath math={blockMatch.content.trim()} />
-          </div>
-        );
-      } catch (error) {
-        console.error('LaTeX block render error:', error);
-        parts.push(
-          <div key={`block-error-${index}`} className="my-4 p-2 bg-red-50 border border-red-200 rounded">
-            <code className="text-red-600">{blockMatch.match}</code>
-          </div>
-        );
-      }
+      // Add the math block as formatted text for now
+      parts.push(
+        <div key={`block-${index}`} className="my-4 p-4 bg-blue-50 border border-blue-200 rounded overflow-x-auto">
+          <pre className="whitespace-pre-wrap font-mono text-sm">
+            {blockMatch.content.trim()}
+          </pre>
+        </div>
+      );
       
       lastIndex = blockMatch.end;
     });
@@ -89,19 +80,12 @@ const LaTeXRenderer: React.FC<LaTeXRendererProps> = ({ content }) => {
         }
       }
       
-      // Add the inline math
-      try {
-        parts.push(
-          <InlineMath key={`${keyPrefix}-inline-${matchIndex}`} math={match[1].trim()} />
-        );
-      } catch (error) {
-        console.error('LaTeX inline render error:', error);
-        parts.push(
-          <code key={`${keyPrefix}-inline-error-${matchIndex}`} className="bg-red-50 text-red-600 px-1 rounded">
-            {match[0]}
-          </code>
-        );
-      }
+      // Add the inline math as formatted text for now
+      parts.push(
+        <code key={`${keyPrefix}-inline-${matchIndex}`} className="bg-blue-100 text-blue-800 px-1 rounded font-mono text-sm">
+          {match[1].trim()}
+        </code>
+      );
       
       lastIndex = match.index + match[0].length;
       matchIndex++;
