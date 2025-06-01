@@ -1,13 +1,28 @@
 
 import React from 'react';
 import 'katex/dist/katex.min.css';
-import { InlineMath, BlockMath } from 'react-katex';
+import katex from 'katex';
 
 interface LaTeXRendererProps {
   content: string;
 }
 
 const LaTeXRenderer: React.FC<LaTeXRendererProps> = ({ content }) => {
+  // Function to render LaTeX using KaTeX directly
+  const renderLatex = (latex: string, displayMode: boolean = false) => {
+    try {
+      return katex.renderToString(latex, {
+        displayMode,
+        throwOnError: false,
+        errorColor: '#cc0000',
+        strict: 'warn'
+      });
+    } catch (error) {
+      console.error('LaTeX render error:', error);
+      return `<span style="color: #cc0000;">${latex}</span>`;
+    }
+  };
+
   // Function to process and render LaTeX content
   const renderContent = (text: string) => {
     // Handle block math ($$...$$) first
@@ -26,21 +41,15 @@ const LaTeXRenderer: React.FC<LaTeXRendererProps> = ({ content }) => {
       }
       
       // Add the math block
-      try {
-        const mathContent = match[1].trim();
-        parts.push(
-          <div key={`block-${blockIndex}`} className="my-4 overflow-x-auto">
-            <BlockMath math={mathContent} />
-          </div>
-        );
-      } catch (error) {
-        console.error('LaTeX block render error:', error);
-        parts.push(
-          <div key={`block-error-${blockIndex}`} className="my-4 p-2 bg-red-50 border border-red-200 rounded">
-            <code className="text-red-600">{match[0]}</code>
-          </div>
-        );
-      }
+      const mathContent = match[1].trim();
+      const renderedMath = renderLatex(mathContent, true);
+      parts.push(
+        <div 
+          key={`block-${blockIndex}`} 
+          className="my-4 overflow-x-auto text-center"
+          dangerouslySetInnerHTML={{ __html: renderedMath }}
+        />
+      );
       
       lastIndex = match.index + match[0].length;
       blockIndex++;
@@ -77,19 +86,14 @@ const LaTeXRenderer: React.FC<LaTeXRendererProps> = ({ content }) => {
       }
       
       // Add the inline math
-      try {
-        const mathContent = match[1].trim();
-        parts.push(
-          <InlineMath key={`${keyPrefix}-inline-${matchIndex}`} math={mathContent} />
-        );
-      } catch (error) {
-        console.error('LaTeX inline render error:', error);
-        parts.push(
-          <code key={`${keyPrefix}-inline-error-${matchIndex}`} className="bg-red-50 text-red-600 px-1 rounded">
-            {match[0]}
-          </code>
-        );
-      }
+      const mathContent = match[1].trim();
+      const renderedMath = renderLatex(mathContent, false);
+      parts.push(
+        <span 
+          key={`${keyPrefix}-inline-${matchIndex}`}
+          dangerouslySetInnerHTML={{ __html: renderedMath }}
+        />
+      );
       
       lastIndex = match.index + match[0].length;
       matchIndex++;
