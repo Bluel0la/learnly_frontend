@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useParams } from 'react-router-dom';
@@ -190,59 +191,61 @@ const ChatMessages = ({ sessionId: propSessionId }: ChatMessagesProps) => {
   };
 
   return (
-    <ScrollArea className="h-full">
-      <div className="py-4">
-        {isLoading ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="animate-pulse text-gray-500">Loading conversation...</div>
-          </div>
-        ) : messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full">
-            <div className="text-center text-gray-500">
-              <p className="text-lg font-semibold mb-4">Start a new conversation</p>
-              <div className="mb-4">
-                <TypingAnimation />
-              </div>
+    <div className="flex flex-col h-full">
+      <ScrollArea className="flex-1 px-4">
+        <div className="py-4">
+          {isLoading ? (
+            <div className="flex items-center justify-center h-full min-h-[400px]">
+              <div className="animate-pulse text-gray-500">Loading conversation...</div>
             </div>
-          </div>
-        ) : (
-          <div className="max-w-3xl mx-auto space-y-4">
-            {messages.map((message) => (
-              <div key={message.id} className="flex flex-col">
-                <div className={getMessageClassName(message)}>
-                  <div className="mb-1 flex justify-between items-center">
-                    <span className="text-xs text-gray-500">
-                      {message.type === 'user' ? 'You' : 'AI Assistant'}
-                    </span>
-                    <span className="text-xs text-gray-400">
-                      {formatTime(message.timestamp)}
-                    </span>
-                  </div>
-                  <div className="whitespace-pre-line">
-                    {hasLaTeX(message.content) ? (
-                      <LaTeXRenderer content={message.content} />
-                    ) : (
-                      message.content
-                    )}
-                  </div>
-                  {message.type === 'ai' && (
-                    <MessageActions
-                      content={message.content}
-                      originalPrompt={message.originalPrompt || ''}
-                      messageId={message.id}
-                      onCopy={handleCopy}
-                      onRedo={handleRedo}
-                      onEdit={handleEdit}
-                    />
-                  )}
+          ) : messages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full min-h-[400px]">
+              <div className="text-center text-gray-500">
+                <p className="text-lg font-semibold mb-4">Start a new conversation</p>
+                <div className="mb-4">
+                  <TypingAnimation />
                 </div>
               </div>
-            ))}
-            <div ref={messagesEndRef} />
-          </div>
-        )}
-      </div>
-    </ScrollArea>
+            </div>
+          ) : (
+            <div className="max-w-3xl mx-auto space-y-4 pb-4">
+              {messages.map((message) => (
+                <div key={message.id} className="flex flex-col">
+                  <div className={getMessageClassName(message)}>
+                    <div className="mb-1 flex justify-between items-center">
+                      <span className="text-xs text-gray-500">
+                        {message.type === 'user' ? 'You' : 'AI Assistant'}
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        {formatTime(message.timestamp)}
+                      </span>
+                    </div>
+                    <div className="whitespace-pre-line">
+                      {hasLaTeX(message.content) ? (
+                        <LaTeXRenderer content={message.content} />
+                      ) : (
+                        message.content
+                      )}
+                    </div>
+                    {message.type === 'ai' && (
+                      <MessageActions
+                        content={message.content}
+                        originalPrompt={message.originalPrompt || ''}
+                        messageId={message.id}
+                        onCopy={handleCopy}
+                        onRedo={handleRedo}
+                        onEdit={handleEdit}
+                      />
+                    )}
+                  </div>
+                </div>
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
+          )}
+        </div>
+      </ScrollArea>
+    </div>
   );
 };
 
