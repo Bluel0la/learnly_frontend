@@ -2,8 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { FileText, Calculator, MessageSquare, Bookmark, Send, Mic, Globe, Plus, ArrowUp, Lightbulb, MoreHorizontal, Camera, X } from 'lucide-react';
+import { Plus, Mic, ArrowUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { chatApi } from '@/services/api';
 import ImageUpload from './ImageUpload';
@@ -87,36 +86,6 @@ const ChatInput = () => {
     }
   };
 
-  const handleCancelEdit = () => {
-    setMessage('');
-    setIsEditMode(false);
-    setEditingMessageId(null);
-  };
-
-  const handleSmartButton = (action: string) => {
-    let actionMsg = '';
-    
-    switch (action) {
-      case 'summarize':
-        actionMsg = 'Please summarize this for me: ';
-        break;
-      case 'solve':
-        actionMsg = 'Please solve this math problem: ';
-        break;
-      case 'explain':
-        actionMsg = 'Can you explain this concept: ';
-        break;
-      case 'save':
-        toast({
-          title: "Save feature",
-          description: "This feature is coming soon"
-        });
-        return;
-    }
-    
-    setMessage(prev => `${actionMsg}${prev}`);
-  };
-
   const handleTextExtracted = (extractedTextResult: string) => {
     setExtractedText(extractedTextResult);
     toast({
@@ -125,114 +94,57 @@ const ChatInput = () => {
     });
   };
 
-  const handleCloseExtractedText = () => {
-    setExtractedText('');
-  };
-
   return (
-    <>
-      <div className="border-t border-gray-100 bg-white py-1 px-4 sm:px-0">
-        <form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
-          <div className="flex flex-col space-y-1">
-            {/* Edit Mode Indicator */}
-            {isEditMode && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2 mb-2 flex items-center justify-between">
-                <span className="text-sm text-yellow-800">
-                  Editing message - make your changes and press send
-                </span>
-                <button
-                  type="button"
-                  onClick={handleCancelEdit}
-                  className="text-yellow-600 hover:text-yellow-800 transition-colors"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-            )}
-
-            {/* Extracted Text Bubble */}
-            {extractedText && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-2 relative">
-                <button
-                  type="button"
-                  onClick={handleCloseExtractedText}
-                  className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-                <div className="pr-8">
-                  <p className="text-sm font-medium text-blue-800 mb-1">Extracted Text:</p>
-                  <p className="text-sm text-gray-700 whitespace-pre-wrap max-h-32 overflow-y-auto">
-                    {extractedText}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Input Field */}
-            <div className="flex items-center bg-white border border-gray-200 rounded-full shadow-sm px-3 py-2 focus-within:ring-2 focus-within:ring-primary transition-all">
-              {/* Image Upload Button */}
-              <button
-                type="button"
-                onClick={() => setShowImageUpload(true)}
-                className="mr-2 hover:bg-gray-100 rounded-full p-1 transition text-gray-500 hover:text-gray-700"
-              >
-                <Camera className="h-5 w-5" />
-              </button>
-
-              <input
-                type="text"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder={
-                  isEditMode 
-                    ? "Edit your message..." 
-                    : sessionId 
-                      ? "Continue the conversation..." 
-                      : "Message AI tutor..."
-                }
-                className="flex-1 bg-transparent border-none outline-none text-sm placeholder-gray-400"
-                disabled={isSubmitting}
-              />
-
-              {/* Send Button */}
-              <button
-                type="submit"
-                disabled={!message.trim() || isSubmitting}
-                className={`ml-2 rounded-full p-2 transition ${
-                  message.trim() && !isSubmitting
-                    ? 'bg-black text-white hover:bg-gray-900'
-                    : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                }`}
-              >
-                {isSubmitting ? (
-                  <div className="h-5 w-5 border-2 border-t-transparent border-white rounded-full animate-spin"></div>
-                ) : (
-                  <ArrowUp className="h-5 w-5" />
-                )}
-              </button>
-            </div>
-            
-            {/* Smart Action Buttons - hide in edit mode and remove camera button */}
-            {!isEditMode && (
-              <div className="flex items-center justify-center space-x-2 mx-auto">
-                <SmartIcon icon={<Plus className="h-4 w-4" />} />
-                <SmartIcon icon={<Globe className="h-4 w-4" />} />
-                <SmartIcon icon={<Lightbulb className="h-4 w-4" />} />
-                <SmartIcon icon={<FileText className="h-4 w-4" />} onClick={() => handleSmartButton('summarize')} />
-                <SmartIcon icon={<Calculator className="h-4 w-4" />} onClick={() => handleSmartButton('solve')} />
-                <SmartIcon icon={<MessageSquare className="h-4 w-4" />} onClick={() => handleSmartButton('explain')} />
-                <SmartIcon icon={<Mic className="h-4 w-4" />} />
-                <SmartIcon icon={<MoreHorizontal className="h-4 w-4" />} />
-              </div>
-            )}
+    <div className="w-full max-w-4xl mx-auto px-4 py-4">
+      <form onSubmit={handleSubmit}>
+        <div className="flex items-center gap-2 p-3 rounded-full border shadow-sm bg-white">
+          {/* Left Icons */}
+          <div className="flex items-center gap-2 pl-2 pr-1">
+            <button
+              type="button"
+              onClick={() => setShowImageUpload(true)}
+              className="text-gray-500 hover:text-gray-700 cursor-pointer"
+            >
+              <Plus size={20} />
+            </button>
           </div>
-        </form>
 
-        <div className="text-xs text-center text-gray-500 mt-1 mb-0">
-          Your AI tutor is here to help with explanations, not to provide answers for graded assignments.
+          {/* Input */}
+          <input
+            type="text"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Ask anything"
+            className="flex-1 px-3 py-2 text-sm focus:outline-none bg-transparent"
+            disabled={isSubmitting}
+          />
+
+          {/* Microphone */}
+          <button
+            type="button"
+            className="text-gray-500 hover:text-gray-700 cursor-pointer mr-2"
+          >
+            <Mic size={20} />
+          </button>
+
+          {/* Send Button */}
+          <button
+            type="submit"
+            disabled={!message.trim() || isSubmitting}
+            className={`p-2 rounded-full transition ${
+              message.trim() && !isSubmitting
+                ? 'bg-black text-white hover:bg-gray-800'
+                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+            }`}
+          >
+            {isSubmitting ? (
+              <div className="h-5 w-5 border-2 border-t-transparent border-white rounded-full animate-spin"></div>
+            ) : (
+              <ArrowUp size={16} />
+            )}
+          </button>
         </div>
-      </div>
+      </form>
 
       {/* Image Upload Modal */}
       {showImageUpload && (
@@ -241,26 +153,7 @@ const ChatInput = () => {
           onClose={() => setShowImageUpload(false)}
         />
       )}
-    </>
-  );
-};
-
-const SmartIcon = ({
-  icon,
-  onClick,
-}: {
-  icon: React.ReactNode;
-  onClick?: () => void;
-}) => {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="hover:bg-gray-100 rounded-full p-1 transition"
-      disabled={false}
-    >
-      {icon}
-    </button>
+    </div>
   );
 };
 
