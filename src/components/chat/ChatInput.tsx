@@ -95,64 +95,66 @@ const ChatInput = () => {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 py-4">
-      <form onSubmit={handleSubmit}>
-        <div className="flex items-center gap-2 p-3 rounded-full border shadow-sm bg-white">
-          {/* Left Icons */}
-          <div className="flex items-center gap-2 pl-2 pr-1">
+    <div className="border-t bg-white p-4">
+      <div className="max-w-4xl mx-auto">
+        <form onSubmit={handleSubmit}>
+          <div className="flex items-center gap-2 p-3 rounded-full border shadow-sm bg-white">
+            {/* Left Icons */}
+            <div className="flex items-center gap-2 pl-2 pr-1">
+              <button
+                type="button"
+                onClick={() => setShowImageUpload(true)}
+                className="text-gray-500 hover:text-gray-700 cursor-pointer"
+              >
+                <Plus size={20} />
+              </button>
+            </div>
+
+            {/* Input */}
+            <input
+              type="text"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Ask anything"
+              className="flex-1 px-3 py-2 text-sm focus:outline-none bg-transparent"
+              disabled={isSubmitting}
+            />
+
+            {/* Microphone */}
             <button
               type="button"
-              onClick={() => setShowImageUpload(true)}
-              className="text-gray-500 hover:text-gray-700 cursor-pointer"
+              className="text-gray-500 hover:text-gray-700 cursor-pointer mr-2"
             >
-              <Plus size={20} />
+              <Mic size={20} />
+            </button>
+
+            {/* Send Button */}
+            <button
+              type="submit"
+              disabled={!message.trim() || isSubmitting}
+              className={`p-2 rounded-full transition ${
+                message.trim() && !isSubmitting
+                  ? 'bg-black text-white hover:bg-gray-800'
+                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+              }`}
+            >
+              {isSubmitting ? (
+                <div className="h-5 w-5 border-2 border-t-transparent border-white rounded-full animate-spin"></div>
+              ) : (
+                <ArrowUp size={16} />
+              )}
             </button>
           </div>
+        </form>
 
-          {/* Input */}
-          <input
-            type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Ask anything"
-            className="flex-1 px-3 py-2 text-sm focus:outline-none bg-transparent"
-            disabled={isSubmitting}
+        {/* Image Upload Modal */}
+        {showImageUpload && (
+          <ImageUpload 
+            onTextExtracted={handleTextExtracted}
+            onClose={() => setShowImageUpload(false)}
           />
-
-          {/* Microphone */}
-          <button
-            type="button"
-            className="text-gray-500 hover:text-gray-700 cursor-pointer mr-2"
-          >
-            <Mic size={20} />
-          </button>
-
-          {/* Send Button */}
-          <button
-            type="submit"
-            disabled={!message.trim() || isSubmitting}
-            className={`p-2 rounded-full transition ${
-              message.trim() && !isSubmitting
-                ? 'bg-black text-white hover:bg-gray-800'
-                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-            }`}
-          >
-            {isSubmitting ? (
-              <div className="h-5 w-5 border-2 border-t-transparent border-white rounded-full animate-spin"></div>
-            ) : (
-              <ArrowUp size={16} />
-            )}
-          </button>
-        </div>
-      </form>
-
-      {/* Image Upload Modal */}
-      {showImageUpload && (
-        <ImageUpload 
-          onTextExtracted={handleTextExtracted}
-          onClose={() => setShowImageUpload(false)}
-        />
-      )}
+        )}
+      </div>
     </div>
   );
 };

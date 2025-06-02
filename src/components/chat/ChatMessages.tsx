@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useParams } from 'react-router-dom';
@@ -188,8 +189,8 @@ const ChatMessages = ({ sessionId: propSessionId }: ChatMessagesProps) => {
 
   return (
     <div className="h-full flex flex-col">
-      <ScrollArea className="flex-1">
-        <div className="p-4">
+      <ScrollArea className="flex-1 h-full">
+        <div className="p-6">
           {isLoading ? (
             <div className="flex items-center justify-center h-64">
               <div className="animate-pulse text-gray-500">Loading conversation...</div>
@@ -204,7 +205,7 @@ const ChatMessages = ({ sessionId: propSessionId }: ChatMessagesProps) => {
               </div>
             </div>
           ) : (
-            <div className="max-w-3xl mx-auto space-y-4">
+            <div className="max-w-4xl mx-auto space-y-4">
               {messages.map((message) => (
                 <div key={message.id} className="flex flex-col">
                   <div className={getMessageClassName(message)}>
