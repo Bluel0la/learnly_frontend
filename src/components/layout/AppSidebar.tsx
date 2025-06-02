@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { Search, BookOpen, Calculator, FileText, MessageSquare, Library, HelpCircle, User, Plus } from 'lucide-react';
+import { Search, BookOpen, Calculator, FileText, MessageSquare, Library, HelpCircle, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ChatSession, chatApi } from '@/services/api';
@@ -116,7 +116,7 @@ const AppSidebar = () => {
         <div className="px-2">
           <SidebarInput
             type="text"
-            placeholder="Search chats..."
+            placeholder="Search sessions..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -124,11 +124,18 @@ const AppSidebar = () => {
       </SidebarHeader>
       
       <SidebarContent>
-        {/* Tools Section */}
+        {/* Navigation Section */}
         <SidebarGroup>
-          <SidebarGroupLabel>Tools</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={isActive("/chat")}>
+                  <Link to="/chat">
+                    <MessageSquare className="h-5 w-5" />
+                    <span>Chat</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={isActive("/flashcards")}>
                   <Link to="/flashcards">
@@ -157,9 +164,9 @@ const AppSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Recent Chats Section */}
+        {/* Recent Sessions Section */}
         <SidebarGroup>
-          <SidebarGroupLabel>Recent Chats</SidebarGroupLabel>
+          <SidebarGroupLabel>Recent Sessions</SidebarGroupLabel>
           <SidebarGroupContent>
             {isLoading ? (
               <div className="flex justify-center py-4">
@@ -190,23 +197,6 @@ const AppSidebar = () => {
                 )}
               </SidebarMenu>
             )}
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Account Section */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Account</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={isActive("/profile")}>
-                  <Link to="/profile">
-                    <User className="h-5 w-5" />
-                    <span>Profile</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

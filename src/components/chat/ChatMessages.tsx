@@ -199,9 +199,9 @@ const ChatMessages = ({ sessionId: propSessionId }: ChatMessagesProps) => {
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <ScrollArea className="flex-1">
-        <div className="p-6">
+    <div className="flex flex-col h-full max-w-full">
+      <ScrollArea className="flex-1 h-full">
+        <div className="p-4 max-w-full">
           {isLoading ? (
             <div className="flex items-center justify-center h-64">
               <div className="animate-pulse text-gray-500">Loading conversation...</div>
@@ -218,8 +218,8 @@ const ChatMessages = ({ sessionId: propSessionId }: ChatMessagesProps) => {
           ) : (
             <div className="max-w-4xl mx-auto space-y-4">
               {messages.map((message) => (
-                <div key={message.id} className="flex flex-col">
-                  <div className={getMessageClassName(message)}>
+                <div key={message.id} className="flex flex-col max-w-full">
+                  <div className={`${getMessageClassName(message)} max-w-full overflow-hidden`}>
                     <div className="mb-1 flex justify-between items-center">
                       <span className="text-xs text-gray-500">
                         {message.type === 'user' ? 'You' : 'AI Assistant'}
@@ -228,7 +228,7 @@ const ChatMessages = ({ sessionId: propSessionId }: ChatMessagesProps) => {
                         {formatTime(message.timestamp)}
                       </span>
                     </div>
-                    <div className="whitespace-pre-line">
+                    <div className="whitespace-pre-line break-words max-w-full overflow-hidden">
                       {hasLaTeX(message.content) ? (
                         <LaTeXRenderer content={message.content} />
                       ) : (

@@ -40,13 +40,14 @@ const LaTeXRenderer: React.FC<LaTeXRendererProps> = ({ content }) => {
         parts.push(...renderInlineContent(textBefore, `text-${blockIndex}-before`));
       }
       
-      // Add the math block
+      // Add the math block with proper constraints
       const mathContent = match[1].trim();
       const renderedMath = renderLatex(mathContent, true);
       parts.push(
         <div 
           key={`block-${blockIndex}`} 
-          className="my-4 overflow-x-auto text-center"
+          className="my-2 overflow-x-auto text-center max-w-full"
+          style={{ wordBreak: 'break-word' }}
           dangerouslySetInnerHTML={{ __html: renderedMath }}
         />
       );
@@ -85,12 +86,14 @@ const LaTeXRenderer: React.FC<LaTeXRendererProps> = ({ content }) => {
         }
       }
       
-      // Add the inline math
+      // Add the inline math with proper constraints
       const mathContent = match[1].trim();
       const renderedMath = renderLatex(mathContent, false);
       parts.push(
         <span 
           key={`${keyPrefix}-inline-${matchIndex}`}
+          className="inline-block max-w-full"
+          style={{ wordBreak: 'break-word' }}
           dangerouslySetInnerHTML={{ __html: renderedMath }}
         />
       );
@@ -127,7 +130,7 @@ const LaTeXRenderer: React.FC<LaTeXRendererProps> = ({ content }) => {
   };
   
   return (
-    <div className="latex-content">
+    <div className="latex-content max-w-full break-words">
       {renderContent(content)}
     </div>
   );

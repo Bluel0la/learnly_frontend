@@ -1,10 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Settings, Moon, Sun, User, LogIn, LogOut, Menu } from 'lucide-react';
+import { Moon, Sun, User, LogIn, Menu } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { tokenStorage, authApi } from '@/services/api';
+import { tokenStorage } from '@/services/api';
 
 const Navbar = () => {
   const { toast } = useToast();
@@ -37,27 +38,6 @@ const Navbar = () => {
     });
     // Theme toggle functionality would be implemented here
   };
-  
-  const handleLogout = async () => {
-    try {
-      await authApi.logout();
-      setIsAuthenticated(false);
-      toast({
-        title: "Logged out successfully",
-        description: "You've been logged out of your account"
-      });
-      navigate('/');
-    } catch (error) {
-      toast({
-        title: "Logout failed",
-        description: "An error occurred while logging out.",
-        variant: "destructive"
-      });
-      // Still remove token from storage if the API call fails
-      tokenStorage.removeToken();
-      setIsAuthenticated(false);
-    }
-  };
 
   return (
     <nav className="w-full bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-10">
@@ -76,12 +56,6 @@ const Navbar = () => {
         <div className="hidden md:flex items-center space-x-2">
           {isAuthenticated ? (
             <>
-              <Button variant="ghost" size="icon" onClick={handleLogout}>
-                <LogOut className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon" onClick={() => toast({ title: "Settings" })}>
-                <Settings className="h-5 w-5" />
-              </Button>
               <Button variant="ghost" size="icon" onClick={toggleTheme}>
                 {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               </Button>
@@ -144,14 +118,7 @@ const Navbar = () => {
                   <Button variant="outline" size="icon" onClick={toggleTheme}>
                     {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
                   </Button>
-                  <Button variant="outline" size="icon" onClick={() => toast({ title: "Settings" })}>
-                    <Settings className="h-5 w-5" />
-                  </Button>
-                  {isAuthenticated ? (
-                    <Button variant="outline" size="icon" onClick={handleLogout}>
-                      <LogOut className="h-5 w-5" />
-                    </Button>
-                  ) : (
+                  {!isAuthenticated && (
                     <Button variant="outline" size="icon" asChild>
                       <Link to="/login">
                         <LogIn className="h-5 w-5" />
