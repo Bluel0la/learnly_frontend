@@ -84,23 +84,28 @@ const ChatMessages = ({ sessionId: propSessionId }: ChatMessagesProps) => {
   const [messages, setMessages] = useState<UIMessage[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   
+  console.log('ChatMessages: sessionId =', sessionId);
+  console.log('ChatMessages: messages =', messages);
+  
   // Load messages based on sessionId
   useEffect(() => {
     if (sessionId) {
+      console.log('Loading messages for session:', sessionId);
       setIsLoading(true);
       
       chatApi.getSessionMessages(sessionId)
         .then((chatMessages) => {
+          console.log('Received chat messages:', chatMessages);
           const formattedMessages = chatMessages.flatMap((message, index) => {
             const userMessage: UIMessage = {
-              id: `${index}a`,
+              id: `${sessionId}-${index}a`,
               type: 'user',
               content: message.query,
               timestamp: new Date(message.timestamp)
             };
             
             const aiMessage: UIMessage = {
-              id: `${index}b`,
+              id: `${sessionId}-${index}b`,
               type: 'ai',
               content: message.response,
               timestamp: new Date(message.timestamp),
@@ -110,6 +115,7 @@ const ChatMessages = ({ sessionId: propSessionId }: ChatMessagesProps) => {
             return [userMessage, aiMessage];
           });
           
+          console.log('Formatted messages:', formattedMessages);
           setMessages(formattedMessages);
         })
         .catch((error) => {
@@ -119,20 +125,25 @@ const ChatMessages = ({ sessionId: propSessionId }: ChatMessagesProps) => {
             description: "Failed to load chat messages",
             variant: "destructive"
           });
+          setMessages([]); // Clear messages on error
         })
         .finally(() => {
           setIsLoading(false);
         });
     } else {
       // If no sessionId, start with empty chat
+      console.log('No sessionId, clearing messages');
       setMessages([]);
+      setIsLoading(false);
     }
   }, [sessionId, toast]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messages.length > 0) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
   }, [messages]);
 
   const getMessageClassName = (message: UIMessage) => {
@@ -188,8 +199,8 @@ const ChatMessages = ({ sessionId: propSessionId }: ChatMessagesProps) => {
   };
 
   return (
-    <div className="h-full flex flex-col">
-      <ScrollArea className="flex-1 h-full">
+    <div className="flex flex-col h-full">
+      <ScrollArea className="flex-1">
         <div className="p-6">
           {isLoading ? (
             <div className="flex items-center justify-center h-64">
