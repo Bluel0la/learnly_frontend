@@ -1,8 +1,8 @@
 
 import React, { useEffect, useState } from 'react';
-import { Search, BookOpen, Calculator, FileText, MessageSquare, Library, HelpCircle, User } from 'lucide-react';
+import { Search, BookOpen, Calculator, FileText, MessageSquare, Library, HelpCircle, User, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ChatSession, chatApi } from '@/services/api';
 import {
   Sidebar,
@@ -20,6 +20,7 @@ import {
 const AppSidebar = () => {
   const { toast } = useToast();
   const location = useLocation();
+  const navigate = useNavigate();
   
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -79,16 +80,19 @@ const AppSidebar = () => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 1) return 'Today';
+    if (diffDays === 2) return 'Yesterday';
+    if (diffDays <= 7) return `${diffDays - 1} days ago`;
     return date.toLocaleDateString();
   };
 
-  const navigationItems = [
-    { title: "Chat", url: "/chat", icon: MessageSquare },
-    { title: "Flashcards", url: "/flashcards", icon: BookOpen },
-    { title: "Quizzes", url: "/quizzes", icon: HelpCircle },
-    { title: "Resources", url: "/resources", icon: Library },
-    { title: "Profile", url: "/profile", icon: User },
-  ];
+  const handleNewChat = () => {
+    navigate('/chat');
+  };
 
   return (
     <Sidebar>
@@ -97,10 +101,22 @@ const AppSidebar = () => {
           <BookOpen className="h-6 w-6 text-primary" />
           <span className="font-bold text-lg">Learnly</span>
         </div>
+        
+        {/* New Chat Button */}
+        <div className="px-2">
+          <SidebarMenuButton 
+            onClick={handleNewChat}
+            className="w-full justify-start gap-2 h-10 bg-primary/10 hover:bg-primary/20 text-primary font-medium"
+          >
+            <Plus className="h-4 w-4" />
+            <span>New chat</span>
+          </SidebarMenuButton>
+        </div>
+
         <div className="px-2">
           <SidebarInput
             type="text"
-            placeholder="Search sessions..."
+            placeholder="Search chats..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -108,25 +124,42 @@ const AppSidebar = () => {
       </SidebarHeader>
       
       <SidebarContent>
+        {/* Tools Section */}
         <SidebarGroup>
+          <SidebarGroupLabel>Tools</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navigationItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                    <Link to={item.url}>
-                      <item.icon className="h-5 w-5" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={isActive("/flashcards")}>
+                  <Link to="/flashcards">
+                    <BookOpen className="h-5 w-5" />
+                    <span>Flashcards</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={isActive("/quizzes")}>
+                  <Link to="/quizzes">
+                    <HelpCircle className="h-5 w-5" />
+                    <span>Quizzes</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={isActive("/resources")}>
+                  <Link to="/resources">
+                    <Library className="h-5 w-5" />
+                    <span>Resources</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {/* Recent Chats Section */}
         <SidebarGroup>
-          <SidebarGroupLabel>Recent Sessions</SidebarGroupLabel>
+          <SidebarGroupLabel>Recent Chats</SidebarGroupLabel>
           <SidebarGroupContent>
             {isLoading ? (
               <div className="flex justify-center py-4">
@@ -157,6 +190,23 @@ const AppSidebar = () => {
                 )}
               </SidebarMenu>
             )}
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Account Section */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Account</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={isActive("/profile")}>
+                  <Link to="/profile">
+                    <User className="h-5 w-5" />
+                    <span>Profile</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
