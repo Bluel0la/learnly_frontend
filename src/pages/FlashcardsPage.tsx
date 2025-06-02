@@ -1,112 +1,222 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { Plus, BookOpen, Play, Upload } from 'lucide-react';
+import { FlashcardDeck, flashcardApi } from '@/services/flashcardApi';
+import FlashcardPractice from '@/components/flashcards/FlashcardPractice';
 
 const FlashcardsPage = () => {
   const { toast } = useToast();
+  const [decks, setDecks] = useState<FlashcardDeck[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentView, setCurrentView] = useState<'decks' | 'practice'>('decks');
+  const [selectedDeckId, setSelectedDeckId] = useState<string | null>(null);
+  const [newDeckTitle, setNewDeckTitle] = useState('');
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+
+  const loadDecks = async () => {
+    try {
+      setIsLoading(true);
+      const userDecks = await flashcardApi.getDecks();
+      setDecks(userDecks);
+    } catch (error) {
+      console.error('Error loading decks:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load flashcard decks",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCreateDeck = async () => {
+    if (!newDeckTitle.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a deck title",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      await flashcardApi.createDeck(newDeckTitle);
+      toast({
+        title: "Success",
+        description: "Deck created successfully"
+      });
+      setNewDeckTitle('');
+      setIsCreateDialogOpen(false);
+      loadDecks();
+    } catch (error) {
+      console.error('Error creating deck:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create deck",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleStartPractice = (deckId: string) => {
+    setSelectedDeckId(deckId);
+    setCurrentView('practice');
+  };
+
+  const handleBackToDecks = () => {
+    setCurrentView('decks');
+    setSelectedDeckId(null);
+    loadDecks(); // Refresh decks to get updated card counts
+  };
+
+  useEffect(() => {
+    loadDecks();
+  }, []);
+
+  if (currentView === 'practice' && selectedDeckId) {
+    return (
+      <div className="container px-4 py-6 md:py-8">
+        <div className="mb-4">
+          <Button onClick={handleBackToDecks} variant="outline">
+            ← Back to Decks
+          </Button>
+        </div>
+        <FlashcardPractice
+          deckId={selectedDeckId}
+          onComplete={handleBackToDecks}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="container px-4 py-6 md:py-8">
-      <h1 className="text-2xl md:text-3xl font-serif font-bold mb-4 md:mb-6">Flashcards</h1>
-      
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-        <FlashcardDeck 
-          title="Calculus Fundamentals" 
-          cardCount={15} 
-          progress={0.6} 
-          tags={["Math", "Calculus"]} 
-        />
-        <FlashcardDeck 
-          title="Biology Terminology" 
-          cardCount={32} 
-          progress={0.25} 
-          tags={["Biology", "Science"]} 
-        />
-        <FlashcardDeck 
-          title="World History" 
-          cardCount={24} 
-          progress={0.8} 
-          tags={["History", "Social Studies"]} 
-        />
+      <div className="flex justify-between items-center mb-4 md:mb-6">
+        <h1 className="text-2xl md:text-3xl font-serif font-bold">Flashcards</h1>
         
-        {/* New deck card */}
-        <Card className="border-dashed border-2 border-gray-300 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer">
-          <CardContent className="flex items-center justify-center h-full p-4 md:p-6">
-            <Button 
-              variant="ghost" 
-              className="text-gray-500 hover:text-primary"
-              onClick={() => toast({ title: "Create new flashcard deck" })}
-            >
-              + Create New Deck
+        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              New Deck
             </Button>
-          </CardContent>
-        </Card>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create New Deck</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <Input
+                placeholder="Enter deck title..."
+                value={newDeckTitle}
+                onChange={(e) => setNewDeckTitle(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleCreateDeck()}
+              />
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleCreateDeck}>
+                  Create Deck
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
       
-      <div className="mt-8 md:mt-12">
-        <h2 className="text-xl md:text-2xl font-serif font-bold mb-3 md:mb-4">Recently Studied</h2>
-        <Card>
-          <CardContent className="p-4 md:p-6">
-            <p className="text-center text-gray-500">No recently studied flashcards</p>
-          </CardContent>
-        </Card>
-      </div>
+      {isLoading ? (
+        <div className="flex justify-center py-8">
+          <div className="h-8 w-8 border-2 border-t-transparent border-primary rounded-full animate-spin"></div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          {decks.map((deck) => (
+            <FlashcardDeckCard
+              key={deck.deck_id}
+              deck={deck}
+              onStartPractice={() => handleStartPractice(deck.deck_id)}
+            />
+          ))}
+          
+          {decks.length === 0 && (
+            <Card className="col-span-full">
+              <CardContent className="p-8 text-center">
+                <BookOpen className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                <h3 className="text-lg font-medium mb-2">No flashcard decks yet</h3>
+                <p className="text-muted-foreground mb-4">
+                  Create your first deck to start studying with flashcards
+                </p>
+                <Button onClick={() => setIsCreateDialogOpen(true)}>
+                  Create Your First Deck
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
     </div>
   );
 };
 
-const FlashcardDeck = ({ 
-  title, 
-  cardCount, 
-  progress, 
-  tags 
+const FlashcardDeckCard = ({ 
+  deck, 
+  onStartPractice 
 }: { 
-  title: string; 
-  cardCount: number; 
-  progress: number;
-  tags: string[];
+  deck: FlashcardDeck; 
+  onStartPractice: () => void;
 }) => {
   const { toast } = useToast();
   
-  const handleClick = () => {
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
     toast({
-      title: `Opening ${title}`,
-      description: "This feature is coming soon"
+      title: "File upload feature",
+      description: "File upload for flashcard generation is coming soon"
     });
   };
   
   return (
-    <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={handleClick}>
+    <Card className="hover:shadow-md transition-shadow">
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg font-serif">{title}</CardTitle>
+        <CardTitle className="text-lg font-serif">{deck.title}</CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="text-sm text-gray-600 mb-3">{cardCount} cards</div>
+      <CardContent className="space-y-4">
+        <div className="text-sm text-muted-foreground">
+          {deck.card_count || 0} cards
+        </div>
         
-        <div className="mb-3">
-          <div className="text-xs text-gray-500 mb-1">Progress</div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              className="bg-primary h-2 rounded-full"
-              style={{ width: `${progress * 100}%` }}
-            ></div>
-          </div>
-          <div className="text-xs text-right mt-1 text-gray-500">
-            {Math.round(progress * 100)}% complete
+        <div className="flex flex-col gap-2">
+          <Button onClick={onStartPractice} className="w-full">
+            <Play className="h-4 w-4 mr-2" />
+            Start Practice
+          </Button>
+          
+          <div className="relative">
+            <input
+              type="file"
+              id={`upload-${deck.deck_id}`}
+              accept=".pdf,.pptx,.docx,.txt"
+              onChange={handleFileUpload}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            />
+            <Button variant="outline" className="w-full">
+              <Upload className="h-4 w-4 mr-2" />
+              Upload Files
+            </Button>
           </div>
         </div>
         
-        <div className="flex flex-wrap gap-1 mt-3">
-          {tags.map(tag => (
-            <span 
-              key={tag} 
-              className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full text-xs"
-            >
-              {tag}
-            </span>
-          ))}
+        <div className="text-xs text-muted-foreground">
+          Created: {new Date(deck.created_at).toLocaleDateString()}
         </div>
       </CardContent>
     </Card>
