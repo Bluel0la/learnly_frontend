@@ -1,4 +1,3 @@
-
 import { API_BASE_URL, getAuthHeaders } from './apiConfig';
 
 export interface FlashcardDeck {
@@ -103,6 +102,42 @@ export const flashcardApi = {
     
     if (!response.ok) {
       throw new Error('Failed to fetch decks');
+    }
+    
+    const decks = await response.json();
+    
+    // Fetch card count for each deck
+    const decksWithCounts = await Promise.all(
+      decks.map(async (deck: FlashcardDeck) => {
+        try {
+          const cardsResponse = await fetch(`${API_BASE_URL}/flashcard/decks/${deck.deck_id}/cards`, {
+            method: 'GET',
+            headers: getAuthHeaders()
+          });
+          
+          if (cardsResponse.ok) {
+            const cards = await cardsResponse.json();
+            return { ...deck, card_count: cards.length };
+          }
+          return { ...deck, card_count: 0 };
+        } catch (error) {
+          console.error(`Error fetching card count for deck ${deck.deck_id}:`, error);
+          return { ...deck, card_count: 0 };
+        }
+      })
+    );
+    
+    return decksWithCounts;
+  },
+
+  getDeckCards: async (deckId: string): Promise<FlashcardCard[]> => {
+    const response = await fetch(`${API_BASE_URL}/flashcard/decks/${deckId}/cards`, {
+      method: 'GET',
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch deck cards');
     }
     
     return response.json();
