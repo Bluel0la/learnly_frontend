@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -26,6 +25,7 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
+import { flashcardApi } from '@/services/api';
 
 const ProfilePage = () => {
   const { toast } = useToast();
@@ -34,10 +34,25 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [flashcardStats, setFlashcardStats] = useState({ deckCount: 0, cardCount: 0 });
   
   useEffect(() => {
     fetchUserProfile();
+    fetchFlashcardStats();
   }, []);
+
+  const fetchFlashcardStats = async () => {
+    try {
+      const decks = await flashcardApi.getDecks();
+      const totalCards = decks.reduce((sum, deck) => sum + (deck.card_count || 0), 0);
+      setFlashcardStats({
+        deckCount: decks.length,
+        cardCount: totalCards
+      });
+    } catch (error) {
+      console.error('Failed to fetch flashcard stats:', error);
+    }
+  };
   
   const fetchUserProfile = async () => {
     try {
@@ -255,7 +270,30 @@ const ProfilePage = () => {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <StatCard title="Study Sessions" value="12" subtitle="This month" />
                     <StatCard title="Quiz Score" value="85%" subtitle="Average" />
-                    <StatCard title="Flashcards" value="128" subtitle="Created" />
+                    <StatCard title="Flashcard Decks" value={flashcardStats.deckCount.toString()} subtitle="Created" />
+                  </div>
+                  
+                  <div className="mt-6">
+                    <h3 className="text-lg font-medium mb-3">Flashcard Statistics</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                      <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-2xl">🃏</span>
+                          <span className="font-medium">Total Cards</span>
+                        </div>
+                        <div className="text-2xl font-bold text-blue-600">{flashcardStats.cardCount}</div>
+                        <div className="text-sm text-muted-foreground">Cards created</div>
+                      </div>
+                      
+                      <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-lg border">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-2xl">📚</span>
+                          <span className="font-medium">Deck Collection</span>
+                        </div>
+                        <div className="text-2xl font-bold text-green-600">{flashcardStats.deckCount}</div>
+                        <div className="text-sm text-muted-foreground">Decks organized</div>
+                      </div>
+                    </div>
                   </div>
                   
                   <div className="mt-6">

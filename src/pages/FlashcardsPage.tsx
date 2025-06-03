@@ -1,20 +1,20 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, BookOpen, Play, Upload, Sparkles, Edit } from 'lucide-react';
+import { Plus, BookOpen, Play, Upload, Sparkles, Edit, Clock } from 'lucide-react';
 import { FlashcardDeck, flashcardApi } from '@/services/flashcardApi';
 import FlashcardPractice from '@/components/flashcards/FlashcardPractice';
+import FlashcardQuiz from '@/components/flashcards/FlashcardQuiz';
 import ManualCardDialog from '@/components/flashcards/ManualCardDialog';
 
 const FlashcardsPage = () => {
   const { toast } = useToast();
   const [decks, setDecks] = useState<FlashcardDeck[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentView, setCurrentView] = useState<'decks' | 'practice'>('decks');
+  const [currentView, setCurrentView] = useState<'decks' | 'practice' | 'quiz'>('decks');
   const [selectedDeckId, setSelectedDeckId] = useState<string | null>(null);
   const [newDeckTitle, setNewDeckTitle] = useState('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -70,6 +70,11 @@ const FlashcardsPage = () => {
     setCurrentView('practice');
   };
 
+  const handleStartQuiz = (deckId: string) => {
+    setSelectedDeckId(deckId);
+    setCurrentView('quiz');
+  };
+
   const handleBackToDecks = () => {
     setCurrentView('decks');
     setSelectedDeckId(null);
@@ -89,6 +94,22 @@ const FlashcardsPage = () => {
           </Button>
         </div>
         <FlashcardPractice
+          deckId={selectedDeckId}
+          onComplete={handleBackToDecks}
+        />
+      </div>
+    );
+  }
+
+  if (currentView === 'quiz' && selectedDeckId) {
+    return (
+      <div className="container px-4 py-6 md:py-8">
+        <div className="mb-4">
+          <Button onClick={handleBackToDecks} variant="outline" className="hover:scale-105 transition-transform">
+            ← Back to Decks
+          </Button>
+        </div>
+        <FlashcardQuiz
           deckId={selectedDeckId}
           onComplete={handleBackToDecks}
         />
@@ -154,6 +175,7 @@ const FlashcardsPage = () => {
               <FlashcardDeckCard
                 deck={deck}
                 onStartPractice={() => handleStartPractice(deck.deck_id)}
+                onStartQuiz={() => handleStartQuiz(deck.deck_id)}
                 onCardsAdded={loadDecks}
               />
             </div>
@@ -185,10 +207,12 @@ const FlashcardsPage = () => {
 const FlashcardDeckCard = ({ 
   deck, 
   onStartPractice,
+  onStartQuiz,
   onCardsAdded
 }: { 
   deck: FlashcardDeck; 
   onStartPractice: () => void;
+  onStartQuiz: () => void;
   onCardsAdded: () => void;
 }) => {
   const { toast } = useToast();
@@ -235,14 +259,26 @@ const FlashcardDeckCard = ({
           </div>
           
           <div className="flex flex-col gap-2">
-            <Button 
-              onClick={onStartPractice} 
-              className="w-full group-hover:scale-105 transition-transform"
-              disabled={!deck.card_count || deck.card_count === 0}
-            >
-              <Play className="h-4 w-4 mr-2" />
-              Start Practice
-            </Button>
+            <div className="grid grid-cols-2 gap-2">
+              <Button 
+                onClick={onStartPractice} 
+                className="group-hover:scale-105 transition-transform"
+                disabled={!deck.card_count || deck.card_count === 0}
+              >
+                <Play className="h-4 w-4 mr-2" />
+                Practice
+              </Button>
+              
+              <Button 
+                onClick={onStartQuiz} 
+                variant="outline"
+                className="group-hover:scale-105 transition-transform bg-gradient-to-r from-purple-50 to-blue-50 hover:from-purple-100 hover:to-blue-100"
+                disabled={!deck.card_count || deck.card_count < 5}
+              >
+                <Clock className="h-4 w-4 mr-2" />
+                Quiz
+              </Button>
+            </div>
             
             <div className="grid grid-cols-2 gap-2">
               <Button
