@@ -5,9 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, BookOpen, Play, Upload, Sparkles } from 'lucide-react';
+import { Plus, BookOpen, Play, Upload, Sparkles, Edit } from 'lucide-react';
 import { FlashcardDeck, flashcardApi } from '@/services/flashcardApi';
 import FlashcardPractice from '@/components/flashcards/FlashcardPractice';
+import ManualCardDialog from '@/components/flashcards/ManualCardDialog';
 
 const FlashcardsPage = () => {
   const { toast } = useToast();
@@ -153,6 +154,7 @@ const FlashcardsPage = () => {
               <FlashcardDeckCard
                 deck={deck}
                 onStartPractice={() => handleStartPractice(deck.deck_id)}
+                onCardsAdded={loadDecks}
               />
             </div>
           ))}
@@ -182,13 +184,16 @@ const FlashcardsPage = () => {
 
 const FlashcardDeckCard = ({ 
   deck, 
-  onStartPractice 
+  onStartPractice,
+  onCardsAdded
 }: { 
   deck: FlashcardDeck; 
   onStartPractice: () => void;
+  onCardsAdded: () => void;
 }) => {
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
+  const [isManualDialogOpen, setIsManualDialogOpen] = useState(false);
   
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -201,6 +206,7 @@ const FlashcardDeckCard = ({
         title: "Success! ✨",
         description: "Flashcards generated from your file"
       });
+      onCardsAdded();
     } catch (error) {
       console.error('Error generating flashcards:', error);
       toast({
@@ -210,54 +216,74 @@ const FlashcardDeckCard = ({
       });
     } finally {
       setIsUploading(false);
-      // Reset the input
       event.target.value = '';
     }
   };
   
   return (
-    <Card className="hover:shadow-lg transition-all duration-300 hover:scale-[1.02] group">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg font-serif flex items-center gap-2">
-          <span className="text-xl">🃏</span>
-          {deck.title}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="text-sm text-muted-foreground">
-          {deck.card_count || 0} cards • Created {new Date(deck.date_created).toLocaleDateString()}
-        </div>
-        
-        <div className="flex flex-col gap-2">
-          <Button 
-            onClick={onStartPractice} 
-            className="w-full group-hover:scale-105 transition-transform"
-          >
-            <Play className="h-4 w-4 mr-2" />
-            Start Practice
-          </Button>
-          
-          <div className="relative">
-            <input
-              type="file"
-              id={`upload-${deck.deck_id}`}
-              accept=".pdf,.pptx,.docx,.txt"
-              onChange={handleFileUpload}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              disabled={isUploading}
-            />
-            <Button 
-              variant="outline" 
-              className="w-full group-hover:scale-105 transition-transform"
-              disabled={isUploading}
-            >
-              <Upload className="h-4 w-4 mr-2" />
-              {isUploading ? "Generating..." : "Upload Files"}
-            </Button>
+    <>
+      <Card className="hover:shadow-lg transition-all duration-300 hover:scale-[1.02] group">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg font-serif flex items-center gap-2">
+            <span className="text-xl">🃏</span>
+            {deck.title}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="text-sm text-muted-foreground">
+            {deck.card_count || 0} cards • Created {new Date(deck.date_created).toLocaleDateString()}
           </div>
-        </div>
-      </CardContent>
-    </Card>
+          
+          <div className="flex flex-col gap-2">
+            <Button 
+              onClick={onStartPractice} 
+              className="w-full group-hover:scale-105 transition-transform"
+              disabled={!deck.card_count || deck.card_count === 0}
+            >
+              <Play className="h-4 w-4 mr-2" />
+              Start Practice
+            </Button>
+            
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setIsManualDialogOpen(true)}
+                className="group-hover:scale-105 transition-transform"
+              >
+                <Edit className="h-4 w-4 mr-2" />
+                Add Cards
+              </Button>
+              
+              <div className="relative">
+                <input
+                  type="file"
+                  id={`upload-${deck.deck_id}`}
+                  accept=".pdf,.pptx,.docx,.txt"
+                  onChange={handleFileUpload}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  disabled={isUploading}
+                />
+                <Button 
+                  variant="outline" 
+                  className="w-full group-hover:scale-105 transition-transform"
+                  disabled={isUploading}
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  {isUploading ? "Generating..." : "Upload"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      
+      <ManualCardDialog
+        isOpen={isManualDialogOpen}
+        onOpenChange={setIsManualDialogOpen}
+        deckId={deck.deck_id}
+        onCardsAdded={onCardsAdded}
+      />
+    </>
   );
 };
 

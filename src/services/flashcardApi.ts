@@ -1,3 +1,4 @@
+
 import { API_BASE_URL, getAuthHeaders } from './apiConfig';
 
 export interface FlashcardDeck {
@@ -117,8 +118,10 @@ export const flashcardApi = {
           
           if (cardsResponse.ok) {
             const cards = await cardsResponse.json();
-            return { ...deck, card_count: cards.length };
+            console.log(`Deck ${deck.deck_id} has ${cards.length} cards:`, cards);
+            return { ...deck, card_count: Array.isArray(cards) ? cards.length : 0 };
           }
+          console.log(`Failed to fetch cards for deck ${deck.deck_id}`);
           return { ...deck, card_count: 0 };
         } catch (error) {
           console.error(`Error fetching card count for deck ${deck.deck_id}:`, error);

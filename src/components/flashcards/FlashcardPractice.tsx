@@ -167,7 +167,7 @@ const FlashcardPractice: React.FC<FlashcardPracticeProps> = ({ deckId, onComplet
 
   return (
     <div className="max-w-4xl mx-auto space-y-4 animate-fade-in">
-      <Card className={`min-h-[500px] transition-all duration-500 ${isFlipping ? 'animate-card-flip' : ''} hover:shadow-lg`}>
+      <Card className={`transition-all duration-500 ${isFlipping ? 'animate-card-flip' : ''} hover:shadow-lg`}>
         <CardHeader className="flex flex-row items-center justify-between border-b">
           <CardTitle className="text-lg flex items-center gap-2">
             <span className="text-2xl">🎯</span>
@@ -193,12 +193,12 @@ const FlashcardPractice: React.FC<FlashcardPracticeProps> = ({ deckId, onComplet
           </div>
         </CardHeader>
         <CardContent className="p-6 space-y-6">
-          <div className="min-h-[150px]">
+          <div className="min-h-[200px]">
             <h3 className="font-semibold mb-4 text-primary text-lg">Question:</h3>
-            <ScrollArea className="h-[120px] w-full">
-              <p className="text-base leading-relaxed pr-4 break-words whitespace-pre-wrap">
+            <ScrollArea className="h-[160px] w-full border rounded-lg p-4 bg-gray-50">
+              <div className="text-base leading-relaxed break-words whitespace-pre-wrap">
                 {currentCard.question}
-              </p>
+              </div>
             </ScrollArea>
           </div>
           
@@ -206,10 +206,10 @@ const FlashcardPractice: React.FC<FlashcardPracticeProps> = ({ deckId, onComplet
             <div className="space-y-6 animate-fade-in">
               <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-lg border-l-4 border-primary">
                 <h3 className="font-semibold mb-4 text-primary text-lg">Answer:</h3>
-                <ScrollArea className="h-[150px] w-full">
-                  <p className="text-base leading-relaxed pr-4 break-words whitespace-pre-wrap">
+                <ScrollArea className="h-[200px] w-full">
+                  <div className="text-base leading-relaxed break-words whitespace-pre-wrap">
                     {revealedCard.answer}
-                  </p>
+                  </div>
                 </ScrollArea>
               </div>
               
