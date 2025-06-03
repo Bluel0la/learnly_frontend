@@ -107,11 +107,11 @@ export const flashcardApi = {
     
     const decks = await response.json();
     
-    // Fetch card count for each deck
+    // Fetch card count for each deck using the correct endpoint
     const decksWithCounts = await Promise.all(
       decks.map(async (deck: FlashcardDeck) => {
         try {
-          const cardsResponse = await fetch(`${API_BASE_URL}/flashcard/decks/${deck.deck_id}/cards`, {
+          const cardsResponse = await fetch(`${API_BASE_URL}/flashcard/decks/${deck.deck_id}/get-cards`, {
             method: 'GET',
             headers: getAuthHeaders()
           });
@@ -134,7 +134,7 @@ export const flashcardApi = {
   },
 
   getDeckCards: async (deckId: string): Promise<FlashcardCard[]> => {
-    const response = await fetch(`${API_BASE_URL}/flashcard/decks/${deckId}/cards`, {
+    const response = await fetch(`${API_BASE_URL}/flashcard/decks/${deckId}/get-cards`, {
       method: 'GET',
       headers: getAuthHeaders()
     });
