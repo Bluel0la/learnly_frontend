@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Bookmark, RotateCcw, Eye, CheckCircle, XCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { FlashcardCard, flashcardApi } from '@/services/flashcardApi';
+import { PracticeCard, RevealedCard, SubmitResponse, flashcardApi } from '@/services/flashcardApi';
 
 interface FlashcardPracticeProps {
   deckId: string;
@@ -13,14 +13,22 @@ interface FlashcardPracticeProps {
 
 const FlashcardPractice: React.FC<FlashcardPracticeProps> = ({ deckId, onComplete }) => {
   const { toast } = useToast();
-  const [currentCard, setCurrentCard] = useState<FlashcardCard | null>(null);
+  const [currentCard, setCurrentCard] = useState<PracticeCard | null>(null);
+  const [revealedCard, setRevealedCard] = useState<RevealedCard | null>(null);
+  const [cardStats, setCardStats] = useState<SubmitResponse | null>(null);
   const [showAnswer, setShowAnswer] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFlipping, setIsFlipping] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
 
   const loadNextCard = async () => {
     try {
       setIsLoading(true);
       setShowAnswer(false);
+      setRevealedCard(null);
+      setCardStats(null);
+      setIsFlipping(false);
+      
       const card = await flashcardApi.getPracticeCard(deckId);
       setCurrentCard(card);
     } catch (error) {
@@ -39,8 +47,15 @@ const FlashcardPractice: React.FC<FlashcardPracticeProps> = ({ deckId, onComplet
     if (!currentCard) return;
     
     try {
-      await flashcardApi.revealCard(currentCard.card_id);
-      setShowAnswer(true);
+      setIsFlipping(true);
+      const revealed = await flashcardApi.revealCard(currentCard.card_id);
+      setRevealedCard(revealed);
+      
+      // Add a delay for the flip animation
+      setTimeout(() => {
+        setShowAnswer(true);
+        setIsFlipping(false);
+      }, 400);
     } catch (error) {
       console.error('Error revealing card:', error);
       toast({
@@ -48,6 +63,7 @@ const FlashcardPractice: React.FC<FlashcardPracticeProps> = ({ deckId, onComplet
         description: "Failed to reveal answer",
         variant: "destructive"
       });
+      setIsFlipping(false);
     }
   };
 
@@ -55,12 +71,18 @@ const FlashcardPractice: React.FC<FlashcardPracticeProps> = ({ deckId, onComplet
     if (!currentCard) return;
     
     try {
-      await flashcardApi.submitResponse(currentCard.card_id, isCorrect);
+      const response = await flashcardApi.submitResponse(currentCard.card_id, isCorrect);
+      setCardStats(response);
+      
       toast({
-        title: isCorrect ? "Correct!" : "Keep practicing",
+        title: isCorrect ? "Correct! 🎉" : "Keep practicing! 💪",
         description: isCorrect ? "Great job!" : "You'll get it next time"
       });
-      loadNextCard();
+      
+      // Add a delay before loading next card
+      setTimeout(() => {
+        loadNextCard();
+      }, 1500);
     } catch (error) {
       console.error('Error submitting response:', error);
       toast({
@@ -75,18 +97,15 @@ const FlashcardPractice: React.FC<FlashcardPracticeProps> = ({ deckId, onComplet
     if (!currentCard) return;
     
     try {
-      if (currentCard.is_bookmarked) {
+      if (isBookmarked) {
         await flashcardApi.unbookmarkCard(currentCard.card_id);
         toast({ title: "Bookmark removed" });
       } else {
         await flashcardApi.bookmarkCard(currentCard.card_id);
-        toast({ title: "Card bookmarked" });
+        toast({ title: "Card bookmarked ⭐" });
       }
       
-      setCurrentCard({
-        ...currentCard,
-        is_bookmarked: !currentCard.is_bookmarked
-      });
+      setIsBookmarked(!isBookmarked);
     } catch (error) {
       console.error('Error toggling bookmark:', error);
       toast({
@@ -102,7 +121,7 @@ const FlashcardPractice: React.FC<FlashcardPracticeProps> = ({ deckId, onComplet
     
     try {
       await flashcardApi.resetCard(currentCard.card_id);
-      toast({ title: "Card progress reset" });
+      toast({ title: "Card progress reset 🔄" });
       loadNextCard();
     } catch (error) {
       console.error('Error resetting card:', error);
@@ -128,9 +147,11 @@ const FlashcardPractice: React.FC<FlashcardPracticeProps> = ({ deckId, onComplet
 
   if (!currentCard) {
     return (
-      <Card>
+      <Card className="animate-fade-in">
         <CardContent className="p-8 text-center">
-          <p className="text-muted-foreground">No more cards to practice!</p>
+          <div className="text-6xl mb-4">🎉</div>
+          <p className="text-lg mb-2">Congratulations!</p>
+          <p className="text-muted-foreground mb-4">You've completed all available cards!</p>
           <Button onClick={onComplete} className="mt-4">
             Return to Deck
           </Button>
@@ -140,69 +161,88 @@ const FlashcardPractice: React.FC<FlashcardPracticeProps> = ({ deckId, onComplet
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-4">
-      <Card className="min-h-[300px]">
+    <div className="max-w-2xl mx-auto space-y-4 animate-fade-in">
+      <Card className={`min-h-[400px] transition-all duration-500 ${isFlipping ? 'animate-card-flip' : ''} hover:shadow-lg`}>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg">Practice Card</CardTitle>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <span className="text-2xl">🎯</span>
+            Practice Card
+          </CardTitle>
           <div className="flex gap-2">
             <Button
               variant="ghost"
               size="icon"
               onClick={handleBookmark}
-              className={currentCard.is_bookmarked ? "text-yellow-500" : ""}
+              className={`transition-colors ${isBookmarked ? "text-yellow-500" : ""} hover:scale-110`}
             >
               <Bookmark className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={handleReset}>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={handleReset}
+              className="hover:scale-110 transition-transform"
+            >
               <RotateCcw className="h-4 w-4" />
             </Button>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div>
-            <h3 className="font-medium mb-2">Question:</h3>
-            <p className="text-lg">{currentCard.question}</p>
+          <div className="min-h-[120px]">
+            <h3 className="font-medium mb-3 text-primary">Question:</h3>
+            <p className="text-lg leading-relaxed">{currentCard.question}</p>
           </div>
           
-          {showAnswer ? (
-            <>
-              <div>
-                <h3 className="font-medium mb-2">Answer:</h3>
-                <p className="text-lg bg-muted p-4 rounded-lg">{currentCard.answer}</p>
+          {showAnswer && revealedCard ? (
+            <div className="space-y-6 animate-fade-in">
+              <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-lg border-l-4 border-primary">
+                <h3 className="font-medium mb-3 text-primary">Answer:</h3>
+                <p className="text-lg leading-relaxed">{revealedCard.answer}</p>
               </div>
               
               <div className="flex gap-4 justify-center">
                 <Button
                   onClick={() => handleResponse(false)}
                   variant="outline"
-                  className="flex items-center gap-2"
+                  size="lg"
+                  className="flex items-center gap-2 hover:scale-105 transition-transform hover:border-red-300"
                 >
-                  <XCircle className="h-4 w-4" />
+                  <XCircle className="h-5 w-5 text-red-500" />
                   I got it wrong
                 </Button>
                 <Button
                   onClick={() => handleResponse(true)}
-                  className="flex items-center gap-2"
+                  size="lg"
+                  className="flex items-center gap-2 hover:scale-105 transition-transform bg-green-500 hover:bg-green-600"
                 >
-                  <CheckCircle className="h-4 w-4" />
+                  <CheckCircle className="h-5 w-5" />
                   I got it right
                 </Button>
               </div>
-            </>
+            </div>
           ) : (
-            <div className="text-center">
-              <Button onClick={handleRevealAnswer} className="flex items-center gap-2">
-                <Eye className="h-4 w-4" />
-                Reveal Answer
+            <div className="text-center py-8">
+              <Button 
+                onClick={handleRevealAnswer} 
+                size="lg"
+                className="flex items-center gap-2 hover:scale-105 transition-transform"
+                disabled={isFlipping}
+              >
+                <Eye className="h-5 w-5" />
+                {isFlipping ? "Revealing..." : "Reveal Answer"}
               </Button>
             </div>
           )}
           
-          <div className="text-sm text-muted-foreground text-center">
-            Reviewed: {currentCard.times_reviewed} times | 
-            Correct: {currentCard.correct_count} | 
-            Wrong: {currentCard.wrong_count}
-          </div>
+          {cardStats && (
+            <div className="text-sm text-muted-foreground text-center bg-gray-50 p-4 rounded-lg animate-fade-in">
+              <div className="flex justify-center gap-6">
+                <span>📊 Reviewed: {cardStats.times_reviewed} times</span>
+                <span className="text-green-600">✅ Correct: {cardStats.correct_count}</span>
+                <span className="text-red-600">❌ Wrong: {cardStats.wrong_count}</span>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
