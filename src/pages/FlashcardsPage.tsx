@@ -4,18 +4,20 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, BookOpen, Play, Upload, Sparkles, Edit, Clock } from 'lucide-react';
+import { Plus, BookOpen, Play, Upload, Sparkles, Edit, Clock, BarChart3, Brain } from 'lucide-react';
 import { FlashcardDeck, flashcardApi } from '@/services/flashcardApi';
 import FlashcardPractice from '@/components/flashcards/FlashcardPractice';
 import FlashcardQuiz from '@/components/flashcards/FlashcardQuiz';
 import ManualCardDialog from '@/components/flashcards/ManualCardDialog';
+import DeckAnalytics from '@/components/flashcards/DeckAnalytics';
 
 const FlashcardsPage = () => {
   const { toast } = useToast();
   const [decks, setDecks] = useState<FlashcardDeck[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentView, setCurrentView] = useState<'decks' | 'practice' | 'quiz'>('decks');
+  const [currentView, setCurrentView] = useState<'decks' | 'practice' | 'quiz' | 'analytics'>('decks');
   const [selectedDeckId, setSelectedDeckId] = useState<string | null>(null);
+  const [selectedDeckTitle, setSelectedDeckTitle] = useState<string>('');
   const [newDeckTitle, setNewDeckTitle] = useState('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
@@ -77,9 +79,16 @@ const FlashcardsPage = () => {
     setCurrentView('quiz');
   };
 
+  const handleViewAnalytics = (deckId: string, deckTitle: string) => {
+    setSelectedDeckId(deckId);
+    setSelectedDeckTitle(deckTitle);
+    setCurrentView('analytics');
+  };
+
   const handleBackToDecks = () => {
     setCurrentView('decks');
     setSelectedDeckId(null);
+    setSelectedDeckTitle('');
     loadDecks(); // Refresh decks to get updated card counts
   };
 
@@ -114,6 +123,19 @@ const FlashcardsPage = () => {
         <FlashcardQuiz
           deckId={selectedDeckId}
           onComplete={handleBackToDecks}
+        />
+      </div>
+    );
+  }
+
+  if (currentView === 'analytics' && selectedDeckId) {
+    return (
+      <div className="container px-4 py-6 md:py-8">
+        <DeckAnalytics
+          deckId={selectedDeckId}
+          deckTitle={selectedDeckTitle}
+          onClose={handleBackToDecks}
+          onDrillsGenerated={handleBackToDecks}
         />
       </div>
     );
@@ -178,6 +200,7 @@ const FlashcardsPage = () => {
                 deck={deck}
                 onStartPractice={() => handleStartPractice(deck.deck_id)}
                 onStartQuiz={() => handleStartQuiz(deck.deck_id)}
+                onViewAnalytics={() => handleViewAnalytics(deck.deck_id, deck.title)}
                 onCardsAdded={loadDecks}
               />
             </div>
@@ -210,17 +233,20 @@ const FlashcardDeckCard = ({
   deck, 
   onStartPractice,
   onStartQuiz,
+  onViewAnalytics,
   onCardsAdded
 }: { 
   deck: FlashcardDeck; 
   onStartPractice: () => void;
   onStartQuiz: () => void;
+  onViewAnalytics: () => void;
   onCardsAdded: () => void;
 }) => {
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState('');
   const [isManualDialogOpen, setIsManualDialogOpen] = useState(false);
+  const [isGeneratingDrills, setIsGeneratingDrills] = useState(false);
   
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -295,6 +321,32 @@ const FlashcardDeckCard = ({
       fileInput.click();
     }
   };
+
+  const handleGenerateSmartDrills = async () => {
+    setIsGeneratingDrills(true);
+    try {
+      const result = await flashcardApi.generateAdaptiveDrills(deck.deck_id, 'wrong', 5);
+      
+      toast({
+        title: "Smart drills generated! 🧠",
+        description: `Added ${result.cards?.length || 0} practice cards to help improve your performance.`
+      });
+      onCardsAdded();
+      
+    } catch (error) {
+      console.error('Error generating smart drills:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to generate smart drills",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingDrills(false);
+    }
+  };
+
+  // Determine if deck needs improvement (placeholder logic - would need actual performance data)
+  const needsImprovement = (deck.card_count || 0) > 5; // Simple heuristic for demo
   
   return (
     <>
@@ -335,13 +387,25 @@ const FlashcardDeckCard = ({
             <div className="grid grid-cols-2 gap-2">
               <Button
                 variant="outline"
+                onClick={onViewAnalytics}
+                className="group-hover:scale-105 transition-transform"
+                disabled={!deck.card_count || deck.card_count === 0}
+              >
+                <BarChart3 className="h-4 w-4 mr-2" />
+                Analytics
+              </Button>
+              
+              <Button
+                variant="outline"
                 onClick={() => setIsManualDialogOpen(true)}
                 className="group-hover:scale-105 transition-transform"
               >
                 <Edit className="h-4 w-4 mr-2" />
                 Add Cards
               </Button>
-              
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
               <div className="relative">
                 <input
                   type="file"
@@ -361,6 +425,18 @@ const FlashcardDeckCard = ({
                   {isUploading ? "Uploading..." : "Upload"}
                 </Button>
               </div>
+
+              {needsImprovement && (
+                <Button
+                  variant="outline"
+                  onClick={handleGenerateSmartDrills}
+                  disabled={isGeneratingDrills}
+                  className="group-hover:scale-105 transition-transform bg-gradient-to-r from-orange-50 to-yellow-50 hover:from-orange-100 hover:to-yellow-100"
+                >
+                  <Brain className="h-4 w-4 mr-2" />
+                  {isGeneratingDrills ? "Generating..." : "Smart Drills"}
+                </Button>
+              )}
             </div>
           </div>
           

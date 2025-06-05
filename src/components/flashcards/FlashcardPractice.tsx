@@ -6,6 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Bookmark, RotateCcw, Eye, CheckCircle, XCircle, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { PracticeCard, RevealedCard, SubmitResponse, flashcardApi } from '@/services/flashcardApi';
+import PracticeAdaptiveSuggestion from './PracticeAdaptiveSuggestion';
 
 interface FlashcardPracticeProps {
   deckId: string;
@@ -21,6 +22,7 @@ const FlashcardPractice: React.FC<FlashcardPracticeProps> = ({ deckId, onComplet
   const [isLoading, setIsLoading] = useState(false);
   const [isFlipping, setIsFlipping] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [consecutiveWrong, setConsecutiveWrong] = useState(0);
 
   const loadNextCard = async () => {
     try {
@@ -78,6 +80,13 @@ const FlashcardPractice: React.FC<FlashcardPracticeProps> = ({ deckId, onComplet
     try {
       const response = await flashcardApi.submitResponse(currentCard.card_id, isCorrect);
       setCardStats(response);
+      
+      // Track consecutive wrong answers
+      if (isCorrect) {
+        setConsecutiveWrong(0);
+      } else {
+        setConsecutiveWrong(prev => prev + 1);
+      }
       
       toast({
         title: isCorrect ? "Correct! 🎉" : "Keep practicing! 💪",
@@ -137,6 +146,14 @@ const FlashcardPractice: React.FC<FlashcardPracticeProps> = ({ deckId, onComplet
     }
   };
 
+  const handleDrillsGenerated = () => {
+    setConsecutiveWrong(0); // Reset counter after generating drills
+    toast({
+      title: "Practice cards added! 📚",
+      description: "New cards have been added to help you practice this topic."
+    });
+  };
+
   React.useEffect(() => {
     loadNextCard();
   }, [deckId]);
@@ -167,6 +184,14 @@ const FlashcardPractice: React.FC<FlashcardPracticeProps> = ({ deckId, onComplet
 
   return (
     <div className="max-w-4xl mx-auto space-y-4 animate-fade-in">
+      {/* Adaptive drill suggestion */}
+      <PracticeAdaptiveSuggestion
+        deckId={deckId}
+        consecutiveWrong={consecutiveWrong}
+        currentCardId={currentCard?.card_id}
+        onDrillsGenerated={handleDrillsGenerated}
+      />
+
       <Card className={`transition-all duration-500 ${isFlipping ? 'animate-card-flip' : ''} hover:shadow-lg`}>
         <CardHeader className="flex flex-row items-center justify-between border-b">
           <CardTitle className="text-lg flex items-center gap-2">
