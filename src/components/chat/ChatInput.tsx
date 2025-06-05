@@ -37,19 +37,25 @@ const ChatInput = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (message.trim() && !isSubmitting) {
+    
+    // Combine extracted text with user message if both exist
+    const finalMessage = extractedText 
+      ? (message.trim() ? `${extractedText}\n\n${message}` : extractedText)
+      : message;
+    
+    if (finalMessage.trim() && !isSubmitting) {
       setIsSubmitting(true);
       
       try {
         if (!sessionId) {
           // Start a new chat session
           const newSession = await chatApi.startSession({
-            chat_title: message.length > 20 ? `${message.substring(0, 20)}...` : message
+            chat_title: finalMessage.length > 20 ? `${finalMessage.substring(0, 20)}...` : finalMessage
           });
           
           // Send the message in the new session
           await chatApi.sendMessage({
-            prompt: message,
+            prompt: finalMessage,
             chat_id: newSession.chat_id
           });
           
@@ -62,7 +68,7 @@ const ChatInput = () => {
         } else {
           // Send message in existing session
           await chatApi.sendMessage({
-            prompt: message,
+            prompt: finalMessage,
             chat_id: sessionId
           });
           
@@ -89,16 +95,15 @@ const ChatInput = () => {
 
   const handleTextExtracted = (extractedTextResult: string) => {
     setExtractedText(extractedTextResult);
-    setMessage(extractedTextResult); // Also set it as the message content
+    // Don't set it as message content - let user add their own follow-up
     toast({
       title: "Text extracted successfully",
-      description: "The text from your image has been added to the input box."
+      description: "Add your follow-up question in the input box below."
     });
   };
 
   const clearExtractedText = () => {
     setExtractedText('');
-    setMessage('');
   };
 
   return (
@@ -136,7 +141,7 @@ const ChatInput = () => {
               type="text"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="Ask anything"
+              placeholder={extractedText ? "Add your follow-up question..." : "Ask anything"}
               className="flex-1 px-3 py-2 text-sm focus:outline-none bg-transparent"
               disabled={isSubmitting}
             />
@@ -152,9 +157,9 @@ const ChatInput = () => {
             {/* Send Button */}
             <button
               type="submit"
-              disabled={!message.trim() || isSubmitting}
+              disabled={(!message.trim() && !extractedText) || isSubmitting}
               className={`p-2 rounded-full transition ${
-                message.trim() && !isSubmitting
+                (message.trim() || extractedText) && !isSubmitting
                   ? 'bg-black text-white hover:bg-gray-800'
                   : 'bg-gray-200 text-gray-400 cursor-not-allowed'
               }`}

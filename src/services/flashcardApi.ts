@@ -445,5 +445,25 @@ export const flashcardApi = {
     const result = await response.json();
     console.log('Quiz submitted successfully:', result);
     return result;
+  },
+
+  // Adaptive drill generation methods
+  generateAdaptiveDrills: async (deckId: string, mode: 'wrong' | 'bookmark', maxCards: number = 10): Promise<GenerateResponse> => {
+    console.log(`Generating adaptive drills for deck ${deckId} with mode ${mode}`);
+    const response = await fetch(`${API_BASE_URL}/flashcard/decks/${deckId}/regenerate-adaptive-drills/?mode=${mode}`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ max_cards: maxCards })
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Adaptive drill generation error:', errorText);
+      throw new Error(`Failed to generate adaptive drills: ${response.status} ${errorText}`);
+    }
+    
+    const result = await response.json();
+    console.log('Adaptive drills generated successfully:', result);
+    return result;
   }
 };
