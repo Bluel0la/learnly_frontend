@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Plus, Mic, ArrowUp } from 'lucide-react';
+import { Plus, Mic, ArrowUp, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { chatApi } from '@/services/api';
 import ImageUpload from './ImageUpload';
@@ -71,6 +71,7 @@ const ChatInput = () => {
         }
         
         setMessage('');
+        setExtractedText(''); // Clear extracted text after sending
         setIsEditMode(false);
         setEditingMessageId(null);
       } catch (error) {
@@ -88,15 +89,35 @@ const ChatInput = () => {
 
   const handleTextExtracted = (extractedTextResult: string) => {
     setExtractedText(extractedTextResult);
+    setMessage(extractedTextResult); // Also set it as the message content
     toast({
       title: "Text extracted successfully",
-      description: "The text from your image has been added above the input box."
+      description: "The text from your image has been added to the input box."
     });
+  };
+
+  const clearExtractedText = () => {
+    setExtractedText('');
+    setMessage('');
   };
 
   return (
     <div className="border-t bg-white p-4">
       <div className="max-w-4xl mx-auto">
+        {/* Extracted Text Display */}
+        {extractedText && (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg relative">
+            <button
+              onClick={clearExtractedText}
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+            >
+              <X size={16} />
+            </button>
+            <p className="text-sm text-blue-800 font-medium mb-1">Extracted Text:</p>
+            <p className="text-sm text-gray-700 pr-6">{extractedText}</p>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
           <div className="flex items-center gap-2 p-3 rounded-full border shadow-sm bg-white">
             {/* Left Icons */}
