@@ -3,13 +3,21 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, BookOpen, Play, Upload, Sparkles, Edit, Clock, BarChart3, Brain } from 'lucide-react';
+import { Plus, BookOpen, Play, Upload, Sparkles, Edit, Clock, BarChart3, Brain, MoreVertical } from 'lucide-react';
 import { FlashcardDeck, flashcardApi } from '@/services/flashcardApi';
 import FlashcardPractice from '@/components/flashcards/FlashcardPractice';
 import FlashcardQuiz from '@/components/flashcards/FlashcardQuiz';
 import ManualCardDialog from '@/components/flashcards/ManualCardDialog';
 import DeckAnalytics from '@/components/flashcards/DeckAnalytics';
+import TiltedCard from '@/components/ui/TiltedCard';
 
 const FlashcardsPage = () => {
   const { toast } = useToast();
@@ -196,13 +204,15 @@ const FlashcardsPage = () => {
               className="animate-fade-in"
               style={{ animationDelay: `${index * 100}ms` }}
             >
-              <FlashcardDeckCard
-                deck={deck}
-                onStartPractice={() => handleStartPractice(deck.deck_id)}
-                onStartQuiz={() => handleStartQuiz(deck.deck_id)}
-                onViewAnalytics={() => handleViewAnalytics(deck.deck_id, deck.title)}
-                onCardsAdded={loadDecks}
-              />
+              <TiltedCard>
+                <FlashcardDeckCard
+                  deck={deck}
+                  onStartPractice={() => handleStartPractice(deck.deck_id)}
+                  onStartQuiz={() => handleStartQuiz(deck.deck_id)}
+                  onViewAnalytics={() => handleViewAnalytics(deck.deck_id, deck.title)}
+                  onCardsAdded={loadDecks}
+                />
+              </TiltedCard>
             </div>
           ))}
           
@@ -350,7 +360,7 @@ const FlashcardDeckCard = ({
   
   return (
     <>
-      <Card className="hover:shadow-lg transition-all duration-300 hover:scale-[1.02] group">
+      <Card className="h-full hover:shadow-lg transition-all duration-300 group">
         <CardHeader className="pb-2">
           <CardTitle className="text-lg font-serif flex items-center gap-2">
             <span className="text-xl">🃏</span>
@@ -363,6 +373,7 @@ const FlashcardDeckCard = ({
           </div>
           
           <div className="flex flex-col gap-2">
+            {/* Primary actions - always visible */}
             <div className="grid grid-cols-2 gap-2">
               <Button 
                 onClick={onStartPractice} 
@@ -383,60 +394,55 @@ const FlashcardDeckCard = ({
                 Quiz
               </Button>
             </div>
-            
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                variant="outline"
-                onClick={onViewAnalytics}
-                className="group-hover:scale-105 transition-transform"
-                disabled={!deck.card_count || deck.card_count === 0}
-              >
-                <BarChart3 className="h-4 w-4 mr-2" />
-                Analytics
-              </Button>
-              
+
+            {/* Secondary actions in dropdown menu */}
+            <div className="flex gap-2">
               <Button
                 variant="outline"
                 onClick={() => setIsManualDialogOpen(true)}
-                className="group-hover:scale-105 transition-transform"
+                className="flex-1 group-hover:scale-105 transition-transform"
               >
                 <Edit className="h-4 w-4 mr-2" />
                 Add Cards
               </Button>
-            </div>
 
-            <div className="grid grid-cols-2 gap-2">
-              <div className="relative">
-                <input
-                  type="file"
-                  id={`upload-${deck.deck_id}`}
-                  accept=".pdf,.pptx,.docx,.txt"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                  disabled={isUploading}
-                />
-                <Button 
-                  variant="outline" 
-                  className="w-full group-hover:scale-105 transition-transform bg-gradient-to-r from-purple-50 to-indigo-50 hover:from-purple-100 hover:to-indigo-100"
-                  disabled={isUploading}
-                  onClick={handleUploadClick}
-                >
-                  <Upload className="h-4 w-4 mr-2" />
-                  {isUploading ? "Uploading..." : "Upload"}
-                </Button>
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon" className="group-hover:scale-105 transition-transform">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={onViewAnalytics} disabled={!deck.card_count || deck.card_count === 0}>
+                    <BarChart3 className="h-4 w-4 mr-2" />
+                    Analytics
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuSeparator />
+                  
+                  <DropdownMenuItem onClick={handleUploadClick} disabled={isUploading}>
+                    <Upload className="h-4 w-4 mr-2" />
+                    {isUploading ? "Uploading..." : "Upload File"}
+                  </DropdownMenuItem>
+                  
+                  {needsImprovement && (
+                    <DropdownMenuItem onClick={handleGenerateSmartDrills} disabled={isGeneratingDrills}>
+                      <Brain className="h-4 w-4 mr-2" />
+                      {isGeneratingDrills ? "Generating..." : "Smart Drills"}
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
 
-              {needsImprovement && (
-                <Button
-                  variant="outline"
-                  onClick={handleGenerateSmartDrills}
-                  disabled={isGeneratingDrills}
-                  className="group-hover:scale-105 transition-transform bg-gradient-to-r from-orange-50 to-yellow-50 hover:from-orange-100 hover:to-yellow-100"
-                >
-                  <Brain className="h-4 w-4 mr-2" />
-                  {isGeneratingDrills ? "Generating..." : "Smart Drills"}
-                </Button>
-              )}
+              {/* Hidden file input */}
+              <input
+                type="file"
+                id={`upload-${deck.deck_id}`}
+                accept=".pdf,.pptx,.docx,.txt"
+                onChange={handleFileUpload}
+                className="hidden"
+                disabled={isUploading}
+              />
             </div>
           </div>
           
