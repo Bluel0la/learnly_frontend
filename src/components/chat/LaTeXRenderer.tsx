@@ -46,10 +46,18 @@ const LaTeXRenderer: React.FC<LaTeXRendererProps> = ({ content }) => {
       parts.push(
         <div 
           key={`block-${blockIndex}`} 
-          className="my-2 overflow-x-auto text-center max-w-full"
-          style={{ wordBreak: 'break-word' }}
-          dangerouslySetInnerHTML={{ __html: renderedMath }}
-        />
+          className="my-2 overflow-x-auto text-center w-full"
+          style={{ 
+            maxWidth: '100%',
+            wordBreak: 'break-word',
+            overflowWrap: 'break-word'
+          }}
+        >
+          <div 
+            className="inline-block max-w-full"
+            dangerouslySetInnerHTML={{ __html: renderedMath }}
+          />
+        </div>
       );
       
       lastIndex = match.index + match[0].length;
@@ -92,8 +100,12 @@ const LaTeXRenderer: React.FC<LaTeXRendererProps> = ({ content }) => {
       parts.push(
         <span 
           key={`${keyPrefix}-inline-${matchIndex}`}
-          className="inline-block max-w-full"
-          style={{ wordBreak: 'break-word' }}
+          className="inline-block"
+          style={{ 
+            maxWidth: '100%',
+            wordBreak: 'break-word',
+            overflowWrap: 'break-word'
+          }}
           dangerouslySetInnerHTML={{ __html: renderedMath }}
         />
       );
@@ -130,7 +142,14 @@ const LaTeXRenderer: React.FC<LaTeXRendererProps> = ({ content }) => {
   };
   
   return (
-    <div className="latex-content max-w-full break-words">
+    <div 
+      className="latex-content w-full"
+      style={{ 
+        maxWidth: '100%',
+        wordBreak: 'break-word',
+        overflowWrap: 'break-word'
+      }}
+    >
       {renderContent(content)}
     </div>
   );

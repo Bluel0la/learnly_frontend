@@ -75,7 +75,18 @@ const Sidebar = () => {
 
   return (
     <aside className="w-64 h-full border-r border-gray-200 bg-white flex flex-col">
-      {/* Search Input Only */}
+      {/* Logo Section */}
+      <div className="p-4 border-b border-gray-200 flex justify-center">
+        <Link to="/" className="flex items-center">
+          <img 
+            src="/lovable-uploads/049297b5-b176-4687-b854-f87a9f0100ff.png" 
+            alt="Learnly Logo" 
+            className="h-8 w-auto"
+          />
+        </Link>
+      </div>
+
+      {/* Search Input */}
       <div className="p-4 border-b border-gray-200">
         <div className="relative">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />

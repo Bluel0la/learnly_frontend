@@ -19,6 +19,19 @@ export const getAuthHeaders = (): HeadersInit => {
   };
 };
 
+// Helper function for file upload headers (without Content-Type)
+export const getFileUploadHeaders = (): HeadersInit => {
+  const token = secureTokenStorage.getToken();
+  if (!token) throw new Error('Not authenticated');
+
+  return {
+    'Authorization': `Bearer ${token}`,
+    'Accept': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    ...getSecurityHeaders()
+  };
+};
+
 // Helper function for basic headers
 export const getBasicHeaders = (): HeadersInit => ({
   'Content-Type': 'application/json',

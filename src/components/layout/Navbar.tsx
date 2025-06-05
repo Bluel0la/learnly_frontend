@@ -2,16 +2,18 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Moon, Sun, User, LogIn, Menu } from 'lucide-react';
+import { Moon, Sun, User, LogIn, Menu, LogOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { tokenStorage } from '@/services/api';
+import { authApi } from '@/services/authApi';
 
 const Navbar = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isDarkMode, setIsDarkMode] = React.useState(false);
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
+  const [isLoggingOut, setIsLoggingOut] = React.useState(false);
 
   // Check authentication status on component mount and when localStorage changes
   useEffect(() => {
@@ -39,6 +41,31 @@ const Navbar = () => {
     // Theme toggle functionality would be implemented here
   };
 
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      await authApi.logout();
+      
+      toast({
+        title: "Logged out successfully",
+        description: "See you next time!",
+      });
+      
+      // Trigger auth status check
+      setIsAuthenticated(false);
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast({
+        title: "Logout failed",
+        description: "Please try again",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
   return (
     <nav className="w-full bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-10">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -63,6 +90,14 @@ const Navbar = () => {
                 <Link to="/profile">
                   <User className="h-5 w-5" />
                 </Link>
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+              >
+                <LogOut className="h-5 w-5" />
               </Button>
             </>
           ) : (
@@ -110,9 +145,20 @@ const Navbar = () => {
                   Resources
                 </Link>
                 {isAuthenticated && (
-                  <Link to="/profile" className="text-lg py-2 hover:text-primary transition-colors">
-                    Profile
-                  </Link>
+                  <>
+                    <Link to="/profile" className="text-lg py-2 hover:text-primary transition-colors">
+                      Profile
+                    </Link>
+                    <Button 
+                      variant="outline" 
+                      onClick={handleLogout}
+                      disabled={isLoggingOut}
+                      className="justify-start"
+                    >
+                      <LogOut className="h-5 w-5 mr-2" />
+                      Logout
+                    </Button>
+                  </>
                 )}
                 <div className="flex items-center justify-between pt-4 mt-4 border-t border-gray-200">
                   <Button variant="outline" size="icon" onClick={toggleTheme}>

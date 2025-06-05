@@ -47,7 +47,9 @@ const FlashcardsPage = () => {
     }
 
     try {
+      console.log('Creating deck with title:', newDeckTitle);
       const newDeck = await flashcardApi.createDeck(newDeckTitle);
+      console.log('Deck created successfully:', newDeck);
       toast({
         title: "Success! 🎉",
         description: `Deck "${newDeck.title}" created successfully`
@@ -217,6 +219,7 @@ const FlashcardDeckCard = ({
 }) => {
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState('');
   const [isManualDialogOpen, setIsManualDialogOpen] = useState(false);
   
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -225,22 +228,71 @@ const FlashcardDeckCard = ({
     
     try {
       setIsUploading(true);
-      await flashcardApi.generateFlashcards(deck.deck_id, file, 30);
+      setUploadProgress('Preparing upload...');
+      
+      console.log('Starting file upload for deck:', deck.deck_id);
+      console.log('File details:', {
+        name: file.name,
+        size: file.size,
+        type: file.type
+      });
+      
+      // File validation feedback
+      const maxSizeInMB = 10;
+      if (file.size > maxSizeInMB * 1024 * 1024) {
+        throw new Error(`File size must be less than ${maxSizeInMB}MB`);
+      }
+
+      const supportedExtensions = ['.pdf', '.pptx', '.docx', '.txt'];
+      const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+      
+      if (!supportedExtensions.includes(fileExtension)) {
+        throw new Error(`Unsupported file type. Please upload: ${supportedExtensions.join(', ')}`);
+      }
+
+      setUploadProgress('Uploading file...');
+      
+      // Add a small delay to show progress
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      setUploadProgress('Processing content...');
+      
+      const result = await flashcardApi.generateFlashcards(deck.deck_id, file, 30);
+      
+      setUploadProgress('Creating flashcards...');
+      
+      // Another small delay for UX
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      console.log('Upload completed successfully:', result);
+      
       toast({
         title: "Success! ✨",
-        description: "Flashcards generated from your file"
+        description: `Generated ${result.cards?.length || 'multiple'} flashcards from "${file.name}"`
       });
       onCardsAdded();
+      
     } catch (error) {
       console.error('Error generating flashcards:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to generate flashcards from file';
+      
       toast({
-        title: "Error",
-        description: "Failed to generate flashcards from file",
+        title: "Upload Failed",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
       setIsUploading(false);
+      setUploadProgress('');
       event.target.value = '';
+    }
+  };
+
+  const handleUploadClick = () => {
+    const fileInput = document.getElementById(`upload-${deck.deck_id}`) as HTMLInputElement;
+    if (fileInput) {
+      console.log('Triggering file input click for deck:', deck.deck_id);
+      fileInput.click();
     }
   };
   
@@ -296,20 +348,27 @@ const FlashcardDeckCard = ({
                   id={`upload-${deck.deck_id}`}
                   accept=".pdf,.pptx,.docx,.txt"
                   onChange={handleFileUpload}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  className="hidden"
                   disabled={isUploading}
                 />
                 <Button 
                   variant="outline" 
-                  className="w-full group-hover:scale-105 transition-transform"
+                  className="w-full group-hover:scale-105 transition-transform bg-gradient-to-r from-purple-50 to-indigo-50 hover:from-purple-100 hover:to-indigo-100"
                   disabled={isUploading}
+                  onClick={handleUploadClick}
                 >
                   <Upload className="h-4 w-4 mr-2" />
-                  {isUploading ? "Generating..." : "Upload"}
+                  {isUploading ? "Uploading..." : "Upload"}
                 </Button>
               </div>
             </div>
           </div>
+          
+          {isUploading && (
+            <div className="text-xs text-center text-muted-foreground animate-pulse bg-blue-50 p-2 rounded">
+              📤 {uploadProgress}
+            </div>
+          )}
         </CardContent>
       </Card>
       

@@ -6,6 +6,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChatMessage, chatApi } from '@/services/api';
 import MessageActions from './MessageActions';
 import LaTeXRenderer from './LaTeXRenderer';
+import RotatingText from '@/components/ui/rotating-text';
+import { useTimeBasedGreeting } from '@/hooks/useTimeBasedGreeting';
 
 type MessageType = 'user' | 'ai';
 
@@ -80,6 +82,7 @@ const ChatMessages = ({ sessionId: propSessionId }: ChatMessagesProps) => {
   const params = useParams();
   const sessionId = propSessionId || params.sessionId;
   const { toast } = useToast();
+  const { greetings } = useTimeBasedGreeting('Joseph');
   
   const [messages, setMessages] = useState<UIMessage[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -209,17 +212,29 @@ const ChatMessages = ({ sessionId: propSessionId }: ChatMessagesProps) => {
           ) : messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-64">
               <div className="text-center text-gray-500">
-                <p className="text-lg font-semibold mb-4">Start a new conversation</p>
-                <div className="mb-4">
-                  <TypingAnimation />
+                <div className="text-4xl font-serif font-bold text-gray-800 mb-4 flex items-center justify-center gap-2">
+                  <RotatingText
+                    texts={greetings}
+                    rotationInterval={2500}
+                    staggerDuration={0.05}
+                    mainClassName="text-4xl font-serif font-bold"
+                    transition={{ type: "spring", damping: 20, stiffness: 200 }}
+                    splitBy="words"
+                  />
+                  <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-bold">
+                    Joseph
+                  </span>
                 </div>
+                <p className="text-lg text-gray-600 mb-4">
+                  Ready to study something new today?
+                </p>
               </div>
             </div>
           ) : (
             <div className="max-w-4xl mx-auto space-y-4">
               {messages.map((message) => (
                 <div key={message.id} className="flex flex-col max-w-full">
-                  <div className={`${getMessageClassName(message)} max-w-full overflow-hidden`}>
+                  <div className={`${getMessageClassName(message)} max-w-full`}>
                     <div className="mb-1 flex justify-between items-center">
                       <span className="text-xs text-gray-500">
                         {message.type === 'user' ? 'You' : 'AI Assistant'}
@@ -228,7 +243,7 @@ const ChatMessages = ({ sessionId: propSessionId }: ChatMessagesProps) => {
                         {formatTime(message.timestamp)}
                       </span>
                     </div>
-                    <div className="whitespace-pre-line break-words max-w-full overflow-hidden">
+                    <div className="whitespace-pre-line break-words max-w-full">
                       {hasLaTeX(message.content) ? (
                         <LaTeXRenderer content={message.content} />
                       ) : (
