@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
@@ -161,44 +162,6 @@
   
   .action-button {
     @apply inline-flex items-center justify-center p-1.5 md:p-2 rounded-full bg-white border border-gray-200 text-gray-700 hover:bg-gray-100;
-  }
-  
-  /* Improved LaTeX rendering styles */
-  .math-display {
-    @apply my-3 w-full;
-    text-align: left !important;
-  }
-  
-  .math-display .katex-display {
-    margin: 0 !important;
-    text-align: left !important;
-  }
-  
-  .math-display .katex {
-    text-align: left !important;
-    font-size: 1.1em !important;
-  }
-  
-  .math-inline .katex {
-    font-size: 1em !important;
-  }
-  
-  /* Ensure LaTeX doesn't break layout */
-  .katex {
-    font-size: inherit !important;
-    max-width: 100% !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-  }
-  
-  .katex-display {
-    text-align: left !important;
-    margin: 0.5em 0 !important;
-  }
-  
-  .katex .base {
-    display: inline-block !important;
-    max-width: 100% !important;
   }
 
   /* Flashcard animations */
