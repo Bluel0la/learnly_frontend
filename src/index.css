@@ -182,7 +182,33 @@
   .flashcard-back {
     transform: rotateY(180deg);
   }
-
+  /* Latex Display */
+  .math-display {
+  @apply my-3 w-full text-left;
+  overflow-x: auto;
+  }
+  
+  .math-display .katex-display {
+    margin: 0 !important;
+    text-align: left !important;
+  }
+  
+  .math-display .katex {
+    font-size: 1.1em;
+    text-align: left !important;
+  }
+  
+  .math-inline .katex {
+    font-size: 1em !important;
+  }
+  
+  .katex {
+    font-size: inherit !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+  }
+  
   /* Responsive container utilities */
   .container-responsive {
     @apply px-3 md:px-6 lg:px-8;
