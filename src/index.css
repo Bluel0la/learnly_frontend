@@ -165,68 +165,41 @@
   
   /* Improved LaTeX rendering styles */
   .math-display {
-  @apply my-3 w-full;
-  text-align: left !important;
-  max-width: 100%; /* Ensure it doesn't exceed container width */
-  overflow-wrap: break-word; /* Allow breaking long LaTeX content */
-  word-break: break-word;
-  white-space: normal; /* Allow wrapping */
+    @apply my-3 w-full;
+    text-align: left !important;
   }
   
   .math-display .katex-display {
     margin: 0 !important;
     text-align: left !important;
-    max-width: 100%;
-    overflow-wrap: break-word;
-    word-break: break-word;
-    white-space: normal;
   }
   
   .math-display .katex {
     text-align: left !important;
     font-size: 1.1em !important;
-    max-width: 100% !important;
-    white-space: normal !important;
-    overflow-wrap: break-word !important;
-    word-break: break-word !important;
   }
   
   .math-inline .katex {
     font-size: 1em !important;
-    white-space: normal !important;
-    max-width: 100% !important;
-    overflow-wrap: break-word !important;
-    word-break: break-word !important;
   }
   
-  /* Remove horizontal scrolling to prevent layout breaks */
+  /* Ensure LaTeX doesn't break layout */
   .katex {
     font-size: inherit !important;
     max-width: 100% !important;
-    overflow-x: visible !important; /* changed from auto */
+    overflow-x: auto !important;
     overflow-y: hidden !important;
-    white-space: normal !important;
-    overflow-wrap: break-word !important;
-    word-break: break-word !important;
   }
   
   .katex-display {
     text-align: left !important;
     margin: 0.5em 0 !important;
-    max-width: 100%;
-    overflow-wrap: break-word !important;
-    word-break: break-word !important;
-    white-space: normal !important;
   }
   
   .katex .base {
     display: inline-block !important;
     max-width: 100% !important;
-    white-space: normal !important;
-    overflow-wrap: break-word !important;
-    word-break: break-word !important;
   }
-
 
   /* Flashcard animations */
   .flashcard-flip {
