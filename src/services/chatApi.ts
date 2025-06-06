@@ -1,4 +1,3 @@
-
 import { API_BASE_URL, getAuthHeaders } from './apiConfig';
 import { secureTokenStorage } from './secureTokenStorage';
 
@@ -120,10 +119,9 @@ export const chatApi = {
   // Delete a chat session
   deleteSession: async (chatId: string): Promise<void> => {
     try {
-      const response = await fetch(`${API_BASE_URL}/chat/delete-chat`, {
+      const response = await fetch(`${API_BASE_URL}/chat/delete-chat/${chatId}`, {
         method: 'DELETE',
         headers: getAuthHeaders(),
-        body: JSON.stringify({ chat_id: chatId }),
         mode: 'cors',
       });
 
