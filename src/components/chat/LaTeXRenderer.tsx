@@ -1,4 +1,3 @@
-
 import React from 'react';
 import 'katex/dist/katex.min.css';
 import katex from 'katex';
@@ -8,7 +7,7 @@ interface LaTeXRendererProps {
 }
 
 const LaTeXRenderer: React.FC<LaTeXRendererProps> = ({ content }) => {
-  // Function to render LaTeX using KaTeX
+  // Render KaTeX safely
   const renderLatex = (latex: string, displayMode: boolean = false) => {
     try {
       return katex.renderToString(latex, {
@@ -17,7 +16,7 @@ const LaTeXRenderer: React.FC<LaTeXRendererProps> = ({ content }) => {
         errorColor: '#cc0000',
         strict: 'warn',
         trust: true,
-        fleqn: true, // Always left align
+        fleqn: true, // Align left
       });
     } catch (error) {
       console.error('LaTeX render error:', error);
@@ -25,33 +24,46 @@ const LaTeXRenderer: React.FC<LaTeXRendererProps> = ({ content }) => {
     }
   };
 
-  // Function to process content and handle LaTeX
-  const processContent = (text: string) => {
-    // Handle display math first ($$...$$)
-    let processedText = text.replace(/\$\$([\s\S]*?)\$\$/g, (match, mathContent) => {
+  // Process the content
+  const processContent = (text: string): string => {
+    let processed = text;
+
+    // 1. Handle \begin{aligned} ... \end{aligned} even if not wrapped
+    processed = processed.replace(/\\begin{aligned}[\s\S]*?\\end{aligned}/g, (match) => {
+      const wrapped = `\\[${match}\\]`; // or $$...$$
+      const rendered = renderLatex(wrapped, true);
+      return `<div class="math-display">${rendered}</div>`;
+    });
+
+    // 2. Handle display math blocks ($$...$$)
+    processed = processed.replace(/\$\$([\s\S]*?)\$\$/g, (_, mathContent) => {
       const rendered = renderLatex(mathContent.trim(), true);
       return `<div class="math-display">${rendered}</div>`;
     });
 
-    // Handle inline math ($...$)
-    processedText = processedText.replace(/\$([^$\n]+?)\$/g, (match, mathContent) => {
+    // 3. Handle inline math ($...$)
+    processed = processed.replace(/\$([^$\n]+?)\$/g, (_, mathContent) => {
       const rendered = renderLatex(mathContent.trim(), false);
       return `<span class="math-inline">${rendered}</span>`;
     });
 
-    // Handle other formatting
-    processedText = processedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    processedText = processedText.replace(/`([^`]+)`/g, '<code class="bg-gray-100 px-1 rounded text-sm font-mono">$1</code>');
-    processedText = processedText.replace(/✅/g, '<span class="text-green-600">✅</span>');
+    // 4. Bold formatting (**bold**)
+    processed = processed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 
-    // Convert newlines to <br> tags
-    processedText = processedText.replace(/\n/g, '<br>');
+    // 5. Inline code blocks (`code`)
+    processed = processed.replace(/`([^`]+)`/g, '<code class="bg-gray-100 px-1 rounded text-sm font-mono">$1</code>');
 
-    return processedText;
+    // 6. Emoji: ✅
+    processed = processed.replace(/✅/g, '<span class="text-green-600">✅</span>');
+
+    // 7. Convert newlines to <br> (optional: inside text only)
+    processed = processed.replace(/\n/g, '<br>');
+
+    return processed;
   };
 
   return (
-    <div 
+    <div
       className="w-full text-left leading-relaxed"
       dangerouslySetInnerHTML={{ __html: processContent(content) }}
     />
