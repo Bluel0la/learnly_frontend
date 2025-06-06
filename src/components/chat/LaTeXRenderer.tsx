@@ -17,7 +17,7 @@ const LaTeXRenderer: React.FC<LaTeXRendererProps> = ({ content }) => {
         errorColor: '#cc0000',
         strict: 'warn',
         trust: true,
-        fleqn: false,
+        fleqn: displayMode, // Left align display math
       });
     } catch (error) {
       console.error('LaTeX render error:', error);
@@ -48,11 +48,15 @@ const LaTeXRenderer: React.FC<LaTeXRendererProps> = ({ content }) => {
       parts.push(
         <div 
           key={`block-${blockIndex}`} 
-          className="my-4 flex justify-center w-full"
+          className="my-2 w-full overflow-x-auto"
         >
           <div 
-            className="katex-display-wrapper text-center"
-            style={{ fontSize: '1.1em', lineHeight: '1.5' }}
+            className="katex-display-wrapper text-left max-w-full"
+            style={{ 
+              fontSize: '1em',
+              lineHeight: '1.4',
+              minWidth: 'fit-content'
+            }}
             dangerouslySetInnerHTML={{ __html: renderedMath }}
           />
         </div>
@@ -98,7 +102,7 @@ const LaTeXRenderer: React.FC<LaTeXRendererProps> = ({ content }) => {
       parts.push(
         <span 
           key={`${keyPrefix}-inline-${matchIndex}`}
-          className="katex-inline-wrapper mx-1"
+          className="katex-inline-wrapper"
           style={{ verticalAlign: 'baseline' }}
           dangerouslySetInnerHTML={{ __html: renderedMath }}
         />
@@ -146,7 +150,7 @@ const LaTeXRenderer: React.FC<LaTeXRendererProps> = ({ content }) => {
   };
   
   return (
-    <div className="latex-content w-full leading-relaxed">
+    <div className="latex-content w-full leading-relaxed text-left">
       {renderContent(content)}
     </div>
   );

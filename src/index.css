@@ -166,15 +166,36 @@
   
   /* LaTeX rendering styles */
   .latex-content {
-    @apply leading-relaxed;
+    @apply leading-relaxed w-full;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
   
   .latex-content .katex {
     @apply text-sm md:text-base;
+    font-size: 1em !important;
   }
   
   .latex-content .katex-display {
-    @apply my-3 md:my-4 overflow-x-auto;
+    @apply my-2 text-left;
+    margin: 0.5em 0 !important;
+    text-align: left !important;
+  }
+  
+  .latex-content .katex-display > .katex {
+    text-align: left !important;
+    display: block !important;
+  }
+  
+  .latex-content .katex-display-wrapper {
+    width: 100% !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+  
+  .latex-content .katex-inline-wrapper {
+    display: inline;
+    white-space: nowrap;
   }
   
   .latex-content code {
