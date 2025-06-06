@@ -57,13 +57,13 @@ const AppSidebar = () => {
   const getSessionIcon = (title: string) => {
     const lowerTitle = title.toLowerCase();
     if (lowerTitle.includes('math') || lowerTitle.includes('calc') || lowerTitle.includes('equation')) {
-      return <Calculator className="h-4 w-4 text-green-500" />;
+      return <Calculator className="h-3 w-3 md:h-4 md:w-4 text-green-500" />;
     } else if (lowerTitle.includes('summary') || lowerTitle.includes('explain')) {
-      return <FileText className="h-4 w-4 text-blue-500" />;
+      return <FileText className="h-3 w-3 md:h-4 md:w-4 text-blue-500" />;
     } else if (lowerTitle.includes('flash') || lowerTitle.includes('card')) {
-      return <BookOpen className="h-4 w-4 text-accent" />;
+      return <BookOpen className="h-3 w-3 md:h-4 md:w-4 text-accent" />;
     } else {
-      return <MessageSquare className="h-4 w-4 text-gray-500" />;
+      return <MessageSquare className="h-3 w-3 md:h-4 md:w-4 text-gray-500" />;
     }
   };
 
@@ -96,66 +96,67 @@ const AppSidebar = () => {
 
   return (
     <Sidebar>
-      <SidebarHeader>
-        <div className="flex items-center gap-2 px-2 py-2">
-          <BookOpen className="h-6 w-6 text-primary" />
-          <span className="font-bold text-lg">Learnly</span>
+      <SidebarHeader className="p-3 md:p-4">
+        <div className="flex items-center gap-2 px-1 py-1">
+          <BookOpen className="h-5 w-5 md:h-6 md:w-6 text-primary" />
+          <span className="font-bold text-base md:text-lg">Learnly</span>
         </div>
         
         {/* New Chat Button */}
-        <div className="px-2">
+        <div className="px-1 mt-2">
           <SidebarMenuButton 
             onClick={handleNewChat}
-            className="w-full justify-start gap-2 h-10 bg-primary/10 hover:bg-primary/20 text-primary font-medium"
+            className="w-full justify-start gap-2 h-9 md:h-10 bg-primary/10 hover:bg-primary/20 text-primary font-medium text-sm"
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-3 w-3 md:h-4 md:w-4" />
             <span>New chat</span>
           </SidebarMenuButton>
         </div>
 
-        <div className="px-2">
+        <div className="px-1 mt-2">
           <SidebarInput
             type="text"
             placeholder="Search sessions..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            className="text-sm h-8 md:h-9"
           />
         </div>
       </SidebarHeader>
       
-      <SidebarContent>
+      <SidebarContent className="px-2 md:px-3">
         {/* Navigation Section */}
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={isActive("/chat")}>
+                <SidebarMenuButton asChild isActive={isActive("/chat")} className="h-8 md:h-9 text-sm">
                   <Link to="/chat">
-                    <MessageSquare className="h-5 w-5" />
+                    <MessageSquare className="h-4 w-4 md:h-5 md:w-5" />
                     <span>Chat</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={isActive("/flashcards")}>
+                <SidebarMenuButton asChild isActive={isActive("/flashcards")} className="h-8 md:h-9 text-sm">
                   <Link to="/flashcards">
-                    <BookOpen className="h-5 w-5" />
+                    <BookOpen className="h-4 w-4 md:h-5 md:w-5" />
                     <span>Flashcards</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={isActive("/quizzes")}>
+                <SidebarMenuButton asChild isActive={isActive("/quizzes")} className="h-8 md:h-9 text-sm">
                   <Link to="/quizzes">
-                    <HelpCircle className="h-5 w-5" />
+                    <HelpCircle className="h-4 w-4 md:h-5 md:w-5" />
                     <span>Quizzes</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={isActive("/resources")}>
+                <SidebarMenuButton asChild isActive={isActive("/resources")} className="h-8 md:h-9 text-sm">
                   <Link to="/resources">
-                    <Library className="h-5 w-5" />
+                    <Library className="h-4 w-4 md:h-5 md:w-5" />
                     <span>Resources</span>
                   </Link>
                 </SidebarMenuButton>
@@ -166,21 +167,21 @@ const AppSidebar = () => {
 
         {/* Recent Sessions Section */}
         <SidebarGroup>
-          <SidebarGroupLabel>Recent Sessions</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-xs">Recent Sessions</SidebarGroupLabel>
           <SidebarGroupContent>
             {isLoading ? (
               <div className="flex justify-center py-4">
-                <div className="h-5 w-5 border-2 border-t-transparent border-gray-500 rounded-full animate-spin"></div>
+                <div className="h-4 w-4 border-2 border-t-transparent border-gray-500 rounded-full animate-spin"></div>
               </div>
             ) : (
               <SidebarMenu>
                 {filteredSessions.map((session) => (
                   <SidebarMenuItem key={session.chat_id}>
-                    <SidebarMenuButton asChild isActive={isSessionActive(session.chat_id)}>
+                    <SidebarMenuButton asChild isActive={isSessionActive(session.chat_id)} className="h-auto py-2">
                       <Link to={`/chat/${session.chat_id}`}>
                         {getSessionIcon(session.chat_title)}
-                        <div className="flex flex-col items-start overflow-hidden">
-                          <span className="text-sm font-medium truncate w-full">{session.chat_title}</span>
+                        <div className="flex flex-col items-start overflow-hidden min-w-0 flex-1">
+                          <span className="text-xs md:text-sm font-medium truncate w-full">{session.chat_title}</span>
                           <span className="text-xs text-muted-foreground">
                             {formatDate(session.created_at)}
                           </span>
@@ -191,7 +192,7 @@ const AppSidebar = () => {
                 ))}
                 
                 {filteredSessions.length === 0 && !isLoading && (
-                  <div className="text-center p-4 text-muted-foreground text-sm">
+                  <div className="text-center p-3 text-muted-foreground text-xs">
                     No chat sessions found
                   </div>
                 )}

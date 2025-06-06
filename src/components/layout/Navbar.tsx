@@ -67,48 +67,58 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="w-full bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-10">
+    <nav className="w-full bg-white px-2 md:px-4 py-2 md:py-3">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        {/* Logo */}
-        <Link to="/" className="flex items-center space-x-2">
+        {/* Logo - Hidden on desktop since it's in sidebar */}
+        <Link to="/" className="flex items-center space-x-2 md:hidden">
           <img 
             src="/lovable-uploads/049297b5-b176-4687-b854-f87a9f0100ff.png" 
             alt="Learnly Logo" 
-            className="h-8 w-auto"
+            className="h-6 w-auto"
+          />
+          <span className="text-lg font-serif font-bold text-primary">Learnly</span>
+        </Link>
+
+        {/* Desktop Logo - Only shown on larger screens */}
+        <Link to="/" className="hidden md:flex items-center space-x-2">
+          <img 
+            src="/lovable-uploads/049297b5-b176-4687-b854-f87a9f0100ff.png" 
+            alt="Learnly Logo" 
+            className="h-7 w-auto"
           />
           <span className="text-xl font-serif font-bold text-primary">Learnly</span>
         </Link>
 
         {/* Right Action Buttons - Desktop */}
-        <div className="hidden md:flex items-center space-x-2">
+        <div className="hidden md:flex items-center space-x-1 md:space-x-2">
           {isAuthenticated ? (
             <>
-              <Button variant="ghost" size="icon" onClick={toggleTheme}>
-                {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              <Button variant="ghost" size="sm" onClick={toggleTheme}>
+                {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </Button>
-              <Button variant="ghost" size="icon" asChild>
+              <Button variant="ghost" size="sm" asChild>
                 <Link to="/profile">
-                  <User className="h-5 w-5" />
+                  <User className="h-4 w-4" />
                 </Link>
               </Button>
               <Button 
                 variant="ghost" 
-                size="icon" 
+                size="sm" 
                 onClick={handleLogout}
                 disabled={isLoggingOut}
               >
-                <LogOut className="h-5 w-5" />
+                <LogOut className="h-4 w-4" />
               </Button>
             </>
           ) : (
             <>
-              <Button variant="ghost" size="icon" asChild>
+              <Button variant="ghost" size="sm" asChild>
                 <Link to="/login">
-                  <LogIn className="h-5 w-5" />
+                  <LogIn className="h-4 w-4" />
                 </Link>
               </Button>
-              <Button variant="ghost" size="icon" onClick={toggleTheme}>
-                {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              <Button variant="ghost" size="sm" onClick={toggleTheme}>
+                {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </Button>
             </>
           )}
@@ -118,11 +128,11 @@ const Navbar = () => {
         <div className="md:hidden">
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="sm">
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right">
+            <SheetContent side="right" className="w-[280px] sm:w-[320px]">
               <div className="flex flex-col space-y-4 mt-8">
                 <Link to="/" className="flex items-center space-x-2 mb-6">
                   <img 
@@ -132,42 +142,42 @@ const Navbar = () => {
                   />
                   <span className="text-xl font-serif font-bold text-primary">Learnly</span>
                 </Link>
-                <Link to="/chat" className="text-lg py-2 hover:text-primary transition-colors">
+                <Link to="/chat" className="text-base py-2 hover:text-primary transition-colors">
                   Chat
                 </Link>
-                <Link to="/flashcards" className="text-lg py-2 hover:text-primary transition-colors">
+                <Link to="/flashcards" className="text-base py-2 hover:text-primary transition-colors">
                   Flashcards
                 </Link>
-                <Link to="/quizzes" className="text-lg py-2 hover:text-primary transition-colors">
+                <Link to="/quizzes" className="text-base py-2 hover:text-primary transition-colors">
                   Quizzes
                 </Link>
-                <Link to="/resources" className="text-lg py-2 hover:text-primary transition-colors">
+                <Link to="/resources" className="text-base py-2 hover:text-primary transition-colors">
                   Resources
                 </Link>
                 {isAuthenticated && (
                   <>
-                    <Link to="/profile" className="text-lg py-2 hover:text-primary transition-colors">
+                    <Link to="/profile" className="text-base py-2 hover:text-primary transition-colors">
                       Profile
                     </Link>
                     <Button 
                       variant="outline" 
                       onClick={handleLogout}
                       disabled={isLoggingOut}
-                      className="justify-start"
+                      className="justify-start text-sm"
                     >
-                      <LogOut className="h-5 w-5 mr-2" />
+                      <LogOut className="h-4 w-4 mr-2" />
                       Logout
                     </Button>
                   </>
                 )}
                 <div className="flex items-center justify-between pt-4 mt-4 border-t border-gray-200">
-                  <Button variant="outline" size="icon" onClick={toggleTheme}>
-                    {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                  <Button variant="outline" size="sm" onClick={toggleTheme}>
+                    {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
                   </Button>
                   {!isAuthenticated && (
-                    <Button variant="outline" size="icon" asChild>
+                    <Button variant="outline" size="sm" asChild>
                       <Link to="/login">
-                        <LogIn className="h-5 w-5" />
+                        <LogIn className="h-4 w-4" />
                       </Link>
                     </Button>
                   )}

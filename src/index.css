@@ -100,19 +100,47 @@
   h1, h2, h3, h4, h5, h6 {
     @apply font-serif font-bold;
   }
+
+  /* Mobile viewport fixes */
+  html {
+    height: 100%;
+    height: -webkit-fill-available;
+  }
+
+  body {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+
+  /* Safe area support for mobile devices */
+  .safe-area-inset-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-area-inset-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-area-inset-left {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .safe-area-inset-right {
+    padding-right: env(safe-area-inset-right);
+  }
 }
 
 @layer components {
   .academic-card {
-    @apply bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6;
+    @apply bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 md:p-6;
   }
   
   .chat-message-user {
-    @apply p-4 rounded-xl bg-primary/10 ml-auto max-w-[80%] mb-4;
+    @apply p-3 md:p-4 rounded-xl bg-primary/10 ml-auto max-w-[85%] md:max-w-[80%] mb-4;
   }
   
   .chat-message-ai {
-    @apply p-4 rounded-xl bg-secondary/10 mr-auto max-w-[80%] mb-4;
+    @apply p-3 md:p-4 rounded-xl bg-secondary/10 mr-auto max-w-[85%] md:max-w-[80%] mb-4;
   }
   
   .chat-message-math {
@@ -124,16 +152,16 @@
   }
   
   .btn-smart {
-    @apply inline-flex items-center rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors;
+    @apply inline-flex items-center rounded-lg px-2 md:px-3 py-1.5 md:py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors;
   }
   
   /* New styles for ChatGPT-like interface */
   .chat-input {
-    @apply w-full p-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary;
+    @apply w-full p-2 md:p-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary;
   }
   
   .action-button {
-    @apply inline-flex items-center justify-center p-2 rounded-full bg-white border border-gray-200 text-gray-700 hover:bg-gray-100;
+    @apply inline-flex items-center justify-center p-1.5 md:p-2 rounded-full bg-white border border-gray-200 text-gray-700 hover:bg-gray-100;
   }
   
   /* LaTeX rendering styles */
@@ -142,15 +170,15 @@
   }
   
   .latex-content .katex {
-    @apply text-base;
+    @apply text-sm md:text-base;
   }
   
   .latex-content .katex-display {
-    @apply my-4 overflow-x-auto;
+    @apply my-3 md:my-4 overflow-x-auto;
   }
   
   .latex-content code {
-    @apply bg-gray-100 px-1 py-0.5 rounded text-sm font-mono;
+    @apply bg-gray-100 px-1 py-0.5 rounded text-xs md:text-sm font-mono;
   }
   
   .latex-content strong {
@@ -174,6 +202,29 @@
 
   .flashcard-back {
     transform: rotateY(180deg);
+  }
+
+  /* Responsive container utilities */
+  .container-responsive {
+    @apply px-3 md:px-6 lg:px-8;
+  }
+
+  /* Touch-friendly interactive elements */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Responsive text sizes */
+  .text-responsive-sm {
+    @apply text-sm md:text-base;
+  }
+
+  .text-responsive-md {
+    @apply text-base md:text-lg;
+  }
+
+  .text-responsive-lg {
+    @apply text-lg md:text-xl lg:text-2xl;
   }
 }
 
@@ -216,4 +267,56 @@
 
 .animate-pulse-glow {
   animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Mobile-specific fixes */
+@media screen and (max-width: 768px) {
+  /* Prevent horizontal scrolling */
+  html, body {
+    overflow-x: hidden;
+  }
+
+  /* Better touch targets */
+  button, a, input, select, textarea {
+    min-height: 44px;
+  }
+
+  /* Improved readability */
+  .text-sm {
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  /* Better spacing for mobile */
+  .space-y-4 > * + * {
+    margin-top: 0.75rem;
+  }
+
+  .space-y-6 > * + * {
+    margin-top: 1rem;
+  }
+}
+
+/* Tablet-specific optimizations */
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+  .container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  /* Better grid layouts for tablets */
+  .grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .grid-cols-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* High DPI display optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .border {
+    border-width: 0.5px;
+  }
 }

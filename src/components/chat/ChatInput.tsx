@@ -107,11 +107,11 @@ const ChatInput = () => {
   };
 
   return (
-    <div className="border-t bg-white p-4">
+    <div className="sticky bottom-0 border-t bg-white p-3 md:p-4 safe-area-inset-bottom">
       <div className="max-w-4xl mx-auto">
         {/* Extracted Text Display */}
         {extractedText && (
-          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg relative">
+          <div className="mb-3 md:mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg relative">
             <button
               onClick={clearExtractedText}
               className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
@@ -124,15 +124,15 @@ const ChatInput = () => {
         )}
 
         <form onSubmit={handleSubmit}>
-          <div className="flex items-center gap-2 p-3 rounded-full border shadow-sm bg-white">
+          <div className="flex items-center gap-2 p-2 md:p-3 rounded-2xl md:rounded-full border shadow-sm bg-white">
             {/* Left Icons */}
-            <div className="flex items-center gap-2 pl-2 pr-1">
+            <div className="flex items-center gap-1 md:gap-2 pl-1 md:pl-2 pr-1">
               <button
                 type="button"
                 onClick={() => setShowImageUpload(true)}
-                className="text-gray-500 hover:text-gray-700 cursor-pointer"
+                className="text-gray-500 hover:text-gray-700 cursor-pointer p-1"
               >
-                <Plus size={20} />
+                <Plus size={18} className="md:w-5 md:h-5" />
               </button>
             </div>
 
@@ -142,32 +142,32 @@ const ChatInput = () => {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder={extractedText ? "Add your follow-up question..." : "Ask anything"}
-              className="flex-1 px-3 py-2 text-sm focus:outline-none bg-transparent"
+              className="flex-1 px-2 md:px-3 py-2 text-sm focus:outline-none bg-transparent min-w-0"
               disabled={isSubmitting}
             />
 
-            {/* Microphone */}
+            {/* Microphone - Hidden on very small screens */}
             <button
               type="button"
-              className="text-gray-500 hover:text-gray-700 cursor-pointer mr-2"
+              className="text-gray-500 hover:text-gray-700 cursor-pointer mr-1 md:mr-2 hidden sm:block"
             >
-              <Mic size={20} />
+              <Mic size={18} className="md:w-5 md:h-5" />
             </button>
 
             {/* Send Button */}
             <button
               type="submit"
               disabled={(!message.trim() && !extractedText) || isSubmitting}
-              className={`p-2 rounded-full transition ${
+              className={`p-2 rounded-full transition shrink-0 ${
                 (message.trim() || extractedText) && !isSubmitting
                   ? 'bg-black text-white hover:bg-gray-800'
                   : 'bg-gray-200 text-gray-400 cursor-not-allowed'
               }`}
             >
               {isSubmitting ? (
-                <div className="h-5 w-5 border-2 border-t-transparent border-white rounded-full animate-spin"></div>
+                <div className="h-4 w-4 md:h-5 md:w-5 border-2 border-t-transparent border-white rounded-full animate-spin"></div>
               ) : (
-                <ArrowUp size={16} />
+                <ArrowUp size={14} className="md:w-4 md:h-4" />
               )}
             </button>
           </div>
