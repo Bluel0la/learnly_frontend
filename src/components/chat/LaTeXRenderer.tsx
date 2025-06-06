@@ -15,7 +15,9 @@ const LaTeXRenderer: React.FC<LaTeXRendererProps> = ({ content }) => {
         displayMode,
         throwOnError: false,
         errorColor: '#cc0000',
-        strict: 'warn'
+        strict: 'warn',
+        trust: true,
+        fleqn: false,
       });
     } catch (error) {
       console.error('LaTeX render error:', error);
@@ -40,21 +42,17 @@ const LaTeXRenderer: React.FC<LaTeXRendererProps> = ({ content }) => {
         parts.push(...renderInlineContent(textBefore, `text-${blockIndex}-before`));
       }
       
-      // Add the math block with proper constraints
+      // Add the math block
       const mathContent = match[1].trim();
       const renderedMath = renderLatex(mathContent, true);
       parts.push(
         <div 
           key={`block-${blockIndex}`} 
-          className="my-2 overflow-x-auto text-center w-full"
-          style={{ 
-            maxWidth: '100%',
-            wordBreak: 'break-word',
-            overflowWrap: 'break-word'
-          }}
+          className="my-4 flex justify-center w-full"
         >
           <div 
-            className="inline-block max-w-full"
+            className="katex-display-wrapper text-center"
+            style={{ fontSize: '1.1em', lineHeight: '1.5' }}
             dangerouslySetInnerHTML={{ __html: renderedMath }}
           />
         </div>
@@ -94,18 +92,14 @@ const LaTeXRenderer: React.FC<LaTeXRendererProps> = ({ content }) => {
         }
       }
       
-      // Add the inline math with proper constraints
+      // Add the inline math
       const mathContent = match[1].trim();
       const renderedMath = renderLatex(mathContent, false);
       parts.push(
         <span 
           key={`${keyPrefix}-inline-${matchIndex}`}
-          className="inline-block"
-          style={{ 
-            maxWidth: '100%',
-            wordBreak: 'break-word',
-            overflowWrap: 'break-word'
-          }}
+          className="katex-inline-wrapper mx-1"
+          style={{ verticalAlign: 'baseline' }}
           dangerouslySetInnerHTML={{ __html: renderedMath }}
         />
       );
@@ -131,25 +125,28 @@ const LaTeXRenderer: React.FC<LaTeXRendererProps> = ({ content }) => {
   
   // Function to format plain text with basic formatting
   const formatPlainText = (text: string) => {
-    // Convert **bold** to <strong>
-    let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    // Convert `code` to <code>
-    formatted = formatted.replace(/`([^`]+)`/g, '<code class="bg-gray-100 px-1 rounded text-sm">$1</code>');
-    // Convert ✅ to proper emoji styling
-    formatted = formatted.replace(/✅/g, '<span class="text-green-600">✅</span>');
+    // Split by newlines first to preserve line breaks
+    const lines = text.split('\n');
     
-    return <span dangerouslySetInnerHTML={{ __html: formatted }} />;
+    return lines.map((line, lineIndex) => {
+      // Convert **bold** to <strong>
+      let formatted = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      // Convert `code` to <code>
+      formatted = formatted.replace(/`([^`]+)`/g, '<code class="bg-gray-100 px-1 rounded text-sm font-mono">$1</code>');
+      // Convert ✅ to proper emoji styling
+      formatted = formatted.replace(/✅/g, '<span class="text-green-600">✅</span>');
+      
+      return (
+        <span key={lineIndex}>
+          <span dangerouslySetInnerHTML={{ __html: formatted }} />
+          {lineIndex < lines.length - 1 && <br />}
+        </span>
+      );
+    });
   };
   
   return (
-    <div 
-      className="latex-content w-full"
-      style={{ 
-        maxWidth: '100%',
-        wordBreak: 'break-word',
-        overflowWrap: 'break-word'
-      }}
-    >
+    <div className="latex-content w-full leading-relaxed">
       {renderContent(content)}
     </div>
   );

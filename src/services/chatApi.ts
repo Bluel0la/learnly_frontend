@@ -117,6 +117,26 @@ export const chatApi = {
     }
   },
 
+  // Delete a chat session
+  deleteSession: async (chatId: string): Promise<void> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/chat/delete-chat`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ chat_id: chatId }),
+        mode: 'cors',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || 'Failed to delete chat session');
+      }
+    } catch (error) {
+      console.error('Delete session error:', error);
+      throw error;
+    }
+  },
+
   // Extract text from image
   extractText: async (file: File): Promise<ExtractTextResponse> => {
     try {
