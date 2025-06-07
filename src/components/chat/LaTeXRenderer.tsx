@@ -60,6 +60,7 @@ const LaTeXRenderer: React.FC<LaTeXRendererProps> = ({ content }) => {
     processed = processed.replace(/\n/g, "<br>");
 
     return processed;
+    return processed;
   };
 
   return (
