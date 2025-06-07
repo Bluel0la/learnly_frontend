@@ -36,7 +36,7 @@ const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({ deckId, onCompl
   const [currentMultiplier, setCurrentMultiplier] = useState(1);
   const [totalScore, setTotalScore] = useState(0);
   const [maxMultiplier, setMaxMultiplier] = useState(1);
-  const [showMultiplierBonus, setShowMultiplierBonus] = useState(false);
+  const [multiplierIncreased, setMultiplierIncreased] = useState(false);
 
   const BASE_POINTS = 100;
 
@@ -75,7 +75,7 @@ const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({ deckId, onCompl
       setCurrentMultiplier(1);
       setTotalScore(0);
       setMaxMultiplier(1);
-      setShowMultiplierBonus(false);
+      setMultiplierIncreased(false);
     } catch (error) {
       console.error('Error starting quiz:', error);
       toast({
@@ -109,10 +109,10 @@ const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({ deckId, onCompl
       newMultiplier = calculateMultiplier(newStreak);
       pointsEarned = BASE_POINTS * newMultiplier;
       
-      // Show multiplier bonus animation if multiplier increased
+      // Set flag if multiplier increased (for subtle animation)
       if (newMultiplier > currentMultiplier) {
-        setShowMultiplierBonus(true);
-        setTimeout(() => setShowMultiplierBonus(false), 2000);
+        setMultiplierIncreased(true);
+        setTimeout(() => setMultiplierIncreased(false), 1000);
       }
       
       setMaxMultiplier(Math.max(maxMultiplier, newMultiplier));
@@ -366,18 +366,6 @@ const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({ deckId, onCompl
 
   return (
     <div className="max-w-4xl mx-auto space-y-4 animate-fade-in">
-      {/* Multiplier Bonus Animation */}
-      {showMultiplierBonus && (
-        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 animate-scale-in">
-          <div className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-lg shadow-lg border-2 border-white">
-            <div className="flex items-center gap-2 text-lg font-bold">
-              <Zap className="h-6 w-6" />
-              {currentMultiplier}x Multiplier!
-            </div>
-          </div>
-        </div>
-      )}
-
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
@@ -390,15 +378,17 @@ const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({ deckId, onCompl
             </div>
           </div>
           
-          {/* Score and Multiplier Display */}
-          <div className="flex justify-between items-center bg-gradient-to-r from-blue-50 to-purple-50 p-3 rounded-lg">
+          {/* Score and Multiplier Display - More Subtle */}
+          <div className="flex justify-between items-center bg-gradient-to-r from-blue-50 to-purple-50 p-3 rounded-lg transition-all duration-500">
             <div className="text-center">
               <div className="text-xl font-bold text-blue-600">{totalScore.toLocaleString()}</div>
               <div className="text-xs text-muted-foreground">Points</div>
             </div>
             
             <div className="text-center">
-              <div className={`text-xl font-bold flex items-center gap-1 ${currentMultiplier > 1 ? 'text-purple-600' : 'text-gray-500'}`}>
+              <div className={`text-xl font-bold flex items-center gap-1 transition-all duration-500 ${
+                currentMultiplier > 1 ? 'text-purple-600' : 'text-gray-500'
+              } ${multiplierIncreased ? 'scale-110' : 'scale-100'}`}>
                 <Zap className="h-4 w-4" />
                 {currentMultiplier}x
               </div>
