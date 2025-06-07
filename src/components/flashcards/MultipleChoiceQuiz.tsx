@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { Clock, CheckCircle, XCircle, Trophy, ArrowLeft, BookOpen } from 'lucide-react';
+import { Clock, CheckCircle, XCircle, Trophy, ArrowLeft, BookOpen, Zap, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { QuizCard, QuizResponse, QuizResult, flashcardApi } from '@/services/flashcardApi';
 import LoadingSpinner from '@/components/ui/loading-spinner';
@@ -30,6 +30,19 @@ const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({ deckId, onCompl
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAnswered, setIsAnswered] = useState(false);
   const [showReview, setShowReview] = useState(false);
+  
+  // Multiplier system state
+  const [currentStreak, setCurrentStreak] = useState(0);
+  const [currentMultiplier, setCurrentMultiplier] = useState(1);
+  const [totalScore, setTotalScore] = useState(0);
+  const [maxMultiplier, setMaxMultiplier] = useState(1);
+  const [showMultiplierBonus, setShowMultiplierBonus] = useState(false);
+
+  const BASE_POINTS = 100;
+
+  const calculateMultiplier = (streak: number): number => {
+    return Math.min(streak + 1, 10); // Cap at 10x multiplier
+  };
 
   const startQuiz = async () => {
     try {
@@ -56,6 +69,13 @@ const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({ deckId, onCompl
       setSelectedOption('');
       setShowAnswer(false);
       setIsAnswered(false);
+      
+      // Reset multiplier system
+      setCurrentStreak(0);
+      setCurrentMultiplier(1);
+      setTotalScore(0);
+      setMaxMultiplier(1);
+      setShowMultiplierBonus(false);
     } catch (error) {
       console.error('Error starting quiz:', error);
       toast({
@@ -78,6 +98,33 @@ const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({ deckId, onCompl
     const selectedIndex = parseInt(value);
     const isCorrect = selectedIndex === currentCard.correct_answer_index;
     const userAnswer = currentCard.options[selectedIndex];
+    
+    // Update streak and multiplier
+    let newStreak = currentStreak;
+    let newMultiplier = currentMultiplier;
+    let pointsEarned = 0;
+    
+    if (isCorrect) {
+      newStreak = currentStreak + 1;
+      newMultiplier = calculateMultiplier(newStreak);
+      pointsEarned = BASE_POINTS * newMultiplier;
+      
+      // Show multiplier bonus animation if multiplier increased
+      if (newMultiplier > currentMultiplier) {
+        setShowMultiplierBonus(true);
+        setTimeout(() => setShowMultiplierBonus(false), 2000);
+      }
+      
+      setMaxMultiplier(Math.max(maxMultiplier, newMultiplier));
+    } else {
+      newStreak = 0;
+      newMultiplier = 1;
+      pointsEarned = 0;
+    }
+    
+    setCurrentStreak(newStreak);
+    setCurrentMultiplier(newMultiplier);
+    setTotalScore(prev => prev + pointsEarned);
     
     // Add response to array
     const response: QuizResponse = {
@@ -116,7 +163,7 @@ const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({ deckId, onCompl
       
       toast({
         title: "Quiz Complete! 🎉",
-        description: `You scored ${result.correct}/${result.total_questions}`
+        description: `You scored ${result.correct}/${result.total_questions} (${totalScore} points!)`
       });
     } catch (error) {
       console.error('Error submitting quiz:', error);
@@ -207,6 +254,19 @@ const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({ deckId, onCompl
             <div className="text-6xl font-bold mb-4">
               <span className={getScoreColor(percentage)}>{percentage}%</span>
             </div>
+            
+            {/* Score Display */}
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border">
+              <div className="text-3xl font-bold text-blue-600 mb-1">{totalScore.toLocaleString()}</div>
+              <div className="text-sm text-muted-foreground">Total Points Earned</div>
+              {maxMultiplier > 1 && (
+                <div className="flex items-center justify-center gap-1 mt-2 text-sm text-purple-600">
+                  <Zap className="h-4 w-4" />
+                  Max Multiplier: {maxMultiplier}x
+                </div>
+              )}
+            </div>
+            
             <div className="grid grid-cols-3 gap-4 max-w-md mx-auto">
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-600">{quizResult.total_questions}</div>
@@ -270,6 +330,15 @@ const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({ deckId, onCompl
             <p className="text-muted-foreground">
               Take a 5-minute multiple choice quiz with 10 questions from this deck.
             </p>
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-3 rounded-lg border">
+              <div className="flex items-center justify-center gap-2 text-sm text-purple-600">
+                <Zap className="h-4 w-4" />
+                <span className="font-medium">New: Streak Multiplier System!</span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Earn up to 10x points for consecutive correct answers
+              </p>
+            </div>
           </div>
           
           <div className="flex gap-2 justify-center">
@@ -297,6 +366,18 @@ const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({ deckId, onCompl
 
   return (
     <div className="max-w-4xl mx-auto space-y-4 animate-fade-in">
+      {/* Multiplier Bonus Animation */}
+      {showMultiplierBonus && (
+        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 animate-scale-in">
+          <div className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-lg shadow-lg border-2 border-white">
+            <div className="flex items-center gap-2 text-lg font-bold">
+              <Zap className="h-6 w-6" />
+              {currentMultiplier}x Multiplier!
+            </div>
+          </div>
+        </div>
+      )}
+
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
@@ -308,6 +389,31 @@ const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({ deckId, onCompl
               {formatTime(timeLeft)}
             </div>
           </div>
+          
+          {/* Score and Multiplier Display */}
+          <div className="flex justify-between items-center bg-gradient-to-r from-blue-50 to-purple-50 p-3 rounded-lg">
+            <div className="text-center">
+              <div className="text-xl font-bold text-blue-600">{totalScore.toLocaleString()}</div>
+              <div className="text-xs text-muted-foreground">Points</div>
+            </div>
+            
+            <div className="text-center">
+              <div className={`text-xl font-bold flex items-center gap-1 ${currentMultiplier > 1 ? 'text-purple-600' : 'text-gray-500'}`}>
+                <Zap className="h-4 w-4" />
+                {currentMultiplier}x
+              </div>
+              <div className="text-xs text-muted-foreground">Multiplier</div>
+            </div>
+            
+            <div className="text-center">
+              <div className="text-xl font-bold text-orange-600 flex items-center gap-1">
+                <Star className="h-4 w-4" />
+                {currentStreak}
+              </div>
+              <div className="text-xs text-muted-foreground">Streak</div>
+            </div>
+          </div>
+          
           <Progress value={progress} className="w-full" />
           <div className="text-sm text-muted-foreground">
             Question {currentCardIndex + 1} of {quizCards.length}
@@ -368,10 +474,25 @@ const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({ deckId, onCompl
           </div>
           
           {showAnswer && (
-            <div className="text-center text-sm text-muted-foreground">
-              {currentCardIndex < quizCards.length - 1 
-                ? "Next question in a moment..." 
-                : "Finishing quiz..."}
+            <div className="text-center">
+              {isAnswered && selectedOption && (
+                <div className="mb-2">
+                  {currentCard && parseInt(selectedOption) === currentCard.correct_answer_index ? (
+                    <div className="text-green-600 font-medium">
+                      +{BASE_POINTS * currentMultiplier} points! {currentMultiplier > 1 && `(${BASE_POINTS} × ${currentMultiplier}x)`}
+                    </div>
+                  ) : (
+                    <div className="text-red-600 font-medium">
+                      Streak reset! Next answer worth {BASE_POINTS} points.
+                    </div>
+                  )}
+                </div>
+              )}
+              <div className="text-sm text-muted-foreground">
+                {currentCardIndex < quizCards.length - 1 
+                  ? "Next question in a moment..." 
+                  : "Finishing quiz..."}
+              </div>
             </div>
           )}
           
