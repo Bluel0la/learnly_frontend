@@ -163,18 +163,13 @@
     @apply inline-flex items-center justify-center p-1.5 md:p-2 rounded-full bg-white border border-gray-200 text-gray-700 hover:bg-gray-100;
   }
 
-  /* Enhanced LaTeX and Math specific styles - LEFT ALIGNED */
+  /* LaTeX and Math specific styles - LEFT ALIGNED */
   .math-display {
     @apply my-4 overflow-x-auto overflow-y-hidden;
-    text-align: left;
+    text-align: left; /* Changed from center to left */
     max-width: 100%;
     word-wrap: break-word;
     overflow-wrap: break-word;
-  }
-
-  .aligned-math {
-    @apply my-6 p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500;
-    line-height: 1.8;
   }
 
   .math-inline {
@@ -184,17 +179,18 @@
     word-wrap: break-word;
   }
 
-  /* Enhanced KaTeX overrides for better display and left alignment */
+
+  /* KaTeX overrides for better display and left alignment */
   .katex {
     font-size: 1.1em;
-    line-height: 1.4;
+    line-height: 1.2;
     word-wrap: break-word;
     overflow-wrap: break-word;
   }
 
   .katex-display {
     margin: 1em 0;
-    text-align: left;
+    text-align: left; /* Changed from center to left */
     overflow-x: auto;
     overflow-y: hidden;
     padding: 0.5em 0;
@@ -204,20 +200,10 @@
 
   .katex-display > .katex {
     display: inline-block;
-    white-space: normal;
+    white-space: normal; /* Changed from nowrap to allow wrapping */
     max-width: 100%;
     word-wrap: break-word;
     overflow-wrap: break-word;
-  }
-
-  /* Specific styling for aligned environments */
-  .aligned-math .katex-display {
-    margin: 0.5em 0;
-    text-align: left;
-  }
-
-  .aligned-math .katex .base {
-    margin: 0.2em 0;
   }
 
   /* Ensure chat messages handle math content properly */
@@ -227,13 +213,7 @@
     padding: 0.5em;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 0.5em;
-    text-align: left;
-  }
-
-  .chat-message-user .aligned-math,
-  .chat-message-ai .aligned-math {
-    margin: 0.5em -0.5em;
-    background: rgba(255, 255, 255, 0.2);
+    text-align: left; /* Ensure left alignment in chat bubbles */
   }
 
   /* Flashcard animations */
@@ -385,7 +365,7 @@
     margin: 0.5em -1em;
     padding: 0.5em 1em;
     overflow-x: auto;
-    text-align: left;
+    text-align: left; /* Ensure left alignment on mobile */
     word-wrap: break-word;
     overflow-wrap: break-word;
   }
@@ -393,7 +373,7 @@
   .math-display {
     margin: 0.5em -1em;
     padding: 0.5em 1em;
-    text-align: left;
+    text-align: left; /* Ensure left alignment on mobile */
     word-wrap: break-word;
     overflow-wrap: break-word;
   }

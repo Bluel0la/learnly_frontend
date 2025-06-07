@@ -1,4 +1,3 @@
-
 import React from "react";
 import "katex/dist/katex.min.css";
 import katex from "katex";
@@ -17,9 +16,6 @@ const LaTeXRenderer: React.FC<LaTeXRendererProps> = ({ content }) => {
         strict: "warn",
         trust: true,
         fleqn: true, // Left-align display math
-        macros: {
-          "\\text": "\\textrm"
-        }
       });
     } catch (error) {
       console.error("LaTeX render error:", error);
@@ -30,29 +26,14 @@ const LaTeXRenderer: React.FC<LaTeXRendererProps> = ({ content }) => {
   const processContent = (text: string): string => {
     let processed = text;
 
-    // Render \begin{aligned}...\end{aligned} blocks with proper spacing
+    // Render \begin{aligned}...\end{aligned} blocks
     processed = processed.replace(
-      /\\begin\{aligned\}[\s\S]*?\\end\{aligned\}/g,
-      (match) => {
-        const rendered = renderLatex(match, true);
-        return `<div class="math-display aligned-math">${rendered}</div>`;
-      }
-    );
-
-    // Handle other math environments
-    processed = processed.replace(
-      /\\begin\{(equation|gather|multline|align)\*?\}[\s\S]*?\\end\{\1\*?\}/g,
+      /\\begin{aligned}[\s\S]*?\\end{aligned}/g,
       (match) => {
         const rendered = renderLatex(match, true);
         return `<div class="math-display">${rendered}</div>`;
       }
     );
-
-    // Block math: $$...$$
-    processed = processed.replace(/\$\$(.+?)\$\$/gs, (_, mathContent) => {
-      const rendered = renderLatex(mathContent.trim(), true);
-      return `<div class="math-display">${rendered}</div>`;
-    });
 
     // Inline math: $...$
     processed = processed.replace(/\$(.+?)\$/gs, (_, mathContent) => {
