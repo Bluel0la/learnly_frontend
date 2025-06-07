@@ -8,6 +8,7 @@ import MessageActions from './MessageActions';
 import LaTeXRenderer from './LaTeXRenderer';
 import RotatingText from '@/components/ui/rotating-text';
 import { useTimeBasedGreeting } from '@/hooks/useTimeBasedGreeting';
+import { useUserProfile } from '@/hooks/useUserProfile';
 
 type MessageType = 'user' | 'ai';
 
@@ -23,66 +24,12 @@ interface ChatMessagesProps {
   sessionId?: string;
 }
 
-const TYPING_PROMPTS = [
-  "What is photosynthesis?",
-  "Explain the water cycle",
-  "How do I solve quadratic equations?",
-  "What caused the Great Depression?",
-  "Explain Newton's laws of motion",
-  "What is the difference between metaphor and simile?",
-  "How do I write a research paper?",
-  "What is the structure of a protein?",
-  "Explain the scientific method",
-  "How does the electoral college work?"
-];
-
-const TypingAnimation = () => {
-  const [displayText, setDisplayText] = useState('');
-  const [currentPrompt, setCurrentPrompt] = useState(0);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [typingSpeed, setTypingSpeed] = useState(80);
-  
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      const currentText = TYPING_PROMPTS[currentPrompt];
-      
-      if (!isDeleting) {
-        setDisplayText(currentText.substring(0, displayText.length + 1));
-        
-        if (displayText.length === currentText.length) {
-          setIsDeleting(true);
-          setTypingSpeed(100);
-          setTimeout(() => {
-            setTypingSpeed(50);
-          }, 1500);
-        }
-      } else {
-        setDisplayText(currentText.substring(0, displayText.length - 1));
-        
-        if (displayText.length === 0) {
-          setIsDeleting(false);
-          setCurrentPrompt((currentPrompt + 1) % TYPING_PROMPTS.length);
-          setTypingSpeed(80);
-        }
-      }
-    }, typingSpeed);
-    
-    return () => clearTimeout(timeout);
-  }, [displayText, currentPrompt, isDeleting, typingSpeed]);
-  
-  return (
-    <div className="relative">
-      <span className="text-lg text-gray-700">{displayText}</span>
-      <span className="ml-1 animate-pulse">|</span>
-    </div>
-  );
-};
-
 const ChatMessages = ({ sessionId: propSessionId }: ChatMessagesProps) => {
   const params = useParams();
   const sessionId = propSessionId || params.sessionId;
   const { toast } = useToast();
-  const { greetings } = useTimeBasedGreeting('Joseph');
+  const { greetings } = useTimeBasedGreeting();
+  const { profile } = useUserProfile();
   
   const [messages, setMessages] = useState<UIMessage[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -201,6 +148,8 @@ const ChatMessages = ({ sessionId: propSessionId }: ChatMessagesProps) => {
     return /\$\$[\s\S]*?\$\$|\$[^$\n]+?\$/.test(content);
   };
 
+  const userName = profile?.first_name || 'there';
+
   return (
     <div className="flex flex-col h-full max-w-full">
       <ScrollArea className="flex-1 h-full">
@@ -222,7 +171,7 @@ const ChatMessages = ({ sessionId: propSessionId }: ChatMessagesProps) => {
                     splitBy="words"
                   />
                   <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-bold">
-                    Joseph
+                    {userName}
                   </span>
                 </div>
                 <p className="text-lg text-gray-600 mb-4">
@@ -234,7 +183,7 @@ const ChatMessages = ({ sessionId: propSessionId }: ChatMessagesProps) => {
             <div className="max-w-4xl mx-auto space-y-4">
               {messages.map((message) => (
                 <div key={message.id} className="flex flex-col max-w-full">
-                  <div className={`${getMessageClassName(message)} max-w-full`}>
+                  <div className={`${getMessageClassName(message)} max-w-full word-wrap break-words`}>
                     <div className="mb-1 flex justify-between items-center">
                       <span className="text-xs text-gray-500">
                         {message.type === 'user' ? 'You' : 'AI Assistant'}
@@ -243,11 +192,13 @@ const ChatMessages = ({ sessionId: propSessionId }: ChatMessagesProps) => {
                         {formatTime(message.timestamp)}
                       </span>
                     </div>
-                    <div className="whitespace-pre-line break-words max-w-full">
+                    <div className="text-left max-w-full overflow-hidden">
                       {hasLaTeX(message.content) ? (
                         <LaTeXRenderer content={message.content} />
                       ) : (
-                        message.content
+                        <div className="whitespace-pre-line break-words max-w-full">
+                          {message.content}
+                        </div>
                       )}
                     </div>
                     {message.type === 'ai' && (

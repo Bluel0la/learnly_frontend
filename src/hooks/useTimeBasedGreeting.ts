@@ -6,7 +6,7 @@ interface GreetingData {
   greetings: string[];
 }
 
-export const useTimeBasedGreeting = (userName: string = 'there'): GreetingData => {
+export const useTimeBasedGreeting = (): GreetingData => {
   return useMemo(() => {
     const hour = new Date().getHours();
     
@@ -23,36 +23,36 @@ export const useTimeBasedGreeting = (userName: string = 'there'): GreetingData =
       timeOfDay = 'evening';
       baseGreeting = 'Good evening';
     }
-
+    
     const greetings = [
       `${baseGreeting}!`,
       timeOfDay === 'morning' 
-        ? `¡Buenos días!` // Spanish
+        ? '¡Buenos días!' // Spanish
         : timeOfDay === 'afternoon'
-        ? `¡Buenas tardes!` // Spanish
-        : `¡Buenas noches!`, // Spanish
+        ? '¡Buenas tardes!' // Spanish
+        : '¡Buenas noches!', // Spanish
       timeOfDay === 'morning'
-        ? `Bonjour!` // French
+        ? 'Bonjour!' // French
         : timeOfDay === 'afternoon'
-        ? `Bon après-midi!` // French
-        : `Bonsoir!`, // French
+        ? 'Bon après-midi!' // French
+        : 'Bonsoir!', // French
       timeOfDay === 'morning'
-        ? `Guten Morgen!` // German
+        ? 'Guten Morgen!' // German
         : timeOfDay === 'afternoon'
-        ? `Guten Tag!` // German
-        : `Guten Abend!`, // German
+        ? 'Guten Tag!' // German
+        : 'Guten Abend!', // German
       timeOfDay === 'morning'
-        ? `Buongiorno!` // Italian
+        ? 'Buongiorno!' // Italian
         : timeOfDay === 'afternoon'
-        ? `Buon pomeriggio!` // Italian
-        : `Buonasera!`, // Italian
+        ? 'Buon pomeriggio!' // Italian
+        : 'Buonasera!', // Italian
       timeOfDay === 'morning'
-        ? `おはよう!` // Japanese
+        ? 'おはよう!' // Japanese
         : timeOfDay === 'afternoon'
-        ? `こんにちは!` // Japanese
-        : `こんばんは!`, // Japanese
+        ? 'こんにちは!' // Japanese
+        : 'こんばんは!', // Japanese
     ];
 
     return { timeOfDay, greetings };
-  }, [userName]);
+  }, []);
 };

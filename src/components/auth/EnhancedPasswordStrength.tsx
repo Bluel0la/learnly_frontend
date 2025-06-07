@@ -30,7 +30,7 @@ const EnhancedPasswordStrength = ({ password }: EnhancedPasswordStrengthProps) =
       met: /\d/.test(password)
     },
     {
-      label: 'Contains special character',
+      label: 'Contains special character (@$!%*?&)',
       met: /[@$!%*?&]/.test(password)
     }
   ];
