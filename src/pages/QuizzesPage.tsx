@@ -1,133 +1,142 @@
-
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import React, { useState, useEffect } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import MathQuizSelector from '@/components/quiz/MathQuizSelector';
+import SimulatedExamSelector from '@/components/quiz/SimulatedExamSelector';
+import ActiveMathQuiz from '@/components/quiz/ActiveMathQuiz';
+import QuizResults from '@/components/quiz/QuizResults';
+import PerformanceAnalytics from '@/components/quiz/PerformanceAnalytics';
+import RecentActivities from '@/components/quiz/RecentActivities';
+import PerformanceTrackingCard from '@/components/quiz/PerformanceTrackingCard';
+import { SubmitResultResponse } from '@/services/quizApi';
+import { Target, TrendingUp, Star, Users, Brain } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { quizApi, HistoryResponse } from '@/services/quizApi';
+import QuizSelectionSection from './quiz/QuizSelectionSection';
+import ActiveQuizSection from './quiz/ActiveQuizSection';
+import QuizResultsSection from './quiz/QuizResultsSection';
+
+type QuizState = 'selection' | 'active' | 'results' | 'analytics';
+type QuizMode = 'single' | 'exam';
+
+interface ActiveQuizData {
+  sessionId: string;
+  topic: string | string[];
+  totalQuestions: number;
+  mode: QuizMode;
+  isFirstAttempt?: boolean;
+}
 
 const QuizzesPage = () => {
+  const [quizState, setQuizState] = useState<QuizState>('selection');
+  const [activeQuiz, setActiveQuiz] = useState<ActiveQuizData | null>(null);
+  const [quizResults, setQuizResults] = useState<SubmitResultResponse | null>(null);
+  const [quizHistory, setQuizHistory] = useState<HistoryResponse | null>(null);
+  const [isHistoryLoading, setIsHistoryLoading] = useState(true);
   const { toast } = useToast();
 
+  // Load user quiz history on mount (and on refresh)
+  useEffect(() => {
+    setIsHistoryLoading(true);
+    quizApi.getQuizHistory()
+      .then(data => setQuizHistory(data))
+      .catch(() => setQuizHistory(null))
+      .finally(() => setIsHistoryLoading(false));
+  }, []);
+
+  // Check for first attempt per topic
+  const isFirstAttemptForTopic = (topic: string) => {
+    if (!quizHistory || !quizHistory.sessions) return true;
+    // Allow for lowercased topic naming, just in case
+    return !quizHistory.sessions.some(
+      s => typeof s.topic === 'string' && s.topic.toLowerCase() === topic.toLowerCase()
+    );
+  };
+
+  const handleQuizStart = (sessionId: string, topic: string, totalQuestions: number) => {
+    // determine isFirstAttempt per topic
+    const isFirstAttempt = isFirstAttemptForTopic(topic);
+    setActiveQuiz({ sessionId, topic, totalQuestions, mode: 'single', isFirstAttempt });
+    setQuizState('active');
+  };
+
+  const handleExamStart = (sessionId: string, topics: string[], totalQuestions: number) => {
+    setActiveQuiz({ sessionId, topic: topics, totalQuestions, mode: 'exam', isFirstAttempt: false });
+    setQuizState('active');
+  };
+
+  const handleQuizComplete = (results: SubmitResultResponse) => {
+    setQuizResults(results);
+    setQuizState('results');
+  };
+
+  const handleStartNewQuiz = () => {
+    setActiveQuiz(null);
+    setQuizResults(null);
+    setQuizState('selection');
+  };
+
+  const handleBackToSelection = () => {
+    setActiveQuiz(null);
+    setQuizState('selection');
+  };
+
+  const handleBackToQuizzes = () => {
+    setActiveQuiz(null);
+    setQuizResults(null);
+    setQuizState('selection');
+  };
+
+  const handleViewAnalytics = () => {
+    setQuizState('analytics');
+  };
+
+  const getTopicDisplayName = () => {
+    if (!activeQuiz) return '';
+    if (activeQuiz.mode === 'exam') {
+      const topics = activeQuiz.topic as string[];
+      return `Mixed Topics (${topics.length} topics)`;
+    }
+    return activeQuiz.topic as string;
+  };
+
   return (
-    <div className="container max-w-4xl mx-auto py-8">
-      <h1 className="text-3xl font-serif font-bold mb-6">Quizzes</h1>
-      
-      <div className="mb-8">
-        <h2 className="text-xl font-serif font-semibold mb-4">Available Quizzes</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <QuizCard 
-            title="Calculus Fundamentals" 
-            questions={10} 
-            difficulty="Medium"
-            source="Generated from chat"
-            status="ready"
+    <div className="w-full min-h-screen bg-gray-50">
+      <div className="container max-w-7xl mx-auto py-4 lg:py-8 px-4">
+        {quizState === 'selection' && (
+          <QuizSelectionSection
+            onQuizStart={handleQuizStart}
+            onExamStart={handleExamStart}
+            onViewAnalytics={handleViewAnalytics}
           />
-          <QuizCard 
-            title="Physics Laws" 
-            questions={15} 
-            difficulty="Hard"
-            source="Generated from uploads"
-            status="ready"
+        )}
+
+        {quizState === 'active' && activeQuiz && (
+          <ActiveQuizSection
+            activeQuiz={{
+              ...activeQuiz,
+              topic: getTopicDisplayName(),
+            }}
+            isHistoryLoading={isHistoryLoading}
+            onQuizComplete={handleQuizComplete}
+            onBack={handleBackToSelection}
           />
-          <QuizCard 
-            title="Chemistry Elements" 
-            questions={8} 
-            difficulty="Easy"
-            source="Generated from flashcards"
-            status="ready"
+        )}
+
+        {quizState === 'results' && activeQuiz && (
+          <QuizResultsSection
+            sessionId={activeQuiz.sessionId}
+            topic={getTopicDisplayName()}
+            onStartNewQuiz={handleStartNewQuiz}
+            onBackToQuizzes={handleBackToQuizzes}
           />
-          
-          {/* New quiz card */}
-          <Card className="border-dashed border-2 border-gray-300 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer">
-            <CardContent className="flex items-center justify-center h-full p-6">
-              <Button 
-                variant="ghost" 
-                className="text-gray-500 hover:text-primary"
-                onClick={() => toast({ title: "Create new quiz" })}
-              >
-                + Generate New Quiz
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-      
-      <div className="mb-8">
-        <h2 className="text-xl font-serif font-semibold mb-4">Recent Results</h2>
-        <Card>
-          <CardContent className="p-6">
-            <div className="text-center text-gray-500">
-              No quiz results yet. Take a quiz to see your performance!
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-      
-      <div>
-        <h2 className="text-xl font-serif font-semibold mb-4">Performance Insights</h2>
-        <Card>
-          <CardContent className="p-6">
-            <div className="text-center text-gray-500">
-              Complete more quizzes to generate personalized insights
-            </div>
-          </CardContent>
-        </Card>
+        )}
+
+        {quizState === 'analytics' && (
+          <PerformanceAnalytics onClose={handleBackToQuizzes} />
+        )}
       </div>
     </div>
-  );
-};
-
-const QuizCard = ({ 
-  title, 
-  questions, 
-  difficulty,
-  source,
-  status
-}: { 
-  title: string; 
-  questions: number; 
-  difficulty: string;
-  source: string;
-  status: 'ready' | 'generating'
-}) => {
-  const { toast } = useToast();
-  
-  const handleStart = () => {
-    toast({
-      title: `Starting quiz: ${title}`,
-      description: "This feature is coming soon"
-    });
-  };
-  
-  return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg font-serif">{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-2 mb-4">
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-600">Questions:</span>
-            <span className="font-medium">{questions}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-600">Difficulty:</span>
-            <span className="font-medium">{difficulty}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-600">Source:</span>
-            <span className="font-medium">{source}</span>
-          </div>
-        </div>
-        
-        <Button 
-          className="w-full bg-primary hover:bg-primary/90"
-          onClick={handleStart}
-          disabled={status !== 'ready'}
-        >
-          {status === 'ready' ? 'Start Quiz' : 'Generating...'}
-        </Button>
-      </CardContent>
-    </Card>
   );
 };
 

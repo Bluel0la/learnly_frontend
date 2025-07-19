@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { BarChart3, Brain, TrendingUp, TrendingDown, Target, Loader2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { BarChart3, Brain, TrendingUp, TrendingDown, Target, Loader2, Eye, Bookmark, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { FlashcardCard, flashcardApi } from '@/services/flashcardApi';
 
@@ -35,6 +35,9 @@ const DeckAnalytics: React.FC<DeckAnalyticsProps> = ({
   const [stats, setStats] = useState<DeckStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isGeneratingDrills, setIsGeneratingDrills] = useState(false);
+  const [showCardsDialog, setShowCardsDialog] = useState(false);
+  const [selectedCards, setSelectedCards] = useState<FlashcardCard[]>([]);
+  const [dialogTitle, setDialogTitle] = useState('');
 
   const loadDeckAnalytics = async () => {
     try {
@@ -112,6 +115,33 @@ const DeckAnalytics: React.FC<DeckAnalyticsProps> = ({
     } finally {
       setIsGeneratingDrills(false);
     }
+  };
+
+  const handleViewCards = (type: 'difficult' | 'bookmarked' | 'unstudied') => {
+    let filteredCards: FlashcardCard[] = [];
+    let title = '';
+
+    switch (type) {
+      case 'difficult':
+        filteredCards = cards.filter(card => {
+          const total = (card.correct_count || 0) + (card.wrong_count || 0);
+          return total > 2 && (card.correct_count || 0) / total < 0.6;
+        });
+        title = 'Difficult Cards (< 60% accuracy)';
+        break;
+      case 'bookmarked':
+        filteredCards = cards.filter(card => card.is_bookmarked);
+        title = 'Bookmarked Cards';
+        break;
+      case 'unstudied':
+        filteredCards = cards.filter(card => !card.is_studied);
+        title = 'Unstudied Cards';
+        break;
+    }
+
+    setSelectedCards(filteredCards);
+    setDialogTitle(title);
+    setShowCardsDialog(true);
   };
 
   useEffect(() => {
@@ -266,50 +296,140 @@ const DeckAnalytics: React.FC<DeckAnalyticsProps> = ({
         </Card>
       )}
 
-      {/* Detailed Breakdown */}
+      {/* Interactive Detailed Breakdown */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
+        <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
             <CardTitle className="text-lg">Study Progress</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex justify-between">
-              <span>Studied Cards</span>
-              <span className="font-medium">{stats.studiedCards}</span>
+          <CardContent className="space-y-4">
+            <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <span className="font-medium">Studied Cards</span>
+              <Badge variant="default" className="bg-blue-500">
+                {stats.studiedCards}
+              </Badge>
             </div>
-            <div className="flex justify-between">
-              <span>Unstudied Cards</span>
-              <span className="font-medium">{stats.unstudiedCards}</span>
+            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
+              <span className="font-medium">Unstudied Cards</span>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="border-gray-400">
+                  {stats.unstudiedCards}
+                </Badge>
+                {stats.unstudiedCards > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleViewCards('unstudied')}
+                    className="h-8 px-3 hover:bg-blue-100"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
             </div>
-            <div className="flex justify-between">
-              <span>Bookmarked</span>
-              <span className="font-medium">{stats.bookmarkedCards}</span>
+            <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg border border-purple-200 hover:bg-purple-100 transition-colors">
+              <span className="font-medium">Bookmarked</span>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="border-purple-400 text-purple-700">
+                  {stats.bookmarkedCards}
+                </Badge>
+                {stats.bookmarkedCards > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleViewCards('bookmarked')}
+                    className="h-8 px-3 hover:bg-purple-200"
+                  >
+                    <Bookmark className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
             <CardTitle className="text-lg">Performance</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex justify-between">
-              <span>Total Cards</span>
-              <span className="font-medium">{stats.totalCards}</span>
+          <CardContent className="space-y-4">
+            <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg border border-green-200">
+              <span className="font-medium">Total Cards</span>
+              <Badge variant="default" className="bg-green-500">
+                {stats.totalCards}
+              </Badge>
             </div>
-            <div className="flex justify-between">
-              <span>Difficult Cards</span>
-              <span className="font-medium text-red-600">{stats.hardCards}</span>
+            <div className="flex justify-between items-center p-3 bg-red-50 rounded-lg border border-red-200 hover:bg-red-100 transition-colors">
+              <span className="font-medium">Difficult Cards</span>
+              <div className="flex items-center gap-2">
+                <Badge variant="destructive">
+                  {stats.hardCards}
+                </Badge>
+                {stats.hardCards > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleViewCards('difficult')}
+                    className="h-8 px-3 hover:bg-red-200"
+                  >
+                    <AlertCircle className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
             </div>
-            <div className="flex justify-between">
-              <span>Success Rate</span>
-              <span className={`font-medium ${stats.averageAccuracy >= 70 ? 'text-green-600' : 'text-red-600'}`}>
+            <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <span className="font-medium">Success Rate</span>
+              <Badge 
+                variant={stats.averageAccuracy >= 70 ? "default" : "destructive"}
+                className={stats.averageAccuracy >= 70 ? "bg-green-500" : ""}
+              >
                 {stats.averageAccuracy}%
-              </span>
+              </Badge>
             </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Cards Review Dialog */}
+      <Dialog open={showCardsDialog} onOpenChange={setShowCardsDialog}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{dialogTitle}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            {selectedCards.length === 0 ? (
+              <p className="text-muted-foreground text-center py-4">No cards found in this category.</p>
+            ) : (
+              selectedCards.map((card) => (
+                <Card key={card.card_id} className="p-4">
+                  <div className="space-y-2">
+                    <p className="font-medium text-sm">{card.question}</p>
+                    <p className="text-muted-foreground text-sm">{card.answer}</p>
+                    <div className="flex gap-2 text-xs">
+                      {card.is_bookmarked && (
+                        <Badge variant="outline" className="text-xs">
+                          <Bookmark className="h-3 w-3 mr-1" />
+                          Bookmarked
+                        </Badge>
+                      )}
+                      {card.times_reviewed && card.times_reviewed > 0 && (
+                        <Badge variant="outline" className="text-xs">
+                          Reviewed {card.times_reviewed} times
+                        </Badge>
+                      )}
+                      {card.correct_count !== undefined && card.wrong_count !== undefined && (
+                        <Badge variant="outline" className="text-xs">
+                          {card.correct_count}✓ {card.wrong_count}✗
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                </Card>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
