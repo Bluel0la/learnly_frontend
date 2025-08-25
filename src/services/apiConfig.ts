@@ -1,6 +1,6 @@
 
 import { secureTokenStorage } from './secureTokenStorage';
-import { getSecurityHeaders } from '@/lib/security';
+import { getEnhancedSecurityHeaders } from '@/lib/contentSecurityPolicy';
 
 // Base URL for API requests
 export const API_BASE_URL = 'https://learnly-lgx7.onrender.com/api/v1';
@@ -14,8 +14,7 @@ export const getAuthHeaders = (): HeadersInit => {
     'Authorization': `Bearer ${token}`,
     'Content-Type': 'application/json',
     'Accept': 'application/json',
-    'Access-Control-Allow-Origin': '*',
-    ...getSecurityHeaders()
+    ...getEnhancedSecurityHeaders()
   };
 };
 
@@ -27,8 +26,7 @@ export const getFileUploadHeaders = (): HeadersInit => {
   return {
     'Authorization': `Bearer ${token}`,
     'Accept': 'application/json',
-    'Access-Control-Allow-Origin': '*',
-    ...getSecurityHeaders()
+    ...getEnhancedSecurityHeaders()
   };
 };
 
@@ -36,6 +34,5 @@ export const getFileUploadHeaders = (): HeadersInit => {
 export const getBasicHeaders = (): HeadersInit => ({
   'Content-Type': 'application/json',
   'Accept': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-  ...getSecurityHeaders()
+  ...getEnhancedSecurityHeaders()
 });

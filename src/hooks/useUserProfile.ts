@@ -25,18 +25,9 @@ export const useUserProfile = () => {
       try {
         const profileData = await authApi.getProfile();
         
-        // Get user ID from token payload
-        const token = secureTokenStorage.getToken();
-        let userId = '';
-        
-        if (token) {
-          try {
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            userId = payload.sub || payload.user_id || '';
-          } catch (e) {
-            console.error('Failed to parse token:', e);
-          }
-        }
+        // Use profile data directly instead of parsing JWT client-side
+        // This is more secure and avoids client-side token manipulation
+        const userId = (profileData as any).user_id || (profileData as any).id || '';
         
         const profileWithId = {
           ...profileData,

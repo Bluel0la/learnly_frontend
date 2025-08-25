@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChatMessage, chatApi } from '@/services/api';
 import MessageActions from './MessageActions';
-import LaTeXRenderer from './LaTeXRenderer';
+import SecureLaTeXRenderer from './SecureLaTeXRenderer';
 import RotatingText from '@/components/ui/rotating-text';
 import { useTimeBasedGreeting } from '@/hooks/useTimeBasedGreeting';
 import { useUserProfile } from '@/hooks/useUserProfile';
@@ -229,7 +229,7 @@ const ChatMessages = ({ sessionId: propSessionId, onNewMessage }: ChatMessagesPr
                     </div>
                     <div className="text-left max-w-full overflow-hidden">
                       {hasLaTeX(message.content) ? (
-                        <LaTeXRenderer content={message.content} />
+                        <SecureLaTeXRenderer content={message.content} />
                       ) : (
                         <div className="whitespace-pre-line break-words max-w-full">
                           {message.content}

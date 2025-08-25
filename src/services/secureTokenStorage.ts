@@ -40,6 +40,7 @@ export const secureTokenStorage = {
       
       return tokenData.token;
     } catch (error) {
+      console.error('Token parsing error:', error);
       secureTokenStorage.removeToken();
       return null;
     }
