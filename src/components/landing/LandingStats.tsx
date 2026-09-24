@@ -1,22 +1,29 @@
-
 import React from 'react';
+import { BookOpen, Brain, FileUp, LineChart } from 'lucide-react';
 
-const stats = [
-  { number: "50K+", label: "Active Students" },
-  { number: "98%", label: "Success Rate" },
-  { number: "2M+", label: "Questions Answered" },
-  { number: "4.9/5", label: "User Rating" }
+/** Honest capability strip — what the platform actually does. */
+const capabilities = [
+  { icon: Brain, title: '18 math topics', text: 'Adaptive quizzes that follow your level' },
+  { icon: FileUp, title: 'PDF · DOCX · TXT · PPTX', text: 'Files become flashcards in seconds' },
+  { icon: BookOpen, title: 'AI study chat', text: 'Step-by-step explanations + image upload' },
+  { icon: LineChart, title: 'Real analytics', text: 'Accuracy, streaks & topic breakdowns' },
 ];
 
 const LandingStats = () => {
   return (
-    <section className="py-16 bg-gray-50">
+    <section className="py-16 md:py-20 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-          {stats.map((stat, index) => (
-            <div key={index} className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-gray-900">{stat.number}</div>
-              <div className="text-sm md:text-base text-gray-600 mt-1">{stat.label}</div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {capabilities.map(({ icon: Icon, title, text }) => (
+            <div
+              key={title}
+              className="p-6 rounded-2xl luminous-glass-panel hover:border-luminous-primary/40 transition duration-300"
+            >
+              <div className="w-10 h-10 rounded-xl bg-luminous-primary-container/20 border border-luminous-primary/30 flex items-center justify-center text-luminous-primary mb-4">
+                <Icon className="w-5 h-5" />
+              </div>
+              <p className="font-display text-lg font-bold text-white tracking-tight mb-1">{title}</p>
+              <p className="text-sm text-slate-400">{text}</p>
             </div>
           ))}
         </div>

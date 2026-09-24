@@ -1,6 +1,4 @@
-
 import React from 'react';
-import { Button } from '@/components/ui/button';
 import { Brain, Menu, X } from 'lucide-react';
 
 interface LandingNavigationProps {
@@ -19,63 +17,76 @@ const LandingNavigation = ({
   onLogin
 }: LandingNavigationProps) => {
   return (
-    <nav className="bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex items-center space-x-2">
-            <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-2 rounded-lg">
-              <Brain className="h-6 w-6 text-white" />
+    <header className="sticky top-4 z-50 w-full px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="luminous-glass-panel rounded-2xl px-5 sm:px-6 py-3.5 flex items-center justify-between shadow-2xl shadow-black/60">
+          <a aria-label="Learnly Home" className="flex items-center gap-3 group focus:outline-none" href="#top">
+            <div className="relative flex items-center justify-center">
+              <div className="absolute -inset-1 bg-gradient-to-r from-luminous-primary-container to-luminous-secondary-container rounded-xl blur-sm opacity-70 group-hover:opacity-100 transition duration-300"></div>
+              <div className="relative w-10 h-10 rounded-xl bg-midnight-900 border border-white/20 flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+                <Brain className="w-5 h-5 text-luminous-primary" />
+              </div>
             </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Learnly
+            <span className="text-xl font-display font-extrabold tracking-tight text-white flex items-center gap-1">
+              Learn<span className="text-luminous-primary">ly</span>
+              <span className="text-[10px] font-luminous-mono px-1.5 py-0.5 rounded bg-luminous-primary-container/30 border border-luminous-primary/30 text-luminous-primary ml-1 uppercase">2.0</span>
             </span>
-          </div>
+          </a>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            <a href="#features" className="text-gray-600 hover:text-blue-600 transition-colors">Features</a>
-            <a href="#testimonials" className="text-gray-600 hover:text-blue-600 transition-colors">Reviews</a>
+          {/* Desktop Navigation Menu */}
+          <nav aria-label="Main Navigation" className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+            <a className="hover:text-luminous-primary transition-colors duration-200" href="#features">Features</a>
+            <a className="hover:text-luminous-primary transition-colors duration-200" href="#how-it-works">How It Works</a>
+          </nav>
+
+          {/* Action Buttons */}
+          <div className="flex items-center gap-4">
             {!isAuthenticated && (
-              <Button variant="ghost" onClick={onLogin}>
+              <button
+                onClick={onLogin}
+                className="hidden sm:inline-block text-sm font-semibold text-slate-300 hover:text-white transition-colors duration-200"
+              >
                 Sign In
-              </Button>
+              </button>
             )}
-            <Button onClick={onGetStarted} className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700">
-              {isAuthenticated ? 'Go to Dashboard' : 'Get Started Free'}
-            </Button>
-          </div>
-
-          {/* Mobile menu button */}
-          <div className="md:hidden">
-            <Button
-              variant="ghost"
-              size="sm"
+            <button
+              onClick={onGetStarted}
+              className="relative inline-flex items-center justify-center px-5 py-2 rounded-xl text-sm font-bold text-white luminous-btn-primary luminous-shadow-glow-purple"
+            >
+              {isAuthenticated ? 'Go to Dashboard' : 'Start Learning Free'}
+            </button>
+            <button
+              aria-label="Toggle menu"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl text-slate-300 hover:text-white luminous-btn-glass"
             >
               {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </Button>
+            </button>
           </div>
         </div>
 
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-100 py-4">
+          <div className="md:hidden mt-2 luminous-glass-panel rounded-2xl py-4 px-5">
             <div className="flex flex-col space-y-4">
-              <a href="#features" onClick={() => setMobileMenuOpen(false)} className="text-gray-600 hover:text-blue-600 transition-colors">Features</a>
-              <a href="#testimonials" onClick={() => setMobileMenuOpen(false)} className="text-gray-600 hover:text-blue-600 transition-colors">Reviews</a>
+              <a href="#features" onClick={() => setMobileMenuOpen(false)} className="text-slate-300 hover:text-white transition-colors">Features</a>
+              <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="text-slate-300 hover:text-white transition-colors">How It Works</a>
               {!isAuthenticated && (
-                <Button variant="ghost" onClick={onLogin} className="justify-start">
+                <button onClick={() => { setMobileMenuOpen(false); onLogin(); }} className="text-left text-slate-300 hover:text-white transition-colors">
                   Sign In
-                </Button>
+                </button>
               )}
-              <Button onClick={onGetStarted} className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700">
-                {isAuthenticated ? 'Go to Dashboard' : 'Get Started Free'}
-              </Button>
+              <button
+                onClick={() => { setMobileMenuOpen(false); onGetStarted(); }}
+                className="px-5 py-2.5 rounded-xl text-sm font-bold text-white luminous-btn-primary"
+              >
+                {isAuthenticated ? 'Go to Dashboard' : 'Start Learning Free'}
+              </button>
             </div>
           </div>
         )}
       </div>
-    </nav>
+    </header>
   );
 };
 

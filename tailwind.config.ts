@@ -22,6 +22,10 @@ export default {
 			fontFamily: {
 				serif: ['Merriweather', 'serif'],
 				sans: ['Inter', 'sans-serif'],
+				// Luminous Momentum landing theme (opt-in via font-display / font-luminous-* classes)
+				display: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+				'luminous-body': ['Inter', 'sans-serif'],
+				'luminous-mono': ['"JetBrains Mono"', 'monospace'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -66,6 +70,27 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Luminous Momentum landing tokens (additive — light app theme untouched)
+				'luminous-primary': '#cbbeff',
+				'luminous-primary-container': '#7952ff',
+				'luminous-on-primary': '#330098',
+				'luminous-secondary': '#d3fbff',
+				'luminous-secondary-container': '#00eefc',
+				'luminous-tertiary-container': '#645dfa',
+				'luminous-void': '#051424',
+				'luminous-surface-lowest': '#010f1f',
+				'luminous-surface-low': '#0d1c2d',
+				'luminous-surface': '#122131',
+				'luminous-surface-high': '#1c2b3c',
+				'luminous-on-surface': '#d4e4fa',
+				midnight: {
+					950: '#030712',
+					900: '#060913',
+					850: '#080d1b',
+					800: '#0b1021',
+					750: '#10162f',
+					700: '#161f3e'
 				}
 			},
 			borderRadius: {

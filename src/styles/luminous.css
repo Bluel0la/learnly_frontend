@@ -1,0 +1,94 @@
+/* Luminous Momentum landing theme — opt-in utilities.
+   Scoped to landing components via explicit classes; the light app theme is untouched. */
+
+.luminous-gradient-text {
+  background: linear-gradient(135deg, #cbbeff 0%, #a78bfa 25%, #38bdf8 65%, #00eefc 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.luminous-bg-mesh {
+  background-color: #060913;
+  background-image:
+    radial-gradient(circle at 50% -10%, rgba(121, 82, 255, 0.22) 0%, transparent 55%),
+    radial-gradient(circle at 100% 30%, rgba(0, 238, 252, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 0% 70%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
+    radial-gradient(circle at 50% 100%, rgba(121, 82, 255, 0.18) 0%, transparent 50%);
+}
+
+.luminous-tech-grid {
+  background-size: 40px 40px;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+}
+
+.luminous-glass-panel {
+  background: rgba(18, 27, 49, 0.5);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.luminous-glass-card {
+  background: rgba(16, 23, 44, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(203, 190, 255, 0.12);
+  box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.7);
+}
+
+.luminous-glow-border {
+  position: relative;
+}
+.luminous-glow-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(203, 190, 255, 0.4), rgba(0, 238, 252, 0.25), transparent 70%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.luminous-shadow-glow-purple {
+  box-shadow: 0 0 35px -5px rgba(121, 82, 255, 0.45);
+}
+
+.luminous-shadow-glow-cyan {
+  box-shadow: 0 0 30px -5px rgba(0, 238, 252, 0.35);
+}
+
+.luminous-btn-primary {
+  background: linear-gradient(135deg, #7952ff 0%, #4f46e5 100%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  transition: box-shadow 0.3s ease, transform 0.3s ease, filter 0.3s ease;
+}
+.luminous-btn-primary:hover {
+  box-shadow: 0 0 20px rgba(121, 82, 255, 0.5);
+  filter: brightness(1.08);
+}
+
+.luminous-btn-glass {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+.luminous-btn-glass:hover {
+  border-color: #00eefc;
+  color: #00eefc;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .luminous-btn-primary,
+  .luminous-btn-glass {
+    transition: none;
+  }
+}
