@@ -1,5 +1,4 @@
-import { API_BASE_URL, getAuthHeaders } from './apiConfig';
-import { secureTokenStorage } from './secureTokenStorage';
+import { apiGet, apiPost, apiRequest, apiUpload } from '@/lib/apiClient';
 
 // Chat related types
 export interface ChatSession {
@@ -23,6 +22,13 @@ export interface SendMessageRequest {
   chat_id: string;
 }
 
+export interface SendMessageResponse {
+  chat_id: string;
+  query_id: string;
+  response: string;
+  task_type?: string;
+}
+
 // Image extraction types
 export interface ExtractTextResponse {
   text: string;
@@ -31,135 +37,29 @@ export interface ExtractTextResponse {
 // Chat API service
 export const chatApi = {
   // Start a new chat session
-  startSession: async (data: StartSessionRequest): Promise<ChatSession> => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/chat/start-session`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(data),
-        mode: 'cors',
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || 'Failed to start chat session');
-      }
-
-      return response.json();
-    } catch (error) {
-      console.error('Start session error:', error);
-      throw error;
-    }
-  },
+  startSession: (data: StartSessionRequest): Promise<ChatSession> =>
+    apiPost('/chat/start-session', data, 'Failed to start chat session'),
 
   // Send a message in a chat session
-  sendMessage: async (data: SendMessageRequest): Promise<ChatMessage> => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/chat/send-message`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(data),
-        mode: 'cors',
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || 'Failed to send message');
-      }
-
-      return response.json();
-    } catch (error) {
-      console.error('Send message error:', error);
-      throw error;
-    }
-  },
+  sendMessage: (data: SendMessageRequest): Promise<SendMessageResponse> =>
+    apiPost('/chat/send-message', data, 'Failed to send message'),
 
   // Get all messages in a chat session
-  getSessionMessages: async (chatId: string): Promise<ChatMessage[]> => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/chat/session/${chatId}`, {
-        method: 'GET',
-        headers: getAuthHeaders(),
-        mode: 'cors',
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || 'Failed to fetch chat messages');
-      }
-
-      return response.json();
-    } catch (error) {
-      console.error('Fetch chat messages error:', error);
-      throw error;
-    }
-  },
+  getSessionMessages: (chatId: string, skip = 0, limit = 50): Promise<ChatMessage[]> =>
+    apiGet(`/chat/session/${chatId}?skip=${skip}&limit=${limit}`, 'Failed to fetch chat messages'),
 
   // Get all chat sessions for a user
-  getSessions: async (): Promise<ChatSession[]> => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/chat/sessions`, {
-        method: 'GET',
-        headers: getAuthHeaders(),
-        mode: 'cors',
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || 'Failed to fetch chat sessions');
-      }
-
-      return response.json();
-    } catch (error) {
-      console.error('Fetch chat sessions error:', error);
-      throw error;
-    }
-  },
+  getSessions: (skip = 0, limit = 20): Promise<ChatSession[]> =>
+    apiGet(`/chat/sessions?skip=${skip}&limit=${limit}`, 'Failed to fetch chat sessions'),
 
   // Delete a chat session
-  deleteSession: async (chatId: string): Promise<void> => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/chat/delete-chat/${chatId}`, {
-        method: 'DELETE',
-        headers: getAuthHeaders(),
-        mode: 'cors',
-      });
+  deleteSession: (chatId: string): Promise<void> =>
+    apiRequest(`/chat/delete-chat/${chatId}`, { method: 'DELETE' }, 'Failed to delete chat session'),
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || 'Failed to delete chat session');
-      }
-    } catch (error) {
-      console.error('Delete session error:', error);
-      throw error;
-    }
+  // Extract text from image (vision transcription)
+  extractText: (file: File): Promise<ExtractTextResponse> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiUpload('/chat/extract-text/', formData, 'Failed to extract text from image');
   },
-
-  // Extract text from image
-  extractText: async (file: File): Promise<ExtractTextResponse> => {
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const response = await fetch(`${API_BASE_URL}/chat/extract-text/`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${secureTokenStorage.getToken()}`,
-          'Accept': 'application/json',
-        },
-        body: formData,
-        mode: 'cors',
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Failed to extract text from image');
-      }
-
-      return response.json();
-    } catch (error) {
-      console.error('Extract text error:', error);
-      throw error;
-    }
-  }
 };

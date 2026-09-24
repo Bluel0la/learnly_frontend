@@ -2,8 +2,10 @@
 import { secureTokenStorage } from './secureTokenStorage';
 import { getEnhancedSecurityHeaders } from '@/lib/contentSecurityPolicy';
 
-// Base URL for API requests
-export const API_BASE_URL = 'https://learnly-lgx7.onrender.com/api/v1';
+// Base URL for API requests — override per environment via .env files.
+// Fallback keeps the deployed Render backend working with no env set.
+export const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ?? 'https://learnly-lgx7.onrender.com/api/v1';
 
 // Helper function to create authenticated headers
 export const getAuthHeaders = (): HeadersInit => {

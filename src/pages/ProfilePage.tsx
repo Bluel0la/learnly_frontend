@@ -15,7 +15,7 @@ import StatCard from "./profile/StatCard";
 import SubjectProgress from "./profile/SubjectProgress";
 import SessionItem from "./profile/SessionItem";
 import ProfileForm from "./profile/ProfileForm";
-import { flashcardApi, quizApi } from '@/services/api';
+import { flashcardApi, quizApi, type TopicPerformance } from '@/services/api';
 
 // Extended type for unified session item, keeps minimal
 type CombinedSession = {
@@ -39,12 +39,60 @@ const ProfilePage = () => {
   // State for session items (quiz + flashcard, max 5 most recent)
   const [historySessions, setHistorySessions] = useState<CombinedSession[]>([]);
   const [historyLoading, setHistoryLoading] = useState(true);
+  // Real quiz aggregates (replaces hardcoded stats)
+  const [quizStats, setQuizStats] = useState({ totalSessions: 0, avgAccuracy: 0 });
+  const [topicStats, setTopicStats] = useState<TopicPerformance[]>([]);
+  // Change-password form state
+  const [pwCurrent, setPwCurrent] = useState('');
+  const [pwNew, setPwNew] = useState('');
+  const [pwLoading, setPwLoading] = useState(false);
 
   useEffect(() => {
     fetchUserProfile();
     fetchFlashcardStats();
     fetchCombinedSessionHistory();
+    fetchQuizAggregates();
   }, []);
+
+  const fetchQuizAggregates = async () => {
+    try {
+      const perf = await quizApi.getUserPerformance();
+      const topics = perf.performance_by_topic ?? [];
+      const answered = topics.reduce((s, t) => s + t.total_answered, 0);
+      const correct = topics.reduce((s, t) => s + t.correct, 0);
+      const history = await quizApi.getQuizHistory(0, 100);
+      setQuizStats({
+        totalSessions: history.sessions?.length ?? 0,
+        avgAccuracy: answered > 0 ? Math.round((correct / answered) * 100) : 0,
+      });
+      setTopicStats([...topics].sort((a, b) => b.total_answered - a.total_answered).slice(0, 4));
+    } catch (error) {
+      console.error('Failed to fetch quiz aggregates:', error);
+    }
+  };
+
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (pwNew.length < 6) {
+      toast({ title: 'Password too short', description: 'New password must be at least 6 characters.', variant: 'destructive' });
+      return;
+    }
+    setPwLoading(true);
+    try {
+      await authApi.changePassword(pwCurrent, pwNew);
+      setPwCurrent('');
+      setPwNew('');
+      toast({ title: 'Password changed', description: 'Your password has been updated.' });
+    } catch (error) {
+      toast({
+        title: 'Password change failed',
+        description: error instanceof Error ? error.message : 'Could not change password.',
+        variant: 'destructive',
+      });
+    } finally {
+      setPwLoading(false);
+    }
+  };
 
   const fetchFlashcardStats = async () => {
     try {
@@ -96,7 +144,7 @@ const ProfilePage = () => {
       //   // ...code for mapping flashcard sessions...
       // }
       // For now, leave flashcardSessions empty.
-      let flashcardSessions: CombinedSession[] = [];
+      const flashcardSessions: CombinedSession[] = [];
 
       // Merge, sort by date desc, take top 5
       const allSessions = [...quizSessions, ...flashcardSessions]
@@ -208,7 +256,6 @@ const ProfilePage = () => {
                 <>
                   <h2 className="text-xl font-semibold text-center">{profile.first_name} {profile.last_name}</h2>
                   <p className="text-gray-500 text-sm break-all text-center">{profile.email}</p>
-                  <p className="text-gray-400 text-xs mt-2 text-center">Member since May 2025</p>
                 </>
               )}
 
@@ -279,8 +326,8 @@ const ProfilePage = () => {
                 </CardHeader>
                 <CardContent className="pt-0">
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 mb-2">
-                    <StatCard title="Study Sessions" value="12" subtitle="This month" onClick={() => toast({title:"View Study Sessions"})}/>
-                    <StatCard title="Quiz Score" value="85%" subtitle="Average" highlightBg="from-green-100 to-blue-50" onClick={() => toast({title:"View Quiz Score Trend"})}/>
+                    <StatCard title="Study Sessions" value={quizStats.totalSessions.toString()} subtitle="Quizzes taken" onClick={() => toast({title:"View Study Sessions"})}/>
+                    <StatCard title="Quiz Score" value={`${quizStats.avgAccuracy}%`} subtitle="Average" highlightBg="from-green-100 to-blue-50" onClick={() => toast({title:"View Quiz Score Trend"})}/>
                     <StatCard title="Flashcard Decks" value={flashcardStats.deckCount.toString()} subtitle="Created" highlightBg="from-purple-100 to-blue-50" onClick={() => toast({title:"View Flashcard Decks"})}/>
                   </div>
 
@@ -306,14 +353,22 @@ const ProfilePage = () => {
                       />
                     </div>
                   </div>
-                  {/* Subject Progress */}
+                  {/* Subject Progress — real per-topic quiz accuracy */}
                   <div className="mt-6">
                     <h3 className="text-base font-semibold mb-2">Subject Breakdown</h3>
                     <div className="space-y-4">
-                      <SubjectProgress subject="Mathematics" progress={0.65} onClick={() => toast({title:"Mathematics detail coming soon!"})}/>
-                      <SubjectProgress subject="Physics" progress={0.45} onClick={() => toast({title:"Physics detail coming soon!"})}/>
-                      <SubjectProgress subject="Chemistry" progress={0.2} onClick={() => toast({title:"Chemistry detail coming soon!"})}/>
-                      <SubjectProgress subject="Biology" progress={0.1} onClick={() => toast({title:"Biology detail coming soon!"})}/>
+                      {topicStats.length === 0 ? (
+                        <p className="text-sm text-gray-400">Take a math quiz to see your topic breakdown.</p>
+                      ) : (
+                        topicStats.map((t) => (
+                          <SubjectProgress
+                            key={t.topic}
+                            subject={t.topic.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+                            progress={Math.max(0, Math.min(1, t.accuracy_percent / 100))}
+                            onClick={() => toast({ title: `${t.correct}/${t.total_answered} correct in ${t.topic}` })}
+                          />
+                        ))
+                      )}
                     </div>
                   </div>
                 </CardContent>
@@ -353,7 +408,37 @@ const ProfilePage = () => {
                 <CardHeader>
                   <CardTitle>Account Settings</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-6">
+                  <form onSubmit={handlePasswordChange} className="space-y-3">
+                    <h3 className="text-sm font-semibold">Change Password</h3>
+                    <div>
+                      <label className="text-sm font-medium block mb-1" htmlFor="currentPassword">Current password</label>
+                      <input
+                        id="currentPassword"
+                        type="password"
+                        className="w-full p-2 border rounded"
+                        value={pwCurrent}
+                        onChange={(e) => setPwCurrent(e.target.value)}
+                        required
+                        minLength={6}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium block mb-1" htmlFor="newPassword">New password</label>
+                      <input
+                        id="newPassword"
+                        type="password"
+                        className="w-full p-2 border rounded"
+                        value={pwNew}
+                        onChange={(e) => setPwNew(e.target.value)}
+                        required
+                        minLength={6}
+                      />
+                    </div>
+                    <Button type="submit" disabled={pwLoading}>
+                      {pwLoading ? 'Updating...' : 'Change Password'}
+                    </Button>
+                  </form>
                   <div>
                     <label className="text-sm font-medium block mb-1">Email Notifications</label>
                     <div className="flex items-center space-x-2">

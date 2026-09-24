@@ -6,21 +6,21 @@ export const getCSPConfig = () => {
   const devPolicies = {
     'script-src': "'self' 'unsafe-eval' 'unsafe-inline' localhost:* ws://localhost:*",
     'style-src': "'self' 'unsafe-inline' fonts.googleapis.com",
-    'connect-src': "'self' ws://localhost:* localhost:* *.supabase.co *.lovable.dev vitejs.dev",
+    'connect-src': "'self' ws://localhost:* localhost:* *.lovable.dev vitejs.dev",
   };
   
   // Production policies are much stricter
   const prodPolicies = {
     'script-src': "'self'",
     'style-src': "'self' 'unsafe-inline' fonts.googleapis.com",
-    'connect-src': "'self' *.supabase.co",
+    'connect-src': "'self'",
   };
   
   const policies = isDev ? devPolicies : prodPolicies;
   
   return {
     'default-src': "'self'",
-    'img-src': "'self' data: blob: *.supabase.co",
+    'img-src': "'self' data: blob:",
     'font-src': "'self' fonts.gstatic.com",
     'object-src': "'none'",
     'base-uri': "'self'",

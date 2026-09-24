@@ -1,5 +1,4 @@
-
-import { API_BASE_URL, getAuthHeaders } from './apiConfig';
+import { apiGet, apiPost } from '@/lib/apiClient';
 
 // Types for Quiz API - Updated to match exact API specification
 export interface MathTopic {
@@ -112,126 +111,55 @@ export interface HistoryResponse {
   sessions: QuizSession[];
 }
 
+export interface EndSessionSummary {
+  session_id: string;
+  topic: string;
+  total_questions: number;
+  correct: number;
+  wrong: number;
+  accuracy: number;
+  ended_at: string;
+}
+
 class QuizApi {
-  async getAvailableTopics(): Promise<MathTopic[]> {
-    const response = await fetch(`${API_BASE_URL}/quiz/math/topics`, {
-      method: 'GET',
-      headers: getAuthHeaders(),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch available topics');
-    }
-
-    return response.json();
+  getAvailableTopics(): Promise<MathTopic[]> {
+    return apiGet('/quiz/math/topics', 'Failed to fetch available topics');
   }
 
-  async startQuizSession(request: StartQuizRequest): Promise<StartQuizResponse> {
-    const response = await fetch(`${API_BASE_URL}/quiz/math/start`, {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(request),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to start quiz session');
-    }
-
-    return response.json();
+  startQuizSession(request: StartQuizRequest): Promise<StartQuizResponse> {
+    return apiPost('/quiz/math/start', request, 'Failed to start quiz session');
   }
 
-  async startSimulatedExam(request: SimulatedExamRequest): Promise<StartQuizResponse> {
-    const response = await fetch(`${API_BASE_URL}/quiz/math/simulated-exam`, {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(request),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to start simulated exam');
-    }
-
-    return response.json();
+  startSimulatedExam(request: SimulatedExamRequest): Promise<StartQuizResponse> {
+    return apiPost('/quiz/math/simulated-exam', request, 'Failed to start simulated exam');
   }
 
-  async getInitialQuestionBatch(sessionId: string): Promise<QuestionBatchResponse> {
-    const response = await fetch(`${API_BASE_URL}/quiz/math/questions/${sessionId}`, {
-      method: 'GET',
-      headers: getAuthHeaders(),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch initial questions');
-    }
-
-    return response.json();
+  getInitialQuestionBatch(sessionId: string): Promise<QuestionBatchResponse> {
+    return apiGet(`/quiz/math/questions/${sessionId}`, 'Failed to fetch initial questions');
   }
 
-  async submitAnswers(sessionId: string, request: SubmitAnswersRequest): Promise<SubmitResultResponse> {
-    const response = await fetch(`${API_BASE_URL}/quiz/math/${sessionId}/submit`, {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(request),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to submit answers');
-    }
-
-    return response.json();
+  submitAnswers(sessionId: string, request: SubmitAnswersRequest): Promise<SubmitResultResponse> {
+    return apiPost(`/quiz/math/${sessionId}/submit`, request, 'Failed to submit answers');
   }
 
-  async getNextAdaptiveBatch(sessionId: string, request: AdaptiveBatchRequest): Promise<AdaptiveQuestionBatch> {
-    const response = await fetch(`${API_BASE_URL}/quiz/math/${sessionId}/next-adaptive-batch`, {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(request),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to get next adaptive batch');
-    }
-
-    return response.json();
+  getNextAdaptiveBatch(sessionId: string, request: AdaptiveBatchRequest): Promise<AdaptiveQuestionBatch> {
+    return apiPost(`/quiz/math/${sessionId}/next-adaptive-batch`, request, 'Failed to get next adaptive batch');
   }
 
-  async getQuizReview(sessionId: string): Promise<QuizReviewResponse> {
-    const response = await fetch(`${API_BASE_URL}/quiz/math/${sessionId}/review`, {
-      method: 'GET',
-      headers: getAuthHeaders(),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch quiz review');
-    }
-
-    return response.json();
+  getQuizReview(sessionId: string): Promise<QuizReviewResponse> {
+    return apiGet(`/quiz/math/${sessionId}/review`, 'Failed to fetch quiz review');
   }
 
-  async getUserPerformance(): Promise<PerformanceResponse> {
-    const response = await fetch(`${API_BASE_URL}/quiz/math/performance`, {
-      method: 'GET',
-      headers: getAuthHeaders(),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch user performance');
-    }
-
-    return response.json();
+  getUserPerformance(): Promise<PerformanceResponse> {
+    return apiGet('/quiz/math/performance', 'Failed to fetch user performance');
   }
 
-  async getQuizHistory(): Promise<HistoryResponse> {
-    const response = await fetch(`${API_BASE_URL}/quiz/math/history`, {
-      method: 'GET',
-      headers: getAuthHeaders(),
-    });
+  getQuizHistory(skip = 0, limit = 20): Promise<HistoryResponse> {
+    return apiGet(`/quiz/math/history?skip=${skip}&limit=${limit}`, 'Failed to fetch quiz history');
+  }
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch quiz history');
-    }
-
-    return response.json();
+  endSession(sessionId: string): Promise<EndSessionSummary> {
+    return apiPost(`/quiz/math/${sessionId}/end`, undefined, 'Failed to end quiz session');
   }
 }
 

@@ -8,6 +8,14 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    proxy: {
+      // Local backend: `VITE_API_BASE_URL=/api/v1` in .env.development
+      // forwards to uvicorn without CORS issues.
+      "/api": {
+        target: "http://localhost:7001",
+        changeOrigin: true,
+      },
+    },
   },
   plugins: [
     react(),

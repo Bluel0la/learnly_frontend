@@ -31,7 +31,6 @@ const QuizReview: React.FC<QuizReviewProps> = ({
   const isApiResult = !!result;
   
   let accuracy: number;
-  let grade: string;
   let correct: number;
   let wrong: number;
   let totalQuestions: number;
@@ -50,24 +49,25 @@ const QuizReview: React.FC<QuizReviewProps> = ({
     totalQuestions = result.total_questions;
     detailedResults = result.detailed_results;
   } else if (quizCards && userResponses) {
-    // Calculate from manual data
-    correct = userResponses.filter(r => r.is_correct).length;
-    totalQuestions = userResponses.length;
-    wrong = totalQuestions - correct;
-    accuracy = Math.round((correct / totalQuestions) * 100);
-    
-    // Create detailed results from quiz cards and responses
+    // Legacy manual path (kept for compat): correctness re-derived from cards.
+    // Prefer passing the server `result` — the backend is the source of truth.
+    correct = 0;
     detailedResults = userResponses.map(response => {
       const card = quizCards.find(c => c.card_id === response.card_id);
       const correctAnswer = card ? card.options[card.correct_answer_index] : 'Unknown';
-      
+      const isCorrect = response.user_answer === correctAnswer;
+      if (isCorrect) correct += 1;
+
       return {
         card_id: response.card_id,
         your_answer: response.user_answer,
         correct_answer: correctAnswer,
-        correct: response.is_correct
+        correct: isCorrect
       };
     });
+    totalQuestions = userResponses.length;
+    wrong = totalQuestions - correct;
+    accuracy = totalQuestions > 0 ? Math.round((correct / totalQuestions) * 100) : 0;
   } else {
     // Fallback values
     accuracy = 0;
@@ -77,7 +77,7 @@ const QuizReview: React.FC<QuizReviewProps> = ({
     detailedResults = [];
   }
 
-  grade = accuracy >= 90 ? 'A' : accuracy >= 80 ? 'B' : accuracy >= 70 ? 'C' : accuracy >= 60 ? 'D' : 'F';
+  const grade = accuracy >= 90 ? 'A' : accuracy >= 80 ? 'B' : accuracy >= 70 ? 'C' : accuracy >= 60 ? 'D' : 'F';
 
   const handleDrillsGenerated = () => {
     // Optionally refresh the page or show a success message

@@ -11,12 +11,12 @@ interface LandingNavigationProps {
   onLogin: () => void;
 }
 
-const LandingNavigation = ({ 
-  isAuthenticated, 
-  mobileMenuOpen, 
-  setMobileMenuOpen, 
-  onGetStarted, 
-  onLogin 
+const LandingNavigation = ({
+  isAuthenticated,
+  mobileMenuOpen,
+  setMobileMenuOpen,
+  onGetStarted,
+  onLogin
 }: LandingNavigationProps) => {
   return (
     <nav className="bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50">
@@ -35,7 +35,6 @@ const LandingNavigation = ({
           <div className="hidden md:flex items-center space-x-8">
             <a href="#features" className="text-gray-600 hover:text-blue-600 transition-colors">Features</a>
             <a href="#testimonials" className="text-gray-600 hover:text-blue-600 transition-colors">Reviews</a>
-            <a href="#pricing" className="text-gray-600 hover:text-blue-600 transition-colors">Pricing</a>
             {!isAuthenticated && (
               <Button variant="ghost" onClick={onLogin}>
                 Sign In
@@ -62,9 +61,8 @@ const LandingNavigation = ({
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-gray-100 py-4">
             <div className="flex flex-col space-y-4">
-              <a href="#features" className="text-gray-600 hover:text-blue-600 transition-colors">Features</a>
-              <a href="#testimonials" className="text-gray-600 hover:text-blue-600 transition-colors">Reviews</a>
-              <a href="#pricing" className="text-gray-600 hover:text-blue-600 transition-colors">Pricing</a>
+              <a href="#features" onClick={() => setMobileMenuOpen(false)} className="text-gray-600 hover:text-blue-600 transition-colors">Features</a>
+              <a href="#testimonials" onClick={() => setMobileMenuOpen(false)} className="text-gray-600 hover:text-blue-600 transition-colors">Reviews</a>
               {!isAuthenticated && (
                 <Button variant="ghost" onClick={onLogin} className="justify-start">
                   Sign In

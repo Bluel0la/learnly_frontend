@@ -12,6 +12,11 @@ export interface ErrorRecoveryOptions {
 export class ErrorRecoveryService {
   private static retryCount = new Map<string, number>();
 
+  /** Client errors must never be retried — the server already gave its verdict. */
+  private static isNonRetryableMessage(message: string): boolean {
+    return /\b(400|401|403|404|409|413|415|422)\b/.test(message);
+  }
+
   static async withRetry<T>(
     operation: () => Promise<T>,
     key: string,
@@ -34,18 +39,10 @@ export class ErrorRecoveryService {
     } catch (error) {
       console.error(`Operation ${key} failed (attempt ${currentRetries + 1}):`, error);
 
-      if (currentRetries < maxRetries) {
-        this.retryCount.set(key, currentRetries + 1);
-        
-        // Exponential backoff
-        const delay = retryDelay * Math.pow(2, currentRetries);
-        await new Promise(resolve => setTimeout(resolve, delay));
-        
-        return this.withRetry(operation, key, options);
-      }
+      const message = error instanceof Error ? error.message : String(error);
 
-      // Handle specific error types
-      if (error instanceof Error && error.message.includes('401')) {
+      // 401 always means re-login — no retries, immediate redirect.
+      if (/\b401\b/.test(message)) {
         secureTokenStorage.removeToken();
         if (showToast) {
           toast({
@@ -56,6 +53,28 @@ export class ErrorRecoveryService {
         }
         window.location.href = '/login';
         throw error;
+      }
+
+      // Never retry client errors (validation, auth, not-found, conflicts).
+      if (this.isNonRetryableMessage(message) || !this.isRetryableError(error as Error)) {
+        if (showToast) {
+          toast({
+            title: "Error",
+            description: message || fallbackMessage,
+            variant: "destructive"
+          });
+        }
+        throw error;
+      }
+
+      if (currentRetries < maxRetries) {
+        this.retryCount.set(key, currentRetries + 1);
+
+        // Exponential backoff
+        const delay = retryDelay * Math.pow(2, currentRetries);
+        await new Promise(resolve => setTimeout(resolve, delay));
+
+        return this.withRetry(operation, key, options);
       }
 
       if (showToast) {
@@ -86,6 +105,7 @@ export class ErrorRecoveryService {
       'timeout',
       'ECONNRESET',
       'ETIMEDOUT',
+      '429',
       '502',
       '503',
       '504'

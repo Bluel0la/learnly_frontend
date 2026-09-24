@@ -39,7 +39,16 @@ import {
   Area,
   AreaChart
 } from 'recharts';
-import { quizApi, PerformanceResponse } from '@/services/quizApi';
+import { quizApi, PerformanceResponse, QuizSession } from '@/services/quizApi';
+import {
+  activityByDay,
+  activeDayStreak,
+  compareLast7VsPrior7,
+  cumulativeProgress,
+  firstSessionDate,
+  sessionsInRange,
+  weeklyAccuracy,
+} from '@/lib/historyStats';
 import { useToast } from '@/hooks/use-toast';
 import StatCard from "./analytics/StatCard";
 import WeeklyActivitySparkline from "./analytics/WeeklyActivitySparkline";
@@ -55,14 +64,19 @@ const COLORS = ['#22c55e', '#ef4444', '#f59e0b', '#8b5cf6', '#06b6d4'];
 
 const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) => {
   const [performance, setPerformance] = useState<PerformanceResponse | null>(null);
+  const [history, setHistory] = useState<QuizSession[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
-    const fetchPerformance = async () => {
+    const fetchData = async () => {
       try {
-        const data = await quizApi.getUserPerformance();
-        setPerformance(data);
+        const [perf, hist] = await Promise.all([
+          quizApi.getUserPerformance(),
+          quizApi.getQuizHistory(0, 100).catch(() => ({ sessions: [] as QuizSession[] })),
+        ]);
+        setPerformance(perf);
+        setHistory(hist.sessions ?? []);
       } catch (error) {
         console.error('Failed to fetch performance:', error);
         toast({
@@ -75,7 +89,7 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
       }
     };
 
-    fetchPerformance();
+    fetchData();
   }, [toast]);
 
   if (isLoading) {
@@ -169,13 +183,14 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
   const performanceLevel = getPerformanceLevel(overallAccuracy);
   const PerformanceIcon = performanceLevel.icon;
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number | null }>; label?: string }) => {
     if (active && payload && payload.length) {
+      const accuracy = payload[0].value;
       return (
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
           <p className="font-medium capitalize">{`${label}`}</p>
           <p className="text-blue-600">
-            {`Accuracy: ${payload[0].value.toFixed(1)}%`}
+            {accuracy == null ? 'No quizzes this week' : `Accuracy: ${Number(accuracy).toFixed(1)}%`}
           </p>
           {payload[1] && (
             <p className="text-green-600">
@@ -188,35 +203,41 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
     return null;
   };
 
-  // Compute trends and previous stats (mocked for now; backend support can be added)
-  // Mock previous stats to demonstrate trend display
-  const prevOverallStats = {
-    totalAnswered: overallStats.totalAnswered - 10,
-    totalCorrect: overallStats.totalCorrect - 5,
-    totalWrong: overallStats.totalWrong - 5,
-    overallAccuracy: overallAccuracy - 3.5,
-  };
-  const accuracyTrend =
-    overallStats.totalAnswered && prevOverallStats.totalAnswered
-      ? (overallAccuracy - prevOverallStats.overallAccuracy).toFixed(1)
-      : null;
+  // Real trends: trailing 7 days vs the 7 days before (question-weighted).
+  // Deltas are null when there is no prior-week baseline — cards hide them.
+  const weekComparison = compareLast7VsPrior7(history);
+  const accuracyDelta =
+    weekComparison.accuracyDelta !== null ? parseFloat(weekComparison.accuracyDelta.toFixed(1)) : undefined;
+  const totalAnsweredDelta = weekComparison.answeredDelta ?? undefined;
 
-  // Activity: questions answered by day (mock for now, could use API)
-  const recentAnswersByDay = [
-    { day: "Mon", count: 10 },
-    { day: "Tue", count: 12 },
-    { day: "Wed", count: 15 },
-    { day: "Thu", count: 8 },
-    { day: "Fri", count: 18 },
-    { day: "Sat", count: 11 },
-    { day: "Sun", count: 13 },
-  ];
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const endOfToday = new Date(startOfToday.getTime() + DAY_MS);
+  const wrongIn = (from: Date, to: Date) =>
+    Math.round(
+      sessionsInRange(history, from, to).reduce(
+        (sum, s) => sum + (s.total_questions ?? 0) * (1 - (s.accuracy ?? 0) / 100),
+        0,
+      ),
+    );
+  const recentWindow = sessionsInRange(history, new Date(endOfToday.getTime() - 7 * DAY_MS), endOfToday);
+  const priorWindow = sessionsInRange(
+    history,
+    new Date(endOfToday.getTime() - 14 * DAY_MS),
+    new Date(endOfToday.getTime() - 7 * DAY_MS),
+  );
+  const wrongCount = (list: typeof recentWindow) =>
+    Math.round(list.reduce((sum, s) => sum + (s.total_questions ?? 0) * (1 - (s.accuracy ?? 0) / 100), 0));
+  // Null (hidden) when there is no prior-week baseline.
+  const totalWrongDelta = priorWindow.length > 0 ? wrongCount(recentWindow) - wrongCount(priorWindow) : undefined;
 
-  // Trends for stat cards (mock delta for demo)
-  const totalAnsweredDelta = overallStats.totalAnswered - prevOverallStats.totalAnswered;
-  const accuracyDelta = accuracyTrend ? parseFloat(accuracyTrend) : null;
-  const totalWrongDelta = overallStats.totalWrong - prevOverallStats.totalWrong;
-  const streak = 12; // mock, replace with API value if possible
+  // Real activity: questions answered per day, last 7 calendar days.
+  const weekActivity = activityByDay(history);
+  const recentAnswersByDay = weekActivity.map(({ day, count }) => ({ day, count }));
+
+  // Real consecutive active-day streak.
+  const streak = activeDayStreak(history);
 
   // Insight calculations (if topics are available)
   const mostImprovedTopic =
@@ -231,27 +252,17 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
       .sort((a, b) => (a.accuracy_percent - b.accuracy_percent))
       .at(0);
 
-  // Weekly accuracy data for the bar chart at the top
-  const weeklyAccuracyData = [
-    { week: "4w ago", percent: 58 },
-    { week: "3w ago", percent: 67 },
-    { week: "2w ago", percent: 75 },
-    { week: "last wk", percent: 80 },
-    { week: "this wk", percent: overallAccuracy }
-  ];
+  // Weekly accuracy: real question-weighted averages per trailing-7-day window.
+  // Weeks with no quizzes show as gaps.
+  const weeklyAccuracyData = weeklyAccuracy(history);
 
-  // Progress tracking data
-  const progressOverTime = [
-    { date: "Week 1", accuracy: 45, questions: 25 },
-    { date: "Week 2", accuracy: 52, questions: 35 },
-    { date: "Week 3", accuracy: 61, questions: 42 },
-    { date: "Week 4", accuracy: 68, questions: 38 },
-    { date: "Week 5", accuracy: 74, questions: 45 },
-    { date: "Week 6", accuracy: overallAccuracy, questions: overallStats.totalAnswered },
-  ];
+  // Progress: real cumulative accuracy after each session (last 12).
+  const progressOverTime = cumulativeProgress(history);
+
+  const firstQuiz = firstSessionDate(history);
 
   const milestones = [
-    { title: "First Quiz", completed: true, date: "2 weeks ago" },
+    { title: "First Quiz", completed: history.length > 0, date: firstQuiz ? firstQuiz.toLocaleDateString() : "Not yet" },
     { title: "50 Questions Answered", completed: true, date: "1 week ago" },
     { title: "70% Accuracy", completed: overallAccuracy >= 70, date: overallAccuracy >= 70 ? "Achieved!" : "In Progress" },
     { title: "100 Questions Answered", completed: overallStats.totalAnswered >= 100, date: overallStats.totalAnswered >= 100 ? "Achieved!" : "In Progress" },
@@ -311,7 +322,7 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
         />
         <StatCard
           icon={<Star className="h-4 w-4" />}
-          label="Current Streak"
+          label="Active-Day Streak"
           value={streak}
           accentColor="purple"
         />
@@ -365,7 +376,7 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
           <CardContent>
             <ul className="space-y-2">
               <li>
-                <span className="font-medium">Longest Streak:</span> {streak} {streak > 1 ? 'days' : 'day'}
+                <span className="font-medium">Active-day streak:</span> {streak} {streak === 1 ? 'day' : 'days'}
               </li>
               <li>
                 <span className="font-medium">Best Accuracy:</span>{" "}
@@ -586,7 +597,7 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
                 </ResponsiveContainer>
               </div>
               <div className="text-sm text-gray-600 text-center">
-                Your accuracy improvement over the last 6 weeks
+                Your cumulative accuracy after each session (last {progressOverTime.length || 12})
               </div>
             </CardContent>
           </Card>
@@ -671,17 +682,19 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
                 <div className="w-20 h-20 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Flame className="h-10 w-10 text-white" />
                 </div>
-                <div className="text-3xl font-bold text-orange-600 mb-2">{streak} Days</div>
-                <p className="text-gray-600 mb-4">Current streak</p>
+                <div className="text-3xl font-bold text-orange-600 mb-2">{streak} {streak === 1 ? 'Day' : 'Days'}</div>
+                <p className="text-gray-600 mb-4">Consecutive days with a quiz</p>
                 <div className="grid grid-cols-7 gap-2 max-w-xs mx-auto">
-                  {Array.from({ length: 7 }, (_, i) => (
-                    <div
-                      key={i}
-                      className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${
-                        i < 5 ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-400'
-                      }`}
-                    >
-                      {i < 5 ? '✓' : '○'}
+                  {weekActivity.map((d) => (
+                    <div key={d.date.toISOString()} className="flex flex-col items-center gap-1">
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${
+                          d.active ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-400'
+                        }`}
+                      >
+                        {d.active ? '✓' : '○'}
+                      </div>
+                      <span className="text-[10px] text-gray-500">{d.day.slice(0, 1)}</span>
                     </div>
                   ))}
                 </div>

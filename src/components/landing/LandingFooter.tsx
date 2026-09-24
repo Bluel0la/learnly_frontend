@@ -22,7 +22,6 @@ const LandingFooter = () => {
             <h4 className="font-semibold mb-4">Product</h4>
             <ul className="space-y-2 text-gray-400">
               <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
-              <li><a href="#pricing" className="hover:text-white transition-colors">Pricing</a></li>
               <li><a href="#testimonials" className="hover:text-white transition-colors">Reviews</a></li>
             </ul>
           </div>
@@ -36,7 +35,7 @@ const LandingFooter = () => {
           </div>
         </div>
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-          <p>&copy; 2024 Learnly. All rights reserved.</p>
+          <p>&copy; 2026 Learnly. All rights reserved.</p>
         </div>
       </div>
     </footer>

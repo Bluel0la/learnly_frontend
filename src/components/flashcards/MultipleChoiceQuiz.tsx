@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { flashcardApi, QuizCard, QuizResponse } from '@/services/api';
-import { useUserProfile } from '@/hooks/useUserProfile';
-import { supabase } from '@/integrations/supabase/client';
+import { flashcardApi, QuizCard, QuizResponse, QuizResult } from '@/services/api';
 import ScoreMeter from './ScoreMeter';
 import QuizReview from './QuizReview';
 
@@ -17,7 +15,9 @@ const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({ deckId, onCompl
   const [quizCards, setQuizCards] = useState<QuizCard[]>([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [userResponses, setUserResponses] = useState<QuizResponse[]>([]);
+  const [serverResult, setServerResult] = useState<QuizResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [hasAnswered, setHasAnswered] = useState(false);
@@ -29,10 +29,8 @@ const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({ deckId, onCompl
   const [rank, setRank] = useState('E');
   const [multiplier, setMultiplier] = useState(1);
   const [totalScore, setTotalScore] = useState(0);
-  const [startTime] = useState(Date.now());
 
   const { toast } = useToast();
-  const { profile } = useUserProfile();
 
   useEffect(() => {
     const startQuiz = async () => {
@@ -87,6 +85,7 @@ const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({ deckId, onCompl
     if (!selectedAnswer || hasAnswered) return;
 
     const currentCard = quizCards[currentCardIndex];
+    // Instant UI feedback only — the server is the source of truth for grading.
     const correctAnswer = currentCard.options[currentCard.correct_answer_index];
     const isCorrect = selectedAnswer === correctAnswer;
 
@@ -95,7 +94,6 @@ const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({ deckId, onCompl
     const response: QuizResponse = {
       card_id: currentCard.card_id,
       user_answer: selectedAnswer,
-      is_correct: isCorrect
     };
 
     setUserResponses(prev => [...prev, response]);
@@ -141,43 +139,36 @@ const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({ deckId, onCompl
   };
 
   const finishQuiz = async (allResponses: QuizResponse[]) => {
+    setIsSubmitting(true);
     try {
-      const endTime = Date.now();
-      const timeTakenSeconds = Math.floor((endTime - startTime) / 1000);
-      
-      // Save quiz attempt to database using the correct table name
-      if (profile?.user_id) {
-        const correctAnswers = allResponses.filter(r => r.is_correct).length;
-        const wrongAnswers = allResponses.length - correctAnswers;
-        
-        await supabase.from('flashcard_attempt').insert({
-          attempt_id: crypto.randomUUID(),
-          user_id: profile.user_id,
-          card_id: deckId, // Using card_id field for deck reference
-          correct: correctAnswers > wrongAnswers,
-          time_taken_seconds: timeTakenSeconds,
-          attempt_number: 1
-        });
-      }
+      // Server-graded: submit answers, render the server's verdict.
+      // Attempts are recorded server-side (submit updates review stats).
+      const result = await flashcardApi.submitQuiz(allResponses);
+      setServerResult(result);
 
-      // Submit quiz to API for analytics - fix: only pass one argument
-      try {
-        await flashcardApi.submitQuiz(allResponses);
-      } catch (error) {
-        console.error('Failed to submit quiz to API:', error);
-      }
+      // Display-only streak/rank derived from the server verdict.
+      const correctCount = result.correct;
+      setStreak(correctCount);
+      setMaxStreak((prev) => Math.max(prev, correctCount));
+      setRank(calculateRank(correctCount, result.total_questions));
 
       setIsComplete(true);
     } catch (error) {
-      console.error('Failed to save quiz attempt:', error);
-      // Still complete the quiz even if saving fails
-      setIsComplete(true);
+      console.error('Failed to submit quiz:', error);
+      toast({
+        title: "Error",
+        description: "Could not grade your quiz. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleRestart = () => {
     setCurrentCardIndex(0);
     setUserResponses([]);
+    setServerResult(null);
     setSelectedAnswer(null);
     setHasAnswered(false);
     setIsComplete(false);
@@ -198,11 +189,17 @@ const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({ deckId, onCompl
   }
 
   if (isComplete) {
+    if (!serverResult) {
+      return (
+        <div className="flex justify-center items-center h-64">
+          <div className="text-lg">Grading your quiz...</div>
+        </div>
+      );
+    }
     return (
       <QuizReview
+        result={serverResult}
         deckId={deckId}
-        quizCards={quizCards}
-        userResponses={userResponses}
         onRestart={handleRestart}
         onExit={onComplete}
       />
@@ -288,9 +285,9 @@ const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({ deckId, onCompl
           </div>
 
           {!hasAnswered && (
-            <Button 
+            <Button
               onClick={handleSubmitAnswer}
-              disabled={!selectedAnswer}
+              disabled={!selectedAnswer || isSubmitting}
               className="w-full mt-6 h-12 text-base font-medium"
             >
               Submit Answer
