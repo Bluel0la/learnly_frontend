@@ -27,9 +27,9 @@ const LandingNavigation = ({
                 <Brain className="w-5 h-5 text-luminous-primary" />
               </div>
             </div>
-            <span className="text-xl font-display font-extrabold tracking-tight text-white flex items-center gap-1">
+            <span className="text-xl font-display font-extrabold tracking-tight text-white flex items-center gap-1 shrink-0">
               Learn<span className="text-luminous-primary">ly</span>
-              <span className="text-[10px] font-luminous-mono px-1.5 py-0.5 rounded bg-luminous-primary-container/30 border border-luminous-primary/30 text-luminous-primary ml-1 uppercase">2.0</span>
+              <span className="hidden min-[400px]:inline text-[10px] font-luminous-mono px-1.5 py-0.5 rounded bg-luminous-primary-container/30 border border-luminous-primary/30 text-luminous-primary ml-1 uppercase">2.0</span>
             </span>
           </a>
 
@@ -40,25 +40,26 @@ const LandingNavigation = ({
           </nav>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
             {!isAuthenticated && (
               <button
                 onClick={onLogin}
-                className="hidden sm:inline-block text-sm font-semibold text-slate-300 hover:text-white transition-colors duration-200"
+                className="hidden sm:inline-block text-sm font-semibold text-slate-300 hover:text-white transition-colors duration-200 whitespace-nowrap"
               >
                 Sign In
               </button>
             )}
             <button
               onClick={onGetStarted}
-              className="relative inline-flex items-center justify-center px-5 py-2 rounded-xl text-sm font-bold text-white luminous-btn-primary luminous-shadow-glow-purple"
+              className="inline-flex items-center justify-center px-3 sm:px-5 py-2 rounded-xl text-[13px] sm:text-sm font-bold text-white luminous-btn-primary luminous-shadow-glow-purple whitespace-nowrap"
             >
-              {isAuthenticated ? 'Go to Dashboard' : 'Start Learning Free'}
+              <span className="sm:hidden">{isAuthenticated ? 'Dashboard' : 'Start Free'}</span>
+              <span className="hidden sm:inline">{isAuthenticated ? 'Go to Dashboard' : 'Start Learning Free'}</span>
             </button>
             <button
               aria-label="Toggle menu"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl text-slate-300 hover:text-white luminous-btn-glass"
+              className="md:hidden inline-flex items-center justify-center w-10 h-10 shrink-0 rounded-xl text-slate-300 hover:text-white luminous-btn-glass"
             >
               {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
