@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { quizApi, QuizQuestion, QuestionResponse, SubmitResultResponse, AdaptiveQuestionBatch } from '@/services/quizApi';
+import { quizApi, QuizQuestion, QuestionResponse, SubmitResultResponse,
+AdaptiveQuestionBatch, QuestionBatchResponse } from '@/services/quizApi';
 import { ArrowLeft, Clock, Trophy, Zap, Brain, Pause } from 'lucide-react';
 
 interface ActiveMathQuizProps {
@@ -159,7 +160,7 @@ const ActiveMathQuiz: React.FC<ActiveMathQuizProps> = ({
   const initializeQuiz = async () => {
     try {
       setIsLoading(true);
-      let response: any;
+      let response: QuestionBatchResponse | AdaptiveQuestionBatch;
       if (isFirstAttempt) {
         response = await quizApi.getInitialQuestionBatch(sessionId);
         setQuestions(response.current_batch);
@@ -298,26 +299,26 @@ const ActiveMathQuiz: React.FC<ActiveMathQuizProps> = ({
   if (showResumeDialog) {
     return (
       <div className="flex flex-col items-center justify-center h-96 space-y-6">
-        <Card className="max-w-md mx-auto w-full">
+        <Card className="max-w-md mx-auto w-full luminous-glass-card border-white/10">
           <CardHeader>
-            <CardTitle className="text-lg text-center">Resume Quiz?</CardTitle>
+            <CardTitle className="text-lg text-center font-display text-white">Resume Quiz?</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col items-center space-y-4">
-            <p className="text-gray-700 text-center">
+            <p className="text-slate-300 text-center">
               {`You have a paused quiz for this topic (session: ${sessionId.slice(0, 8)}...).`}
               <br />
               Would you like to resume where you left off, or start over?
               <br />
-              <span className="text-xs text-gray-400">(Pausing saves only your in-progress answers. If your session ID changes, you may need to re-start.)</span>
+              <span className="text-xs text-slate-500">(Pausing saves only your in-progress answers. If your session ID changes, you may need to re-start.)</span>
             </p>
             <div className="flex gap-4">
-              <Button onClick={restoreFromSaved} className="bg-green-500 hover:bg-green-600 text-white">
+              <Button onClick={restoreFromSaved} className="bg-emerald-600 hover:bg-emerald-500 text-white">
                 Resume
               </Button>
-              <Button onClick={startNewSession} variant="outline">
+              <Button onClick={startNewSession} variant="outline" className="bg-white/5 border-white/10 text-slate-200 hover:bg-white/10 hover:text-white">
                 Start Over
               </Button>
-              <Button onClick={onBack} variant="ghost">
+              <Button onClick={onBack} variant="ghost" className="text-slate-400 hover:text-white hover:bg-white/5">
                 Cancel
               </Button>
             </div>
@@ -330,18 +331,18 @@ const ActiveMathQuiz: React.FC<ActiveMathQuizProps> = ({
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="text-lg">Loading quiz...</div>
+        <div className="text-lg text-slate-400">Loading quiz...</div>
       </div>
     );
   }
 
   if (questions.length === 0) {
     return (
-      <Card>
+      <Card className="luminous-glass-card border-white/10">
         <CardContent className="text-center py-8">
-          <h3 className="text-xl font-semibold mb-2">No Questions Available</h3>
-          <p className="text-gray-600 mb-4">Unable to load quiz questions.</p>
-          <Button onClick={onBack}>Back to Quiz Selection</Button>
+          <h3 className="text-xl font-semibold mb-2 font-display text-white">No Questions Available</h3>
+          <p className="text-slate-400 mb-4">Unable to load quiz questions.</p>
+          <Button onClick={onBack} className="bg-luminous-primary-container hover:brightness-110 text-white">Back to Quiz Selection</Button>
         </CardContent>
       </Card>
     );
@@ -352,53 +353,53 @@ const ActiveMathQuiz: React.FC<ActiveMathQuizProps> = ({
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty.toLowerCase()) {
-      case 'easy': return 'text-green-500 bg-green-100';
-      case 'medium': return 'text-yellow-500 bg-yellow-100';
-      case 'hard': return 'text-red-500 bg-red-100';
-      case 'mixed': return 'text-blue-500 bg-blue-100';
-      default: return 'text-gray-500 bg-gray-100';
+      case 'easy': return 'text-emerald-300 bg-emerald-500/15 border border-emerald-400/30';
+      case 'medium': return 'text-amber-300 bg-amber-500/15 border border-amber-400/30';
+      case 'hard': return 'text-rose-300 bg-rose-500/15 border border-rose-400/30';
+      case 'mixed': return 'text-luminous-secondary bg-luminous-secondary-container/10 border border-luminous-secondary-container/30';
+      default: return 'text-slate-300 bg-white/10 border border-white/10';
     }
   };
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-lg">
-        <Button 
-          variant="ghost" 
-          onClick={onBack} 
+      <div className="flex justify-between items-center bg-gradient-to-r from-luminous-primary-container/40 via-midnight-900 to-midnight-950 border border-white/10 text-white p-4 rounded-2xl backdrop-blur-xl">
+        <Button
+          variant="ghost"
+          onClick={onBack}
           disabled={isSubmitting}
-          className="text-white hover:bg-white/20"
+          className="text-slate-300 hover:text-white hover:bg-white/10"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back
         </Button>
-        
+
         <div className="text-center">
           <div className="flex items-center justify-center gap-2 mb-1">
             {getPhaseIcon()}
-            <h2 className="font-bold text-lg">{getPhaseTitle()}</h2>
+            <h2 className="font-bold text-lg font-display">{getPhaseTitle()}</h2>
           </div>
-          <p className="text-blue-100">
+          <p className="text-slate-300 text-sm">
             {topic.charAt(0).toUpperCase() + topic.slice(1)} • Question {currentQuestionIndex + 1} of {questions.length}
           </p>
-          <p className="text-blue-200 text-sm">{getPhaseDescription()}</p>
+          <p className="text-slate-500 text-xs">{getPhaseDescription()}</p>
         </div>
-        
+
         <div className="flex items-center gap-4">
-          <Button 
+          <Button
             variant="ghost"
             onClick={handlePause}
-            className="text-white hover:bg-white/30 px-3 py-1"
+            className="text-slate-300 hover:text-white hover:bg-white/10 px-3 py-1"
             disabled={isSubmitting}
           >
             <Pause className="h-5 w-5 mr-1" /> Pause
           </Button>
-          <div className="flex items-center gap-2">
+          <div className="hidden sm:flex items-center gap-2 text-slate-300">
             <Clock className="h-4 w-4" />
-            <span className="font-mono">{formatTime(timeElapsed)}</span>
+            <span className="font-luminous-mono text-sm">{formatTime(timeElapsed)}</span>
           </div>
-          <div className={`px-3 py-1 rounded-full text-xs font-semibold ${getDifficultyColor(currentQuestion.difficulty)}`}>
+          <div className={`px-3 py-1 rounded-full text-xs font-semibold font-luminous-mono uppercase ${getDifficultyColor(currentQuestion.difficulty)}`}>
             {currentQuestion.difficulty.toUpperCase()}
           </div>
         </div>
@@ -407,67 +408,67 @@ const ActiveMathQuiz: React.FC<ActiveMathQuizProps> = ({
       {/* Progress Bar */}
       <div className="space-y-2">
         <div className="flex justify-between items-center">
-          <span className="text-sm font-medium text-gray-600">Progress</span>
-          <span className="text-sm font-bold text-blue-600">{Math.round(progress)}%</span>
+          <span className="text-xs font-luminous-mono uppercase tracking-widest text-slate-400">Progress</span>
+          <span className="text-sm font-bold text-luminous-secondary font-luminous-mono">{Math.round(progress)}%</span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-          <div 
-            className="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-500"
+        <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
+          <div
+            className="bg-gradient-to-r from-luminous-primary-container to-luminous-secondary-container h-2 rounded-full transition-all duration-500"
             style={{ width: `${progress}%` }}
           />
         </div>
       </div>
 
       {/* Question Card */}
-      <Card className="bg-gradient-to-br from-white to-blue-50 border-2 border-blue-200 shadow-xl">
+      <Card className="luminous-glass-card luminous-glow-border border-white/10">
         <CardHeader className="text-center pb-4">
           <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xl font-bold">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-luminous-primary-container to-luminous-secondary-container flex items-center justify-center text-white text-xl font-bold font-display luminous-shadow-glow-purple">
               {currentQuestionIndex + 1}
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold text-gray-800 leading-relaxed px-4">
+          <CardTitle className="font-display text-xl sm:text-2xl font-bold text-white leading-relaxed px-4">
             {currentQuestion.question}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-4">
+          <div className="grid gap-3" key={currentQuestion.question_id}>
             {currentQuestion.choices.map((choice, index) => {
-              const letters = ['A', 'B', 'C', 'D'];
+              const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
               const isSelected = selectedAnswer === choice;
-              
+
               return (
-                <Button
+                <button
                   key={index}
-                  variant="outline"
-                  className={`w-full text-left justify-start p-6 h-auto min-h-[70px] transition-all duration-300 border-2 ${
+                  className={`animate-luminous-option-in w-full flex items-center gap-3.5 p-4 rounded-xl border text-left transition-all duration-200 min-h-[64px] ${
                     isSelected
-                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white border-blue-500 shadow-lg scale-105'
-                      : 'hover:bg-blue-50 hover:border-blue-300 border-gray-200 bg-white'
+                      ? 'bg-luminous-primary-container/25 text-white border-luminous-primary luminous-shadow-glow-purple scale-[1.01]'
+                      : 'bg-white/[0.03] border-white/10 text-slate-200 hover:bg-white/[0.07] hover:border-luminous-primary/50 hover:text-white hover:translate-x-0.5'
                   }`}
+                  style={{ animationDelay: `${index * 60}ms` }}
                   onClick={() => handleAnswerSelect(choice)}
                   disabled={isSubmitting}
                 >
                   <div className="flex items-center gap-4 w-full">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${
-                      isSelected ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-600'
+                    <div className={`w-9 h-9 shrink-0 rounded-lg flex items-center justify-center text-sm font-bold font-display transition-colors ${
+                      isSelected ? 'bg-white text-luminous-primary-container' : 'bg-white/10 text-slate-300'
                     }`}>
-                      {letters[index]}
+                      {letters[index] ?? index + 1}
                     </div>
-                    <div className="text-base leading-relaxed whitespace-normal break-words flex-1 text-left">
+                    <div className="text-[15px] leading-relaxed whitespace-normal break-words flex-1 text-left">
                       {choice}
                     </div>
                   </div>
-                </Button>
+                </button>
               );
             })}
           </div>
 
           <div className="pt-6">
-            <Button 
+            <Button
               onClick={handleNextQuestion}
               disabled={!selectedAnswer || isSubmitting}
-              className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white shadow-lg transition-all duration-300 hover:scale-105"
+              className="w-full h-14 text-lg font-bold bg-luminous-primary-container hover:brightness-110 text-white luminous-shadow-glow-purple transition-all duration-300 disabled:opacity-40 disabled:shadow-none"
             >
               <div className="flex items-center gap-2">
                 {isSubmitting ? (

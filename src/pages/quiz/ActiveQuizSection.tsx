@@ -1,6 +1,7 @@
 
 import React from 'react';
 import ActiveMathQuiz from '@/components/quiz/ActiveMathQuiz';
+import type { SubmitResultResponse } from '@/services/quizApi';
 
 interface ActiveQuizSectionProps {
   activeQuiz: {
@@ -11,7 +12,7 @@ interface ActiveQuizSectionProps {
     mode: string;
   };
   isHistoryLoading: boolean;
-  onQuizComplete: (results: any) => void;
+  onQuizComplete: (results: SubmitResultResponse) => void;
   onBack: () => void;
 }
 

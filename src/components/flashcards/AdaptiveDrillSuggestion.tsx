@@ -55,40 +55,40 @@ const AdaptiveDrillSuggestion: React.FC<AdaptiveDrillSuggestionProps> = ({
   }
 
   return (
-    <Card className="mt-4">
+    <Card className="mt-4 luminous-glass-card border-white/10">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Brain className="h-5 w-5" />
+        <CardTitle className="flex items-center gap-2 font-display text-white">
+          <Brain className="h-5 w-5 text-luminous-primary" />
           Improve Your Learning
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-slate-400">
           You got {wrongAnswers} questions wrong. Generate additional practice cards to master these concepts.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button
             onClick={() => handleGenerateAdaptiveDrills('wrong')}
             disabled={isGenerating}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 bg-luminous-primary-container hover:brightness-110 text-white"
             variant="default"
           >
             {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Brain className="h-4 w-4" />}
             Generate Practice Cards for Missed Questions
           </Button>
-          
+
           <Button
             onClick={() => handleGenerateAdaptiveDrills('bookmark')}
             disabled={isGenerating}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 bg-white/5 border-white/10 text-slate-200 hover:bg-white/10 hover:text-white"
             variant="outline"
           >
             {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <BookMarked className="h-4 w-4" />}
             Generate Cards for Bookmarked Topics
           </Button>
         </div>
-        
-        <p className="text-sm text-gray-600">
+
+        <p className="text-sm text-slate-400">
           Current accuracy: {accuracy}% • Focus on areas where you struggled to improve faster
         </p>
       </CardContent>

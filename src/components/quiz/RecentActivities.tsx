@@ -46,10 +46,10 @@ const RecentActivities: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Card className="bg-white shadow-lg border-0 w-full">
+      <Card className="luminous-glass-card border-white/10 w-full">
         <CardContent className="p-6 lg:p-8">
-          <div className="text-center text-gray-500">
-            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-500" />
+          <div className="text-center text-slate-400">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-luminous-primary" />
             <p className="text-lg font-medium">Loading recent activities...</p>
           </div>
         </CardContent>
@@ -59,25 +59,25 @@ const RecentActivities: React.FC = () => {
 
   if (!history || history.sessions.length === 0) {
     return (
-      <Card className="bg-gradient-to-br from-blue-50 to-indigo-100 border-0 shadow-lg w-full">
+      <Card className="luminous-glass-card border-white/10 w-full">
         <CardContent className="p-6 lg:p-8">
           <div className="text-center">
-            <div className="w-16 h-16 lg:w-20 lg:h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 lg:mb-6">
+            <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-full bg-gradient-to-tr from-luminous-primary-container to-luminous-secondary-container flex items-center justify-center mx-auto mb-4 lg:mb-6">
               <Trophy className="h-8 w-8 lg:h-10 lg:w-10 text-white" />
             </div>
-            <h3 className="text-xl lg:text-2xl font-bold mb-3 text-gray-800">Start Your Quiz Journey!</h3>
-            <p className="text-gray-600 text-base lg:text-lg mb-4 lg:mb-6">Complete your first math quiz to see your progress here</p>
-            <div className="flex flex-col sm:flex-row justify-center gap-3 lg:gap-4 text-sm text-gray-500">
+            <h3 className="text-xl lg:text-2xl font-bold mb-3 text-white font-display">Start Your Quiz Journey!</h3>
+            <p className="text-slate-400 text-base lg:text-lg mb-4 lg:mb-6">Complete your first math quiz to see your progress here</p>
+            <div className="flex flex-col sm:flex-row justify-center gap-3 lg:gap-4 text-sm text-slate-400">
               <div className="flex items-center justify-center gap-1">
-                <Star className="h-4 w-4" />
+                <Star className="h-4 w-4 text-luminous-primary" />
                 <span>Track Progress</span>
               </div>
               <div className="flex items-center justify-center gap-1">
-                <Award className="h-4 w-4" />
+                <Award className="h-4 w-4 text-luminous-secondary" />
                 <span>Earn Achievements</span>
               </div>
               <div className="flex items-center justify-center gap-1">
-                <TrendingUp className="h-4 w-4" />
+                <TrendingUp className="h-4 w-4 text-emerald-400" />
                 <span>Improve Skills</span>
               </div>
             </div>
@@ -88,9 +88,9 @@ const RecentActivities: React.FC = () => {
   }
 
   const getAccuracyColor = (accuracy: number) => {
-    if (accuracy >= 80) return 'bg-green-500';
-    if (accuracy >= 60) return 'bg-yellow-500';
-    return 'bg-red-500';
+    if (accuracy >= 80) return 'bg-emerald-400';
+    if (accuracy >= 60) return 'bg-amber-400';
+    return 'bg-rose-400';
   };
 
   const getAccuracyBadgeVariant = (accuracy: number): "default" | "secondary" | "destructive" | "outline" => {
@@ -100,46 +100,46 @@ const RecentActivities: React.FC = () => {
   };
 
   const getPerformanceIcon = (accuracy: number) => {
-    if (accuracy >= 80) return <Trophy className="h-4 w-4 lg:h-5 lg:w-5 text-yellow-500" />;
-    if (accuracy >= 60) return <Award className="h-4 w-4 lg:h-5 lg:w-5 text-blue-500" />;
-    return <Target className="h-4 w-4 lg:h-5 lg:w-5 text-gray-500" />;
+    if (accuracy >= 80) return <Trophy className="h-4 w-4 lg:h-5 lg:w-5 text-amber-300" />;
+    if (accuracy >= 60) return <Award className="h-4 w-4 lg:h-5 lg:w-5 text-luminous-secondary" />;
+    return <Target className="h-4 w-4 lg:h-5 lg:w-5 text-slate-400" />;
   };
 
   const displayedSessions = showAll ? history.sessions : history.sessions.slice(0, 5);
 
   return (
-    <Card className="bg-white shadow-lg border-0 w-full">
-      <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-t-lg">
-        <CardTitle className="flex items-center gap-3 text-lg lg:text-xl">
-          <div className="w-8 h-8 lg:w-10 lg:h-10 bg-white/20 rounded-full flex items-center justify-center">
-            <Clock className="h-4 w-4 lg:h-6 lg:w-6" />
+    <Card className="luminous-glass-card border-white/10 w-full">
+      <CardHeader className="bg-gradient-to-r from-luminous-primary-container/30 to-luminous-secondary-container/15 border-b border-white/10 rounded-t-lg">
+        <CardTitle className="flex items-center gap-3 text-lg lg:text-xl font-display text-white">
+          <div className="w-8 h-8 lg:w-10 lg:h-10 bg-white/10 border border-white/10 rounded-full flex items-center justify-center">
+            <Clock className="h-4 w-4 lg:h-6 lg:w-6 text-luminous-secondary" />
           </div>
           Recent Quiz Activity
-          <Badge variant="secondary" className="bg-white/20 text-white border-white/30 text-xs">
+          <Badge variant="secondary" className="bg-white/10 text-slate-200 border-white/10 text-xs">
             {history.sessions.length} sessions
           </Badge>
         </CardTitle>
-        <p className="text-blue-100 text-sm">Click on any activity to review detailed performance</p>
+        <p className="text-slate-400 text-sm">Click on any activity to review detailed performance</p>
       </CardHeader>
       <CardContent className="p-4 lg:p-6">
         <div className="space-y-3 lg:space-y-4">
           {displayedSessions.map((session, index) => (
-            <div 
-              key={session.session_id} 
-              className="group hover:bg-gray-50 p-3 lg:p-4 rounded-lg transition-all duration-200 border border-gray-100 hover:border-blue-200 hover:shadow-md cursor-pointer"
+            <div
+              key={session.session_id}
+              className="group bg-white/[0.02] hover:bg-white/[0.05] p-3 lg:p-4 rounded-lg transition-all duration-200 border border-white/[0.07] hover:border-luminous-primary/40 cursor-pointer"
               onClick={() => setSelectedSessionId(session.session_id)}
             >
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div className="flex items-center gap-3 lg:gap-4 flex-1">
-                  <div className="relative w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                  <div className="relative w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-gradient-to-tr from-luminous-primary-container to-luminous-secondary-container flex items-center justify-center shrink-0">
                     {getPerformanceIcon(session.accuracy)}
-                    <div className="absolute -top-1 -right-1 w-4 h-4 lg:w-5 lg:h-5 bg-white rounded-full flex items-center justify-center">
-                      <span className="text-xs font-bold text-gray-700">#{index + 1}</span>
+                    <div className="absolute -top-1 -right-1 w-4 h-4 lg:w-5 lg:h-5 bg-midnight-900 border border-white/20 rounded-full flex items-center justify-center">
+                      <span className="text-[10px] font-bold text-slate-300">#{index + 1}</span>
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-base lg:text-lg capitalize text-gray-800 truncate">{session.topic}</h4>
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-xs lg:text-sm text-gray-600">
+                    <h4 className="font-semibold text-base lg:text-lg capitalize text-slate-100 truncate">{session.topic}</h4>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-xs lg:text-sm text-slate-400">
                       <div className="flex items-center gap-1">
                         <Calendar className="h-3 w-3 lg:h-4 lg:w-4" />
                         <span>{new Date(session.date).toLocaleDateString()}</span>
@@ -157,26 +157,26 @@ const RecentActivities: React.FC = () => {
                     <Badge variant={getAccuracyBadgeVariant(session.accuracy)} className="text-xs font-semibold px-2 py-1">
                       {session.accuracy.toFixed(1)}%
                     </Badge>
-                    <div className="w-16 lg:w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
-                      <div 
+                    <div className="w-16 lg:w-20 h-2 bg-white/10 rounded-full overflow-hidden">
+                      <div
                         className={`h-full ${getAccuracyColor(session.accuracy)} transition-all duration-500`}
                         style={{ width: `${session.accuracy}%` }}
                       />
                     </div>
                   </div>
-                  <ChevronRight className="h-4 w-4 lg:h-5 lg:w-5 text-gray-400 group-hover:text-blue-500 transition-colors" />
+                  <ChevronRight className="h-4 w-4 lg:h-5 lg:w-5 text-slate-500 group-hover:text-luminous-primary transition-colors" />
                 </div>
               </div>
             </div>
           ))}
         </div>
-        
+
         {history.sessions.length > 5 && (
           <div className="mt-4 lg:mt-6 text-center">
             <Button
               variant="outline"
               onClick={() => setShowAll(!showAll)}
-              className="hover:bg-blue-50 hover:border-blue-300"
+              className="bg-white/5 border-white/10 text-slate-200 hover:bg-white/10 hover:text-white"
               size="sm"
             >
               <Eye className="h-4 w-4 mr-2" />
@@ -184,10 +184,10 @@ const RecentActivities: React.FC = () => {
             </Button>
           </div>
         )}
-        
+
         {displayedSessions.length === 0 && (
-          <div className="text-center text-gray-500 py-6 lg:py-8">
-            <Target className="h-10 w-10 lg:h-12 lg:w-12 mx-auto mb-3 text-gray-300" />
+          <div className="text-center text-slate-500 py-6 lg:py-8">
+            <Target className="h-10 w-10 lg:h-12 lg:w-12 mx-auto mb-3 text-slate-600" />
             <p>No recent activities found</p>
           </div>
         )}

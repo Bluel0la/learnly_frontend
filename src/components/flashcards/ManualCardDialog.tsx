@@ -85,70 +85,72 @@ const ManualCardDialog: React.FC<ManualCardDialogProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto luminous-scroll luminous-glass-card border-white/10 text-slate-200">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 font-display text-white">
             <span className="text-2xl">✏️</span>
             Add Cards Manually
           </DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-4">
           {cards.map((card, index) => (
-            <div key={index} className="border rounded-lg p-4 space-y-3">
+            <div key={index} className="border border-white/10 bg-white/[0.02] rounded-lg p-4 space-y-3">
               <div className="flex items-center justify-between">
-                <h4 className="font-medium">Card {index + 1}</h4>
+                <h4 className="font-medium text-white">Card {index + 1}</h4>
                 {cards.length > 1 && (
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => removeCard(index)}
-                    className="h-8 w-8 text-red-500 hover:text-red-700"
+                    className="h-8 w-8 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10"
                   >
                     <X className="h-4 w-4" />
                   </Button>
                 )}
               </div>
-              
+
               <div className="space-y-2">
-                <label className="text-sm font-medium">Question:</label>
+                <label className="text-sm font-medium text-slate-300">Question:</label>
                 <Textarea
                   placeholder="Enter your question..."
                   value={card.question}
                   onChange={(e) => updateCard(index, 'question', e.target.value)}
                   rows={2}
+                  className="bg-midnight-900/90 border-white/10 text-white placeholder:text-slate-500 focus:border-luminous-primary-container/60"
                 />
               </div>
-              
+
               <div className="space-y-2">
-                <label className="text-sm font-medium">Answer:</label>
+                <label className="text-sm font-medium text-slate-300">Answer:</label>
                 <Textarea
                   placeholder="Enter the answer..."
                   value={card.answer}
                   onChange={(e) => updateCard(index, 'answer', e.target.value)}
                   rows={3}
+                  className="bg-midnight-900/90 border-white/10 text-white placeholder:text-slate-500 focus:border-luminous-primary-container/60"
                 />
               </div>
             </div>
           ))}
-          
+
           <Button
             variant="outline"
             onClick={addCard}
-            className="w-full flex items-center gap-2"
+            className="w-full flex items-center gap-2 bg-white/5 border-white/10 text-slate-200 hover:bg-white/10 hover:text-white"
           >
             <Plus className="h-4 w-4" />
             Add Another Card
           </Button>
-          
+
           <div className="flex gap-2 justify-end pt-4">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
+            <Button variant="outline" onClick={() => onOpenChange(false)} className="bg-white/5 border-white/10 text-slate-200 hover:bg-white/10 hover:text-white">
               Cancel
             </Button>
-            <Button 
-              onClick={handleSubmit} 
+            <Button
+              onClick={handleSubmit}
               disabled={isSubmitting}
-              className="hover:scale-105 transition-transform"
+              className="hover:scale-105 transition-transform bg-luminous-primary-container hover:brightness-110 text-white"
             >
               {isSubmitting ? "Adding..." : `Add ${cards.filter(c => c.question.trim() && c.answer.trim()).length} Card${cards.filter(c => c.question.trim() && c.answer.trim()).length !== 1 ? 's' : ''}`}
             </Button>

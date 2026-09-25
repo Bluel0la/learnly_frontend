@@ -107,23 +107,23 @@ const QuizReview: React.FC<QuizReviewProps> = ({
   return (
     <div className="max-w-2xl mx-auto p-6 space-y-6">
       {/* Results Summary */}
-      <Card>
+      <Card className="luminous-glass-card border-white/10">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Quiz Complete!</CardTitle>
-          <CardDescription>Here's how you performed</CardDescription>
+          <CardTitle className="text-2xl font-display text-white">Quiz Complete!</CardTitle>
+          <CardDescription className="text-slate-400">Here's how you performed</CardDescription>
         </CardHeader>
         <CardContent className="text-center space-y-4">
-          <div className="text-6xl font-bold text-blue-600">{grade}</div>
-          <div className="text-xl">
+          <div className="text-6xl font-bold luminous-gradient-text">{grade}</div>
+          <div className="text-xl text-slate-200">
             {correct}/{totalQuestions} correct ({accuracy}%)
           </div>
-          
+
           <div className="flex justify-center gap-4 text-sm">
-            <div className="flex items-center gap-1 text-green-600">
+            <div className="flex items-center gap-1 text-emerald-400">
               <CheckCircle className="h-4 w-4" />
               {correct} Correct
             </div>
-            <div className="flex items-center gap-1 text-red-600">
+            <div className="flex items-center gap-1 text-rose-400">
               <XCircle className="h-4 w-4" />
               {wrong} Wrong
             </div>
@@ -142,32 +142,32 @@ const QuizReview: React.FC<QuizReviewProps> = ({
       )}
 
       {/* Detailed Results */}
-      <Card>
+      <Card className="luminous-glass-card border-white/10">
         <CardHeader>
-          <CardTitle>Detailed Results</CardTitle>
+          <CardTitle className="font-display text-white">Detailed Results</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {detailedResults.map((detail, index) => (
-            <div key={detail.card_id} className="border-l-4 pl-4 py-2" 
-                 style={{ borderColor: detail.correct ? '#10b981' : '#ef4444' }}>
+            <div key={detail.card_id} className="border-l-4 pl-4 py-2 bg-white/[0.02] rounded-r-lg"
+                 style={{ borderColor: detail.correct ? '#34d399' : '#fb7185' }}>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <p className="font-medium">Question {index + 1}</p>
-                  <p className="text-sm text-gray-600 mt-1">
-                    Your answer: <span className={detail.correct ? 'text-green-600' : 'text-red-600'}>
+                  <p className="font-medium text-slate-200">Question {index + 1}</p>
+                  <p className="text-sm text-slate-400 mt-1">
+                    Your answer: <span className={detail.correct ? 'text-emerald-400' : 'text-rose-400'}>
                       {detail.your_answer}
                     </span>
                   </p>
                   {!detail.correct && (
-                    <p className="text-sm text-green-600 mt-1">
+                    <p className="text-sm text-emerald-400 mt-1">
                       Correct answer: {detail.correct_answer}
                     </p>
                   )}
                 </div>
                 <div className="ml-2">
-                  {detail.correct ? 
-                    <CheckCircle className="h-5 w-5 text-green-600" /> : 
-                    <XCircle className="h-5 w-5 text-red-600" />
+                  {detail.correct ?
+                    <CheckCircle className="h-5 w-5 text-emerald-400" /> :
+                    <XCircle className="h-5 w-5 text-rose-400" />
                   }
                 </div>
               </div>
@@ -178,11 +178,11 @@ const QuizReview: React.FC<QuizReviewProps> = ({
 
       {/* Action Buttons */}
       <div className="flex gap-3 justify-center">
-        <Button onClick={handleRetakeAction} variant="outline" className="flex items-center gap-2">
+        <Button onClick={handleRetakeAction} variant="outline" className="flex items-center gap-2 bg-white/5 border-white/10 text-slate-200 hover:bg-white/10 hover:text-white">
           <RotateCcw className="h-4 w-4" />
           Retake Quiz
         </Button>
-        <Button onClick={handleExitAction}>
+        <Button onClick={handleExitAction} className="bg-luminous-primary-container hover:brightness-110 text-white">
           Back to Deck
         </Button>
       </div>

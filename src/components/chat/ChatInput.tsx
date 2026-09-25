@@ -53,11 +53,20 @@ const ChatInput = () => {
     content: string;
     timestamp: Date;
     originalPrompt?: string;
+    pending?: boolean;
   };
 
+  type ChatBridge = {
+    addChatMessage?: (m: BridgeMessage) => void;
+    updateChatMessage?: (id: string, patch: Partial<BridgeMessage>) => void;
+    removeChatMessage?: (id: string) => void;
+  };
+
+  const chatBridge = (): ChatBridge =>
+    window as unknown as ChatBridge;
+
   const pushChatMessage = (msg: BridgeMessage) => {
-    const w = window as unknown as { addChatMessage?: (m: BridgeMessage) => void };
-    w.addChatMessage?.(msg);
+    chatBridge().addChatMessage?.(msg);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -67,86 +76,78 @@ const ChatInput = () => {
 
   const submitMessage = async () => {
     // Combine extracted text with user message if both exist
-    const finalMessage = extractedText 
+    const finalMessage = extractedText
       ? (message.trim() ? `${extractedText}\n\n${message}` : extractedText)
       : message;
-    
-    if (finalMessage.trim() && !isSubmitting) {
-      setIsSubmitting(true);
-      
-      try {
-        if (!sessionId) {
-          // Start a new chat session
-          const newSession = await chatApi.startSession({
-            chat_title: finalMessage.length > 20 ? `${finalMessage.substring(0, 20)}...` : finalMessage
-          });
-          
-          // Add user message immediately
-          pushChatMessage({
-            id: `temp-user-${Date.now()}`,
-            type: 'user',
-            content: finalMessage,
-            timestamp: new Date()
-          });
 
-          // Send the message and get response
-          const response = await chatApi.sendMessage({
-            prompt: finalMessage,
-            chat_id: newSession.chat_id
-          });
+    if (!finalMessage.trim() || isSubmitting) return;
+    setIsSubmitting(true);
 
-          // Add AI response immediately
-          pushChatMessage({
-            id: `temp-ai-${Date.now()}`,
-            type: 'ai',
-            content: response.response,
-            timestamp: new Date(),
-            originalPrompt: finalMessage
-          });
-          
-          // Navigate to the new chat session
-          navigate(`/chat/${newSession.chat_id}`);
-          toast({
-            title: "New chat started",
-            description: "Your message has been sent"
-          });
-        } else {
-          // Add user message immediately to existing chat
-          pushChatMessage({
-            id: `temp-user-${Date.now()}`,
-            type: 'user',
-            content: finalMessage,
-            timestamp: new Date()
-          });
+    // Clear the composer immediately — don't wait for the response.
+    const sentText = finalMessage;
+    setMessage('');
+    setExtractedText('');
 
-          // Send message and get response
-          const response = await chatApi.sendMessage({
-            prompt: finalMessage,
-            chat_id: sessionId
-          });
+    // Thinking bubble, filled in live as tokens stream.
+    const thinkingId = `temp-ai-${Date.now()}`;
+    pushChatMessage({
+      id: `temp-user-${Date.now()}`,
+      type: 'user',
+      content: sentText,
+      timestamp: new Date(),
+    });
+    pushChatMessage({
+      id: thinkingId,
+      type: 'ai',
+      content: '',
+      timestamp: new Date(),
+      originalPrompt: sentText,
+      pending: true,
+    });
 
-          // Add AI response immediately
-          pushChatMessage({
-            id: `temp-ai-${Date.now()}`,
-            type: 'ai',
-            content: response.response,
-            timestamp: new Date(),
-            originalPrompt: finalMessage
-          });
-        }
-        
-        setMessage('');
-        setExtractedText('');
-      } catch (error) {
-        console.error('Error sending message:', error);
-        toast({
-          title: "Error",
-          description: "Failed to send message",
-          variant: "destructive"
+    let streamed = '';
+    try {
+      let targetChatId = sessionId;
+      if (!targetChatId) {
+        // Start a new chat session
+        const newSession = await chatApi.startSession({
+          chat_title: sentText.length > 20 ? `${sentText.substring(0, 20)}...` : sentText,
         });
-      } finally {
-        setIsSubmitting(false);
+        targetChatId = newSession.chat_id;
       }
+
+      // Stream the answer token-by-token into the thinking bubble.
+      const done = await chatApi.sendMessageStream(
+        { prompt: sentText, chat_id: targetChatId },
+        (token) => {
+          streamed += token;
+          chatBridge().updateChatMessage?.(thinkingId, { content: streamed });
+        },
+      );
+      chatBridge().updateChatMessage?.(thinkingId, {
+        content: done.response,
+        pending: false,
+        originalPrompt: sentText,
+      });
+
+      if (!sessionId) {
+        // Navigate to the new chat session (message list refetches there).
+        navigate(`/chat/${targetChatId}`);
+        toast({
+          title: "New chat started",
+          description: "Your message has been sent"
+        });
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      chatBridge().removeChatMessage?.(thinkingId);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to send message",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

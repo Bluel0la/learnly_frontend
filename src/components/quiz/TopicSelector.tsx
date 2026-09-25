@@ -45,12 +45,12 @@ const TopicSelector: React.FC<TopicSelectorProps> = ({
     <div className="space-y-4 w-full">
       {/* Search Bar */}
       <div className="relative max-w-md mx-auto lg:mx-0">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-500" />
         <Input
           placeholder="Search topics..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 border-gray-300 focus:outline-none"
+          className="pl-10 bg-white/[0.03] border-white/10 text-slate-200 placeholder:text-slate-500 focus:border-luminous-primary-container/60"
         />
       </div>
 
@@ -60,18 +60,18 @@ const TopicSelector: React.FC<TopicSelectorProps> = ({
           {displayedTopics.map((topic, index) => {
             const isSelected = selectedTopics.includes(topic.topic_id);
             const colorClass = colors[index % colors.length];
-            
+
             return (
-              <Card 
+              <Card
                 key={topic.topic_id}
                 className={`w-full bg-gradient-to-br ${colorClass} text-white border-0 cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl relative ${
-                  isSelected ? 'ring-4 ring-white/50' : ''
+                  isSelected ? 'ring-4 ring-luminous-primary/70 shadow-[0_0_24px_-4px_rgba(121,82,255,0.6)]' : ''
                 }`}
                 onClick={() => onTopicToggle(topic.topic_id)}
               >
                 <CardContent className="p-4 lg:p-6 text-center">
                   {isSelected && multiSelect && (
-                    <div className="absolute top-2 right-2 w-5 h-5 lg:w-6 lg:h-6 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                    <div className="absolute top-2 right-2 w-5 h-5 lg:w-6 lg:h-6 bg-black/30 rounded-full flex items-center justify-center backdrop-blur-sm">
                       <Check className="h-3 w-3 lg:h-4 lg:w-4 text-white" />
                     </div>
                   )}
@@ -81,7 +81,7 @@ const TopicSelector: React.FC<TopicSelectorProps> = ({
                   <h3 className="font-semibold text-sm lg:text-lg mb-2 line-clamp-2">{topic.name}</h3>
                   <p className="text-xs lg:text-sm opacity-90">Practice & improve</p>
                   {isSelected && (
-                    <div className="mt-3 w-full h-1 bg-white/30 rounded">
+                    <div className="mt-3 w-full h-1 bg-black/25 rounded">
                       <div className="h-full bg-white rounded animate-pulse"></div>
                     </div>
                   )}
@@ -97,7 +97,7 @@ const TopicSelector: React.FC<TopicSelectorProps> = ({
             <Button
               variant="outline"
               onClick={() => setShowAll(!showAll)}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 bg-white/5 border-white/10 text-slate-200 hover:bg-white/10 hover:text-white"
               size="sm"
             >
               <Eye className="h-4 w-4" />

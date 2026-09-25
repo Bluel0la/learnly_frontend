@@ -158,10 +158,10 @@ const DeckAnalytics: React.FC<DeckAnalyticsProps> = ({
 
   if (!stats) {
     return (
-      <Card>
+      <Card className="luminous-glass-card border-white/10">
         <CardContent className="p-8 text-center">
-          <p className="text-muted-foreground">No analytics data available</p>
-          <Button onClick={onClose} variant="outline" className="mt-4">
+          <p className="text-slate-400">No analytics data available</p>
+          <Button onClick={onClose} variant="outline" className="mt-4 bg-white/5 border-white/10 text-slate-200 hover:bg-white/10 hover:text-white">
             Back to Deck
           </Button>
         </CardContent>
@@ -176,46 +176,46 @@ const DeckAnalytics: React.FC<DeckAnalyticsProps> = ({
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <BarChart3 className="h-6 w-6" />
+          <h2 className="text-2xl font-bold flex items-center gap-2 font-display text-white">
+            <BarChart3 className="h-6 w-6 text-luminous-primary" />
             {deckTitle} Analytics
           </h2>
-          <p className="text-muted-foreground">Performance insights and improvement suggestions</p>
+          <p className="text-slate-400">Performance insights and improvement suggestions</p>
         </div>
-        <Button onClick={onClose} variant="outline">
+        <Button onClick={onClose} variant="outline" className="bg-white/5 border-white/10 text-slate-200 hover:bg-white/10 hover:text-white">
           Back to Deck
         </Button>
       </div>
 
       {/* Overview Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
+        <Card className="luminous-glass-card border-white/10">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Completion Rate</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-300">Completion Rate</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{completionRate}%</div>
+            <div className="text-2xl font-bold text-white">{completionRate}%</div>
             <Progress value={completionRate} className="mt-2" />
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-slate-400 mt-1">
               {stats.studiedCards} of {stats.totalCards} cards studied
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="luminous-glass-card border-white/10">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Average Accuracy</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-300">Average Accuracy</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <div className="text-2xl font-bold">{stats.averageAccuracy}%</div>
+              <div className="text-2xl font-bold text-white">{stats.averageAccuracy}%</div>
               {stats.averageAccuracy >= 80 ? (
-                <TrendingUp className="h-4 w-4 text-green-500" />
+                <TrendingUp className="h-4 w-4 text-emerald-400" />
               ) : (
-                <TrendingDown className="h-4 w-4 text-red-500" />
+                <TrendingDown className="h-4 w-4 text-rose-400" />
               )}
             </div>
-            <Badge 
+            <Badge
               variant={stats.averageAccuracy >= 80 ? "default" : "destructive"}
               className="mt-2"
             >
@@ -224,17 +224,17 @@ const DeckAnalytics: React.FC<DeckAnalyticsProps> = ({
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="luminous-glass-card border-white/10">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Difficult Cards</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-300">Difficult Cards</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.hardCards}</div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <div className="text-2xl font-bold text-white">{stats.hardCards}</div>
+            <p className="text-xs text-slate-400 mt-1">
               Cards with &lt;60% accuracy
             </p>
             {stats.hardCards > 0 && (
-              <Badge variant="outline" className="mt-2">
+              <Badge variant="outline" className="mt-2 border-amber-400/40 text-amber-300">
                 <Target className="h-3 w-3 mr-1" />
                 Focus Area
               </Badge>
@@ -245,22 +245,22 @@ const DeckAnalytics: React.FC<DeckAnalyticsProps> = ({
 
       {/* Adaptive Drill Suggestions */}
       {needsImprovement && (
-        <Card className="border-amber-200 bg-amber-50">
+        <Card className="luminous-glass-card border-amber-400/30">
           <CardHeader>
-            <CardTitle className="text-amber-700 flex items-center gap-2">
+            <CardTitle className="text-amber-300 flex items-center gap-2 font-display">
               <Brain className="h-5 w-5" />
               Suggested Improvements
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-slate-400">
               Based on your performance, here are some ways to improve your mastery of this deck.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {stats.hardCards > 0 && (
-              <div className="flex items-center justify-between p-3 bg-white rounded-lg border">
+              <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg border border-white/10">
                 <div>
-                  <p className="font-medium">Generate drills for difficult topics</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="font-medium text-slate-200">Generate drills for difficult topics</p>
+                  <p className="text-sm text-slate-400">
                     You have {stats.hardCards} cards with low accuracy
                   </p>
                 </div>
@@ -268,17 +268,18 @@ const DeckAnalytics: React.FC<DeckAnalyticsProps> = ({
                   onClick={() => handleGenerateAdaptiveDrills('wrong')}
                   disabled={isGeneratingDrills}
                   size="sm"
+                  className="bg-luminous-primary-container hover:brightness-110 text-white"
                 >
                   {isGeneratingDrills ? <Loader2 className="h-4 w-4 animate-spin" /> : "Generate"}
                 </Button>
               </div>
             )}
-            
+
             {stats.bookmarkedCards > 0 && (
-              <div className="flex items-center justify-between p-3 bg-white rounded-lg border">
+              <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg border border-white/10">
                 <div>
-                  <p className="font-medium">Practice bookmarked topics</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="font-medium text-slate-200">Practice bookmarked topics</p>
+                  <p className="text-sm text-slate-400">
                     You have {stats.bookmarkedCards} bookmarked cards
                   </p>
                 </div>
@@ -287,6 +288,7 @@ const DeckAnalytics: React.FC<DeckAnalyticsProps> = ({
                   disabled={isGeneratingDrills}
                   size="sm"
                   variant="outline"
+                  className="bg-white/5 border-white/10 text-slate-200 hover:bg-white/10 hover:text-white"
                 >
                   {isGeneratingDrills ? <Loader2 className="h-4 w-4 animate-spin" /> : "Generate"}
                 </Button>
@@ -298,21 +300,21 @@ const DeckAnalytics: React.FC<DeckAnalyticsProps> = ({
 
       {/* Interactive Detailed Breakdown */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="hover:shadow-md transition-shadow">
+        <Card className="luminous-glass-card border-white/10 hover:border-luminous-primary/30 transition-shadow">
           <CardHeader>
-            <CardTitle className="text-lg">Study Progress</CardTitle>
+            <CardTitle className="text-lg font-display text-white">Study Progress</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg border border-blue-200">
-              <span className="font-medium">Studied Cards</span>
-              <Badge variant="default" className="bg-blue-500">
+            <div className="flex justify-between items-center p-3 bg-luminous-secondary-container/[0.07] rounded-lg border border-luminous-secondary-container/25">
+              <span className="font-medium text-slate-200">Studied Cards</span>
+              <Badge variant="default" className="bg-luminous-secondary-container/20 text-luminous-secondary border border-luminous-secondary-container/30">
                 {stats.studiedCards}
               </Badge>
             </div>
-            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
-              <span className="font-medium">Unstudied Cards</span>
+            <div className="flex justify-between items-center p-3 bg-white/[0.03] rounded-lg border border-white/10">
+              <span className="font-medium text-slate-200">Unstudied Cards</span>
               <div className="flex items-center gap-2">
-                <Badge variant="outline" className="border-gray-400">
+                <Badge variant="outline" className="border-white/20 text-slate-300">
                   {stats.unstudiedCards}
                 </Badge>
                 {stats.unstudiedCards > 0 && (
@@ -320,17 +322,17 @@ const DeckAnalytics: React.FC<DeckAnalyticsProps> = ({
                     variant="ghost"
                     size="sm"
                     onClick={() => handleViewCards('unstudied')}
-                    className="h-8 px-3 hover:bg-blue-100"
+                    className="h-8 px-3 text-slate-300 hover:text-white hover:bg-white/10"
                   >
                     <Eye className="h-4 w-4" />
                   </Button>
                 )}
               </div>
             </div>
-            <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg border border-purple-200 hover:bg-purple-100 transition-colors">
-              <span className="font-medium">Bookmarked</span>
+            <div className="flex justify-between items-center p-3 bg-luminous-primary-container/[0.08] rounded-lg border border-luminous-primary/25">
+              <span className="font-medium text-slate-200">Bookmarked</span>
               <div className="flex items-center gap-2">
-                <Badge variant="outline" className="border-purple-400 text-purple-700">
+                <Badge variant="outline" className="border-luminous-primary/40 text-luminous-primary">
                   {stats.bookmarkedCards}
                 </Badge>
                 {stats.bookmarkedCards > 0 && (
@@ -338,7 +340,7 @@ const DeckAnalytics: React.FC<DeckAnalyticsProps> = ({
                     variant="ghost"
                     size="sm"
                     onClick={() => handleViewCards('bookmarked')}
-                    className="h-8 px-3 hover:bg-purple-200"
+                    className="h-8 px-3 text-slate-300 hover:text-white hover:bg-white/10"
                   >
                     <Bookmark className="h-4 w-4" />
                   </Button>
@@ -348,19 +350,19 @@ const DeckAnalytics: React.FC<DeckAnalyticsProps> = ({
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-md transition-shadow">
+        <Card className="luminous-glass-card border-white/10 hover:border-luminous-primary/30 transition-shadow">
           <CardHeader>
-            <CardTitle className="text-lg">Performance</CardTitle>
+            <CardTitle className="text-lg font-display text-white">Performance</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg border border-green-200">
-              <span className="font-medium">Total Cards</span>
-              <Badge variant="default" className="bg-green-500">
+            <div className="flex justify-between items-center p-3 bg-emerald-500/[0.07] rounded-lg border border-emerald-400/25">
+              <span className="font-medium text-slate-200">Total Cards</span>
+              <Badge variant="default" className="bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
                 {stats.totalCards}
               </Badge>
             </div>
-            <div className="flex justify-between items-center p-3 bg-red-50 rounded-lg border border-red-200 hover:bg-red-100 transition-colors">
-              <span className="font-medium">Difficult Cards</span>
+            <div className="flex justify-between items-center p-3 bg-rose-500/[0.07] rounded-lg border border-rose-400/25">
+              <span className="font-medium text-slate-200">Difficult Cards</span>
               <div className="flex items-center gap-2">
                 <Badge variant="destructive">
                   {stats.hardCards}
@@ -370,18 +372,18 @@ const DeckAnalytics: React.FC<DeckAnalyticsProps> = ({
                     variant="ghost"
                     size="sm"
                     onClick={() => handleViewCards('difficult')}
-                    className="h-8 px-3 hover:bg-red-200"
+                    className="h-8 px-3 text-slate-300 hover:text-white hover:bg-white/10"
                   >
                     <AlertCircle className="h-4 w-4" />
                   </Button>
                 )}
               </div>
             </div>
-            <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg border border-blue-200">
-              <span className="font-medium">Success Rate</span>
-              <Badge 
+            <div className="flex justify-between items-center p-3 bg-luminous-secondary-container/[0.07] rounded-lg border border-luminous-secondary-container/25">
+              <span className="font-medium text-slate-200">Success Rate</span>
+              <Badge
                 variant={stats.averageAccuracy >= 70 ? "default" : "destructive"}
-                className={stats.averageAccuracy >= 70 ? "bg-green-500" : ""}
+                className={stats.averageAccuracy >= 70 ? "bg-emerald-500/20 text-emerald-300 border border-emerald-400/30" : ""}
               >
                 {stats.averageAccuracy}%
               </Badge>
@@ -392,33 +394,33 @@ const DeckAnalytics: React.FC<DeckAnalyticsProps> = ({
 
       {/* Cards Review Dialog */}
       <Dialog open={showCardsDialog} onOpenChange={setShowCardsDialog}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto luminous-scroll luminous-glass-card border-white/10 text-slate-200">
           <DialogHeader>
-            <DialogTitle>{dialogTitle}</DialogTitle>
+            <DialogTitle className="font-display text-white">{dialogTitle}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             {selectedCards.length === 0 ? (
-              <p className="text-muted-foreground text-center py-4">No cards found in this category.</p>
+              <p className="text-slate-400 text-center py-4">No cards found in this category.</p>
             ) : (
               selectedCards.map((card) => (
-                <Card key={card.card_id} className="p-4">
+                <Card key={card.card_id} className="p-4 bg-white/[0.03] border-white/10">
                   <div className="space-y-2">
-                    <p className="font-medium text-sm">{card.question}</p>
-                    <p className="text-muted-foreground text-sm">{card.answer}</p>
+                    <p className="font-medium text-sm text-slate-100">{card.question}</p>
+                    <p className="text-slate-400 text-sm">{card.answer}</p>
                     <div className="flex gap-2 text-xs">
                       {card.is_bookmarked && (
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="text-xs border-white/20 text-slate-300">
                           <Bookmark className="h-3 w-3 mr-1" />
                           Bookmarked
                         </Badge>
                       )}
                       {card.times_reviewed && card.times_reviewed > 0 && (
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="text-xs border-white/20 text-slate-300">
                           Reviewed {card.times_reviewed} times
                         </Badge>
                       )}
                       {card.correct_count !== undefined && card.wrong_count !== undefined && (
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="text-xs border-white/20 text-slate-300">
                           {card.correct_count}✓ {card.wrong_count}✗
                         </Badge>
                       )}

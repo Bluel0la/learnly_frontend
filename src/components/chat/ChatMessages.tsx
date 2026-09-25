@@ -18,6 +18,8 @@ type UIMessage = {
   content: string;
   timestamp: Date;
   originalPrompt?: string;
+  /** Streaming in progress — renders a typing indicator. */
+  pending?: boolean;
 };
 
 interface ChatMessagesProps {
@@ -41,12 +43,21 @@ const ChatMessages = ({ sessionId: propSessionId, onNewMessage }: ChatMessagesPr
     onNewMessage?.(newMessage);
   };
 
-  // Expose addMessage function globally for ChatInput to use
+  // Expose message helpers globally for ChatInput to use
   useEffect(() => {
-    const w = window as unknown as { addChatMessage?: (m: UIMessage) => void };
+    const w = window as unknown as {
+      addChatMessage?: (m: UIMessage) => void;
+      updateChatMessage?: (id: string, patch: Partial<UIMessage>) => void;
+      removeChatMessage?: (id: string) => void;
+    };
     w.addChatMessage = addMessage;
+    w.updateChatMessage = (id, patch) =>
+      setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, ...patch } : m)));
+    w.removeChatMessage = (id) => setMessages((prev) => prev.filter((m) => m.id !== id));
     return () => {
       delete w.addChatMessage;
+      delete w.updateChatMessage;
+      delete w.removeChatMessage;
     };
   }, []);
   
@@ -222,7 +233,17 @@ const ChatMessages = ({ sessionId: propSessionId, onNewMessage }: ChatMessagesPr
                       </span>
                     </div>
                     <div className="text-left max-w-full overflow-hidden">
-                      {hasLaTeX(message.content) ? (
+                      {message.pending && !message.content ? (
+                        <div className="flex items-center gap-1.5 py-2" aria-label="Learnly is thinking">
+                          {[0, 1, 2].map((i) => (
+                            <span
+                              key={i}
+                              className="w-2 h-2 rounded-full bg-luminous-primary animate-pulse"
+                              style={{ animationDelay: `${i * 200}ms` }}
+                            />
+                          ))}
+                        </div>
+                      ) : hasLaTeX(message.content) ? (
                         <SecureLaTeXRenderer content={message.content} />
                       ) : (
                         <div className="whitespace-pre-line break-words max-w-full">
@@ -230,7 +251,7 @@ const ChatMessages = ({ sessionId: propSessionId, onNewMessage }: ChatMessagesPr
                         </div>
                       )}
                     </div>
-                    {message.type === 'ai' && (
+                    {message.type === 'ai' && !message.pending && (
                       <MessageActions
                         content={message.content}
                         originalPrompt={message.originalPrompt || ''}

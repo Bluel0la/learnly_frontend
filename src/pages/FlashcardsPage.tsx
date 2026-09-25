@@ -110,7 +110,7 @@ const FlashcardsPage = () => {
     return (
       <div className="container px-3 md:px-4 py-4 md:py-6 lg:py-8 h-full">
         <div className="mb-3 md:mb-4">
-          <Button onClick={handleBackToDecks} variant="outline" className="hover:scale-105 transition-transform text-sm">
+          <Button onClick={handleBackToDecks} variant="outline" className="hover:scale-105 transition-transform text-sm bg-white/5 border-white/10 text-slate-200 hover:bg-white/10 hover:text-white">
             ← Back to Decks
           </Button>
         </div>
@@ -126,7 +126,7 @@ const FlashcardsPage = () => {
     return (
       <div className="container px-3 md:px-4 py-4 md:py-6 lg:py-8 h-full">
         <div className="mb-3 md:mb-4">
-          <Button onClick={handleBackToDecks} variant="outline" className="hover:scale-105 transition-transform text-sm">
+          <Button onClick={handleBackToDecks} variant="outline" className="hover:scale-105 transition-transform text-sm bg-white/5 border-white/10 text-slate-200 hover:bg-white/10 hover:text-white">
             ← Back to Decks
           </Button>
         </div>
@@ -156,25 +156,25 @@ const FlashcardsPage = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 md:gap-4 mb-4 md:mb-6">
         <div className="flex items-center gap-2 md:gap-3">
           <span className="text-2xl md:text-3xl">🎓</span>
-          <h1 className="text-xl md:text-2xl lg:text-3xl font-serif font-bold">Flashcards</h1>
+          <h1 className="font-display text-xl md:text-2xl lg:text-3xl font-extrabold text-white tracking-tight">Flashcards</h1>
           {/* Online status indicator */}
-          <span className={`ml-2 flex items-center px-2 py-1 rounded-full text-xs ${online ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-500"}`}>
-            <span className={`h-2 w-2 rounded-full mr-1 ${online ? "bg-green-400" : "bg-gray-400"}`}></span>
+          <span className={`ml-2 flex items-center px-2 py-1 rounded-full text-xs font-medium border ${online ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30" : "bg-white/5 text-slate-500 border-white/10"}`}>
+            <span className={`h-2 w-2 rounded-full mr-1 ${online ? "bg-emerald-400 animate-pulse" : "bg-slate-500"}`}></span>
             {online ? "Online" : "Offline"}
           </span>
         </div>
-        
+
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="flex items-center gap-2 hover:scale-105 transition-transform text-sm w-full sm:w-auto">
+            <Button className="flex items-center gap-2 hover:scale-105 transition-transform text-sm w-full sm:w-auto bg-luminous-primary-container hover:brightness-110 text-white luminous-shadow-glow-purple">
               <Plus className="h-4 w-4" />
               New Deck
             </Button>
           </DialogTrigger>
-          <DialogContent className="animate-scale-in w-[95vw] max-w-md mx-auto">
+          <DialogContent className="animate-scale-in w-[95vw] max-w-md mx-auto luminous-glass-card border-white/10 text-slate-200">
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-lg">
-                <Sparkles className="h-5 w-5 text-primary" />
+              <DialogTitle className="flex items-center gap-2 text-lg font-display text-white">
+                <Sparkles className="h-5 w-5 text-luminous-primary" />
                 Create New Deck
               </DialogTitle>
             </DialogHeader>
@@ -184,13 +184,13 @@ const FlashcardsPage = () => {
                 value={newDeckTitle}
                 onChange={(e) => setNewDeckTitle(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleCreateDeck()}
-                className="focus:ring-2 focus:ring-primary transition-all"
+                className="bg-midnight-900/90 border-white/10 text-white placeholder:text-slate-500 focus:border-luminous-primary-container/60 transition-all"
               />
               <div className="flex gap-2 justify-end">
-                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)} className="text-sm">
+                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)} className="text-sm bg-white/5 border-white/10 text-slate-200 hover:bg-white/10 hover:text-white">
                   Cancel
                 </Button>
-                <Button onClick={handleCreateDeck} className="hover:scale-105 transition-transform text-sm">
+                <Button onClick={handleCreateDeck} className="hover:scale-105 transition-transform text-sm bg-luminous-primary-container hover:brightness-110 text-white">
                   Create Deck
                 </Button>
               </div>
@@ -230,16 +230,16 @@ const FlashcardsPage = () => {
           ))}
           
           {decks.length === 0 && (
-            <Card className="col-span-full animate-fade-in">
+            <Card className="col-span-full animate-fade-in luminous-glass-card border-white/10">
               <CardContent className="p-6 md:p-8 text-center">
                 <div className="text-4xl md:text-6xl mb-4">📚</div>
-                <h3 className="text-base md:text-lg font-medium mb-2">No flashcard decks yet</h3>
-                <p className="text-sm md:text-base text-muted-foreground mb-4">
+                <h3 className="text-base md:text-lg font-medium mb-2 text-white font-display">No flashcard decks yet</h3>
+                <p className="text-sm md:text-base text-slate-400 mb-4">
                   Create your first deck to start studying with flashcards
                 </p>
-                <Button 
+                <Button
                   onClick={() => setIsCreateDialogOpen(true)}
-                  className="hover:scale-105 transition-transform text-sm"
+                  className="hover:scale-105 transition-transform text-sm bg-luminous-primary-container hover:brightness-110 text-white"
                 >
                   Create Your First Deck
                 </Button>
@@ -352,34 +352,34 @@ const FlashcardDeckCard = ({
   
   return (
     <>
-      <Card className="h-full hover:shadow-lg transition-all duration-300 group">
+      <Card className="h-full luminous-glass-card border-white/10 hover:border-luminous-primary/40 transition-all duration-300 group">
         <CardHeader className="pb-2 px-4 pt-4">
-          <CardTitle className="text-base md:text-lg font-serif flex items-center gap-2">
+          <CardTitle className="text-base md:text-lg font-display text-white flex items-center gap-2">
             <span className="text-lg md:text-xl">🃏</span>
             <span className="truncate">{deck.title}</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 md:space-y-4 px-4 pb-4">
-          <div className="text-xs md:text-sm text-muted-foreground">
+          <div className="text-xs md:text-sm text-slate-400 font-luminous-mono">
             {deck.card_count || 0} cards • Created {new Date(deck.date_created).toLocaleDateString()}
           </div>
-          
+
           <div className="flex flex-col gap-2">
             {/* Primary actions - always visible */}
             <div className="grid grid-cols-2 gap-2">
-              <Button 
-                onClick={onStartPractice} 
-                className="group-hover:scale-105 transition-transform text-xs md:text-sm py-2 h-auto"
+              <Button
+                onClick={onStartPractice}
+                className="group-hover:scale-105 transition-transform text-xs md:text-sm py-2 h-auto bg-luminous-primary-container hover:brightness-110 text-white"
                 disabled={!deck.card_count || deck.card_count === 0}
               >
                 <Play className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
                 Practice
               </Button>
-              
-              <Button 
-                onClick={onStartQuiz} 
+
+              <Button
+                onClick={onStartQuiz}
                 variant="outline"
-                className="group-hover:scale-105 transition-transform bg-gradient-to-r from-purple-50 to-blue-50 hover:from-purple-100 hover:to-blue-100 text-xs md:text-sm py-2 h-auto"
+                className="group-hover:scale-105 transition-transform bg-white/5 border-white/10 text-slate-200 hover:bg-white/10 hover:text-white text-xs md:text-sm py-2 h-auto"
                 disabled={!deck.card_count || deck.card_count < 5}
               >
                 <Clock className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
@@ -392,7 +392,7 @@ const FlashcardDeckCard = ({
               <Button
                 variant="outline"
                 onClick={() => setIsManualDialogOpen(true)}
-                className="flex-1 group-hover:scale-105 transition-transform text-xs md:text-sm py-2 h-auto"
+                className="flex-1 group-hover:scale-105 transition-transform text-xs md:text-sm py-2 h-auto bg-white/5 border-white/10 text-slate-200 hover:bg-white/10 hover:text-white"
               >
                 <Edit className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
                 Add Cards
@@ -400,25 +400,25 @@ const FlashcardDeckCard = ({
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="group-hover:scale-105 transition-transform px-2 py-2 h-auto">
+                  <Button variant="outline" size="sm" className="group-hover:scale-105 transition-transform px-2 py-2 h-auto bg-white/5 border-white/10 text-slate-200 hover:bg-white/10 hover:text-white">
                     <MoreVertical className="h-3 w-3 md:h-4 md:w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-40 md:w-48">
-                  <DropdownMenuItem onClick={onViewAnalytics} disabled={!deck.card_count || deck.card_count === 0} className="text-xs md:text-sm">
+                <DropdownMenuContent align="end" className="w-40 md:w-48 bg-[#0d1c2d] border-white/10 text-slate-200">
+                  <DropdownMenuItem onClick={onViewAnalytics} disabled={!deck.card_count || deck.card_count === 0} className="text-xs md:text-sm focus:bg-white/10 focus:text-white">
                     <BarChart3 className="h-3 w-3 md:h-4 md:w-4 mr-2" />
                     Analytics
                   </DropdownMenuItem>
-                  
-                  <DropdownMenuSeparator />
-                  
-                  <DropdownMenuItem onClick={handleUploadClick} disabled={isUploading} className="text-xs md:text-sm">
+
+                  <DropdownMenuSeparator className="bg-white/10" />
+
+                  <DropdownMenuItem onClick={handleUploadClick} disabled={isUploading} className="text-xs md:text-sm focus:bg-white/10 focus:text-white">
                     <Upload className="h-3 w-3 md:h-4 md:w-4 mr-2" />
                     {isUploading ? "Uploading..." : "Upload File"}
                   </DropdownMenuItem>
-                  
+
                   {needsImprovement && (
-                    <DropdownMenuItem onClick={handleGenerateSmartDrills} disabled={isGeneratingDrills} className="text-xs md:text-sm">
+                    <DropdownMenuItem onClick={handleGenerateSmartDrills} disabled={isGeneratingDrills} className="text-xs md:text-sm focus:bg-white/10 focus:text-white">
                       <Brain className="h-3 w-3 md:h-4 md:w-4 mr-2" />
                       {isGeneratingDrills ? "Generating..." : "Smart Drills"}
                     </DropdownMenuItem>
@@ -437,9 +437,9 @@ const FlashcardDeckCard = ({
               />
             </div>
           </div>
-          
+
           {isUploading && (
-            <div className="text-xs text-center text-muted-foreground animate-pulse bg-blue-50 p-2 rounded">
+            <div className="text-xs text-center text-luminous-secondary animate-pulse bg-luminous-secondary-container/10 border border-luminous-secondary-container/30 p-2 rounded">
               📤 {uploadProgress}
             </div>
           )}

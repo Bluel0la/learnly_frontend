@@ -34,69 +34,72 @@ const ScoreMeter: React.FC<ScoreMeterProps> = ({ streak, rank, multiplier, total
 
   const getRankColor = (rank: string): string => {
     const colors = {
-      'E': 'text-gray-500',
-      'D': 'text-orange-500',
-      'C': 'text-yellow-500',
-      'B': 'text-blue-500',
-      'A': 'text-green-500',
-      'S': 'text-purple-500',
-      'S+': 'text-pink-500'
+      'E': 'text-slate-400',
+      'D': 'text-orange-400',
+      'C': 'text-yellow-400',
+      'B': 'text-sky-400',
+      'A': 'text-emerald-400',
+      'S': 'text-luminous-primary',
+      'S+': 'text-pink-400'
     };
-    return colors[rank as keyof typeof colors] || 'text-gray-500';
+    return colors[rank as keyof typeof colors] || 'text-slate-400';
   };
 
   const getMultiplierColor = (multiplier: number): string => {
-    if (multiplier >= 5) return 'text-pink-500';
-    if (multiplier >= 4) return 'text-purple-500';
-    if (multiplier >= 3) return 'text-blue-500';
-    if (multiplier >= 2) return 'text-green-500';
-    return 'text-gray-500';
+    if (multiplier >= 5) return 'text-pink-400';
+    if (multiplier >= 4) return 'text-luminous-primary';
+    if (multiplier >= 3) return 'text-sky-400';
+    if (multiplier >= 2) return 'text-emerald-400';
+    return 'text-slate-400';
   };
 
   const questionsForNext = getQuestionsForNextRank(rank);
   const isMaxRank = rank === 'S+';
 
   return (
-    <Card className="mb-4 bg-gradient-to-r from-blue-50 to-purple-50 border-2 transition-all duration-300">
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <Trophy className={`h-6 w-6 ${getRankColor(rank)}`} />
+    <Card className="mb-2 luminous-glass-card luminous-glow-border border-white/10 overflow-hidden">
+      <div className="h-1 w-full bg-gradient-to-r from-luminous-primary-container via-luminous-primary to-luminous-secondary-container" />
+      <CardContent className="p-4 sm:p-5">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-4 sm:gap-6">
+            <div className="flex items-center gap-2.5">
+              <span className="w-11 h-11 rounded-2xl bg-luminous-primary-container/15 border border-luminous-primary/30 flex items-center justify-center">
+                <Trophy className={`h-5 w-5 ${getRankColor(rank)}`} />
+              </span>
               <div>
-                <div className={`text-2xl font-bold ${getRankColor(rank)} transition-colors duration-300`}>
+                <div className={`text-2xl font-black font-display leading-none ${getRankColor(rank)} transition-colors duration-300`}>
                   {rank}
                 </div>
-                <div className="text-xs text-gray-600">
-                  {isMaxRank ? 'MAX RANK!' : `${questionsForNext - streak} more for next rank`}
+                <div className="text-[11px] text-slate-400 mt-1">
+                  {isMaxRank ? 'MAX RANK!' : `${questionsForNext - streak} more to rank up`}
                 </div>
               </div>
             </div>
-            
-            <div className="flex items-center space-x-2">
+
+            <div className="flex items-center gap-2 pl-4 sm:pl-6 border-l border-white/10">
               <Zap className={`h-5 w-5 ${getMultiplierColor(multiplier)}`} />
               <div>
-                <div className={`text-lg font-bold ${getMultiplierColor(multiplier)} transition-colors duration-300`}>
+                <div className={`text-lg font-bold leading-none ${getMultiplierColor(multiplier)} transition-colors duration-300`}>
                   {multiplier}x
                 </div>
-                <div className="text-xs text-gray-600">Multiplier</div>
+                <div className="text-[11px] text-slate-400 mt-1">Multiplier</div>
               </div>
             </div>
           </div>
-          
+
           <div className="text-right">
-            <div className="text-lg font-semibold text-blue-600">
+            <div className="text-2xl font-black font-display leading-none text-white">
               {streak}
             </div>
-            <div className="text-xs text-gray-600">Streak</div>
+            <div className="text-[11px] text-slate-400 mt-1">Streak</div>
           </div>
         </div>
-        
+
         {!isMaxRank && (
-          <div className="mt-3">
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-500 ease-out"
+          <div className="mt-4">
+            <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+              <div
+                className="bg-gradient-to-r from-luminous-primary-container to-luminous-secondary-container h-1.5 rounded-full transition-all duration-500 ease-out"
                 style={{ width: `${Math.min((streak / questionsForNext) * 100, 100)}%` }}
               />
             </div>

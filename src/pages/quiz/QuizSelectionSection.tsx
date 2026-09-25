@@ -24,46 +24,41 @@ const QuizSelectionSection: React.FC<QuizSelectionSectionProps> = ({
     <div className="space-y-6 lg:space-y-8">
       {/* Feature Cards Section */}
       <div className="text-center space-y-6 lg:space-y-8">
-        <div className="flex justify-center">
-          <div className="w-16 h-16 lg:w-20 lg:h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-4">
-            <Brain className="h-8 w-8 lg:h-10 lg:w-10 text-white" />
-          </div>
-        </div>
         <div>
-          <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
-            Math Quiz Challenge
+          <h1 className="font-display text-3xl lg:text-4xl font-extrabold tracking-tight text-white mb-4">
+            Math Quiz <span className="luminous-gradient-text">Challenge</span>
           </h1>
-          <p className="text-lg lg:text-xl text-gray-600 max-w-2xl mx-auto px-4">
+          <p className="text-lg lg:text-xl text-slate-400 max-w-2xl mx-auto px-4">
             Level up your math skills with adaptive quizzes that grow with your progress!
           </p>
         </div>
         {/* Feature Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 max-w-5xl mx-auto">
-          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 hover:shadow-lg transition-all duration-300 hover:scale-105">
+          <Card className="luminous-glass-card border-emerald-400/25 hover:border-emerald-400/50 transition-all duration-300 hover:scale-105">
             <CardContent className="p-4 lg:p-6 text-center">
-              <div className="w-10 h-10 lg:w-12 lg:h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <TrendingUp className="h-5 w-5 lg:h-6 lg:w-6 text-white" />
+              <div className="w-10 h-10 lg:w-12 lg:h-12 bg-emerald-500/15 border border-emerald-400/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                <TrendingUp className="h-5 w-5 lg:h-6 lg:w-6 text-emerald-400" />
               </div>
-              <h3 className="font-semibold text-base lg:text-lg mb-2 text-green-800">Progress Tracking</h3>
-              <p className="text-xs lg:text-sm text-green-600">Monitor your improvement over time</p>
+              <h3 className="font-semibold text-base lg:text-lg mb-2 text-white font-display">Progress Tracking</h3>
+              <p className="text-xs lg:text-sm text-slate-400">Monitor your improvement over time</p>
             </CardContent>
           </Card>
-          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 hover:shadow-lg transition-all duration-300 hover:scale-105">
+          <Card className="luminous-glass-card border-luminous-primary/25 hover:border-luminous-primary/50 transition-all duration-300 hover:scale-105">
             <CardContent className="p-4 lg:p-6 text-center">
-              <div className="w-10 h-10 lg:w-12 lg:h-12 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Star className="h-5 w-5 lg:h-6 lg:w-6 text-white" />
+              <div className="w-10 h-10 lg:w-12 lg:h-12 bg-luminous-primary-container/15 border border-luminous-primary/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Star className="h-5 w-5 lg:h-6 lg:w-6 text-luminous-primary" />
               </div>
-              <h3 className="font-semibold text-base lg:text-lg mb-2 text-purple-800">Detailed Feedback</h3>
-              <p className="text-xs lg:text-sm text-purple-600">Learn from explanations and tips</p>
+              <h3 className="font-semibold text-base lg:text-lg mb-2 text-white font-display">Detailed Feedback</h3>
+              <p className="text-xs lg:text-sm text-slate-400">Learn from explanations and tips</p>
             </CardContent>
           </Card>
-          <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200 hover:shadow-lg transition-all duration-300 hover:scale-105 sm:col-span-2 lg:col-span-1">
+          <Card className="luminous-glass-card border-amber-400/25 hover:border-amber-400/50 transition-all duration-300 hover:scale-105 sm:col-span-2 lg:col-span-1">
             <CardContent className="p-4 lg:p-6 text-center">
-              <div className="w-10 h-10 lg:w-12 lg:h-12 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="h-5 w-5 lg:h-6 lg:w-6 text-white" />
+              <div className="w-10 h-10 lg:w-12 lg:h-12 bg-amber-500/15 border border-amber-400/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="h-5 w-5 lg:h-6 lg:w-6 text-amber-400" />
               </div>
-              <h3 className="font-semibold text-base lg:text-lg mb-2 text-yellow-800">Multi-Topic Exams</h3>
-              <p className="text-xs lg:text-sm text-yellow-600">Test across multiple subjects</p>
+              <h3 className="font-semibold text-base lg:text-lg mb-2 text-white font-display">Multi-Topic Exams</h3>
+              <p className="text-xs lg:text-sm text-slate-400">Test across multiple subjects</p>
             </CardContent>
           </Card>
         </div>
@@ -71,13 +66,13 @@ const QuizSelectionSection: React.FC<QuizSelectionSectionProps> = ({
       {/* Quiz Mode Selection */}
       <div className="w-full">
         <Tabs defaultValue="single" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
-            <TabsTrigger value="single" className="flex items-center gap-2 text-sm">
+          <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto bg-white/5 border border-white/10">
+            <TabsTrigger value="single" className="flex items-center gap-2 text-sm data-[state=active]:bg-luminous-primary-container data-[state=active]:text-white text-slate-400">
               <Target className="h-4 w-4" />
               <span className="hidden sm:inline">Single Topic</span>
               <span className="sm:hidden">Single</span>
             </TabsTrigger>
-            <TabsTrigger value="exam" className="flex items-center gap-2 text-sm">
+            <TabsTrigger value="exam" className="flex items-center gap-2 text-sm data-[state=active]:bg-luminous-primary-container data-[state=active]:text-white text-slate-400">
               <Users className="h-4 w-4" />
               <span className="hidden sm:inline">Simulated Exam</span>
               <span className="sm:hidden">Exam</span>

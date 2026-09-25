@@ -11,7 +11,7 @@ export interface TopicPerformanceListProps {
     wrong: number;
     accuracy_percent: number;
   }[];
-  getPerformanceLevel: (accuracy: number) => { label: string; color: string; icon: any };
+  getPerformanceLevel: (accuracy: number) => { label: string; color: string; icon: React.ComponentType<{ className?: string }> };
 }
 
 const TopicPerformanceList: React.FC<TopicPerformanceListProps> = ({
@@ -27,7 +27,7 @@ const TopicPerformanceList: React.FC<TopicPerformanceListProps> = ({
         return (
           <div
             key={topic.topic}
-            className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+            className="border border-white/10 bg-white/[0.02] rounded-lg p-4 hover:bg-white/[0.05] hover:border-luminous-primary/30 transition-colors"
           >
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="flex items-center gap-3">
@@ -37,8 +37,8 @@ const TopicPerformanceList: React.FC<TopicPerformanceListProps> = ({
                   <LevelIcon className="h-5 w-5" />
                 </div>
                 <div>
-                  <h4 className="font-semibold capitalize text-lg">{topic.topic}</h4>
-                  <p className="text-sm text-gray-600">
+                  <h4 className="font-semibold capitalize text-lg text-slate-100">{topic.topic}</h4>
+                  <p className="text-sm text-slate-400">
                     {topic.total_answered} questions • {topic.correct} correct • {topic.wrong} wrong
                   </p>
                 </div>
@@ -47,7 +47,7 @@ const TopicPerformanceList: React.FC<TopicPerformanceListProps> = ({
                 <Badge variant={topic.accuracy_percent >= 70 ? "default" : "destructive"}>
                   {topic.accuracy_percent.toFixed(1)}%
                 </Badge>
-                <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div className="w-24 h-2 bg-white/10 rounded-full overflow-hidden">
                   <div
                     className={`h-full ${level.color} transition-all duration-500`}
                     style={{ width: `${topic.accuracy_percent}%` }}

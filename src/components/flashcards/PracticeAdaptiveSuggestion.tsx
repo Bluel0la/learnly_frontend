@@ -53,13 +53,13 @@ const PracticeAdaptiveSuggestion: React.FC<PracticeAdaptiveSuggestionProps> = ({
   }
 
   return (
-    <Card className="mt-4 border-orange-200 bg-orange-50">
+    <Card className="mt-4 luminous-glass-card border-amber-400/30">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-orange-700">
+        <CardTitle className="flex items-center gap-2 text-amber-300 font-display">
           <TrendingDown className="h-5 w-5" />
           Struggling with this topic?
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-slate-400">
           You've gotten {consecutiveWrong} questions wrong in a row. Let's generate some targeted practice cards to help you master this concept.
         </CardDescription>
       </CardHeader>
@@ -67,7 +67,7 @@ const PracticeAdaptiveSuggestion: React.FC<PracticeAdaptiveSuggestionProps> = ({
         <Button
           onClick={handleGenerateAdaptiveDrills}
           disabled={isGenerating}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 bg-luminous-primary-container hover:brightness-110 text-white"
         >
           {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Brain className="h-4 w-4" />}
           Generate Practice Cards for This Topic

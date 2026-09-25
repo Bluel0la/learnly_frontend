@@ -98,7 +98,7 @@ const SimulatedExamSelector: React.FC<SimulatedExamSelectorProps> = ({ onExamSta
   if (isLoadingTopics) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="text-lg">Loading topics...</div>
+        <div className="text-lg text-slate-400">Loading topics...</div>
       </div>
     );
   }
@@ -110,29 +110,29 @@ const SimulatedExamSelector: React.FC<SimulatedExamSelectorProps> = ({ onExamSta
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       {/* Header */}
-      <Card className="bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 text-white border-0 shadow-2xl">
+      <Card className="bg-gradient-to-br from-luminous-primary-container via-[#a21caf] to-[#e11d48] text-white border border-white/15 shadow-2xl">
         <CardHeader className="text-center pb-4">
           <div className="flex justify-center mb-4">
             <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
               <Trophy className="h-8 w-8 text-white" />
             </div>
           </div>
-          <CardTitle className="text-3xl font-bold">Simulated Exam Mode</CardTitle>
-          <p className="text-purple-100 text-lg">Challenge yourself across multiple topics!</p>
+          <CardTitle className="font-display text-3xl font-extrabold">Simulated Exam Mode</CardTitle>
+          <p className="text-white/80 text-lg">Challenge yourself across multiple topics!</p>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-            <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
+            <div className="bg-black/20 rounded-lg p-4 backdrop-blur-sm border border-white/10">
               <Users className="h-6 w-6 mx-auto mb-2" />
               <p className="text-sm">Multi-Topic</p>
               <p className="text-xs opacity-75">Mixed challenges</p>
             </div>
-            <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
+            <div className="bg-black/20 rounded-lg p-4 backdrop-blur-sm border border-white/10">
               <Clock className="h-6 w-6 mx-auto mb-2" />
               <p className="text-sm">Timed Mode</p>
               <p className="text-xs opacity-75">Beat the clock</p>
             </div>
-            <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
+            <div className="bg-black/20 rounded-lg p-4 backdrop-blur-sm border border-white/10">
               <Zap className="h-6 w-6 mx-auto mb-2" />
               <p className="text-sm">Adaptive</p>
               <p className="text-xs opacity-75">Adjusts to you</p>
@@ -142,10 +142,10 @@ const SimulatedExamSelector: React.FC<SimulatedExamSelectorProps> = ({ onExamSta
       </Card>
 
       {/* Topic Selection */}
-      <Card>
+      <Card className="luminous-glass-card border-white/10">
         <CardHeader>
-          <CardTitle className="text-xl">Select Topics for Your Exam</CardTitle>
-          <p className="text-gray-600">Choose multiple topics to create a comprehensive exam experience</p>
+          <CardTitle className="text-xl font-display text-white">Select Topics for Your Exam</CardTitle>
+          <p className="text-slate-400 text-sm">Choose multiple topics to create a comprehensive exam experience</p>
         </CardHeader>
         <CardContent>
           <TopicSelector
@@ -158,20 +158,20 @@ const SimulatedExamSelector: React.FC<SimulatedExamSelectorProps> = ({ onExamSta
       </Card>
 
       {/* Configuration */}
-      <Card>
+      <Card className="luminous-glass-card border-white/10">
         <CardHeader>
-          <CardTitle className="text-xl">Exam Configuration</CardTitle>
+          <CardTitle className="text-xl font-display text-white">Exam Configuration</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Number of Questions</label>
+                <label className="text-sm font-medium text-slate-300">Number of Questions</label>
                 <Select value={numQuestions.toString()} onValueChange={(value) => setNumQuestions(Number(value))}>
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-white/[0.03] border-white/10 text-slate-200">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-[#0d1c2d] border-white/10 text-slate-200">
                     <SelectItem value="10">10 Questions</SelectItem>
                     <SelectItem value="15">15 Questions</SelectItem>
                     <SelectItem value="20">20 Questions</SelectItem>
@@ -180,7 +180,7 @@ const SimulatedExamSelector: React.FC<SimulatedExamSelectorProps> = ({ onExamSta
                   </SelectContent>
                 </Select>
                 {selectedTopics.length > 0 && (
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-slate-500">
                     Minimum required: {selectedTopics.length * 2} questions for {selectedTopics.length} topics
                   </p>
                 )}
@@ -188,10 +188,10 @@ const SimulatedExamSelector: React.FC<SimulatedExamSelectorProps> = ({ onExamSta
 
               {selectedTopics.length > 0 && (
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Selected Topics ({selectedTopics.length})</label>
+                  <label className="text-sm font-medium text-slate-300">Selected Topics ({selectedTopics.length})</label>
                   <div className="flex flex-wrap gap-2">
                     {selectedTopicNames.map((name, index) => (
-                      <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                      <span key={index} className="px-3 py-1 bg-luminous-primary-container/20 text-luminous-primary border border-luminous-primary/30 rounded-full text-sm">
                         {name}
                       </span>
                     ))}
@@ -201,26 +201,26 @@ const SimulatedExamSelector: React.FC<SimulatedExamSelectorProps> = ({ onExamSta
             </div>
 
             <div className="space-y-4">
-              <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-4 border">
-                <h3 className="font-semibold mb-2 text-blue-800">Exam Preview</h3>
-                <div className="space-y-2 text-sm text-blue-600">
+              <div className="bg-white/[0.03] border border-white/10 rounded-lg p-4">
+                <h3 className="font-semibold mb-2 text-white">Exam Preview</h3>
+                <div className="space-y-2 text-sm text-slate-300">
                   <div className="flex justify-between">
                     <span>Topics:</span>
-                    <span className="font-medium">{selectedTopics.length || 0}</span>
+                    <span className="font-medium text-white">{selectedTopics.length || 0}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Questions:</span>
-                    <span className="font-medium">{numQuestions}</span>
+                    <span className="font-medium text-white">{numQuestions}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Est. Time:</span>
-                    <span className="font-medium">~{Math.ceil(numQuestions * 1.5)} min</span>
+                    <span className="font-medium text-white">~{Math.ceil(numQuestions * 1.5)} min</span>
                   </div>
                 </div>
               </div>
 
-              <Button 
-                className="w-full h-12 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 font-semibold text-lg shadow-lg" 
+              <Button
+                className="w-full h-12 bg-luminous-primary-container hover:brightness-110 font-semibold text-lg shadow-lg text-white luminous-shadow-glow-purple disabled:opacity-60"
                 onClick={handleStartExam}
                 disabled={selectedTopics.length === 0 || isLoading}
               >

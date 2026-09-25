@@ -17,7 +17,7 @@ import {
   SkipBack
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { PracticeCard, flashcardApi } from '@/services/flashcardApi';
+import { PracticeCard, SubmitResponse, flashcardApi } from '@/services/flashcardApi';
 
 interface EnhancedFlashcardPracticeProps {
   deckId: string;
@@ -32,7 +32,7 @@ const EnhancedFlashcardPractice: React.FC<EnhancedFlashcardPracticeProps> = ({ d
   const [isLoading, setIsLoading] = useState(false);
   const [isFlipping, setIsFlipping] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [cardStats, setCardStats] = useState<any>(null);
+  const [cardStats, setCardStats] = useState<SubmitResponse | null>(null);
   const [sessionStats, setSessionStats] = useState({ correct: 0, wrong: 0, total: 0 });
 
   const currentCard = cards[currentIndex];
@@ -174,12 +174,12 @@ const EnhancedFlashcardPractice: React.FC<EnhancedFlashcardPracticeProps> = ({ d
 
   if (cards.length === 0) {
     return (
-      <Card className="animate-fade-in max-w-md mx-auto">
+      <Card className="animate-fade-in max-w-md mx-auto luminous-glass-card border-white/10">
         <CardContent className="p-8 text-center">
           <div className="text-6xl mb-4">📚</div>
-          <h3 className="text-xl font-semibold mb-2">No cards available</h3>
-          <p className="text-muted-foreground mb-4">Add some cards to start practicing!</p>
-          <Button onClick={onComplete} className="mt-4">
+          <h3 className="text-xl font-semibold mb-2 font-display text-white">No cards available</h3>
+          <p className="text-slate-400 mb-4">Add some cards to start practicing!</p>
+          <Button onClick={onComplete} className="mt-4 bg-luminous-primary-container hover:brightness-110 text-white">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Return to Deck
           </Button>
@@ -193,18 +193,18 @@ const EnhancedFlashcardPractice: React.FC<EnhancedFlashcardPracticeProps> = ({ d
       {/* Session Stats */}
       <div className="flex justify-between items-center">
         <div className="flex gap-2">
-          <Badge variant="outline" className="text-sm">
+          <Badge variant="outline" className="text-sm bg-white/5 border-white/10 text-slate-300">
             Card {currentIndex + 1} of {cards.length}
           </Badge>
-          <Badge variant="secondary" className="text-sm">
+          <Badge variant="secondary" className="text-sm bg-luminous-primary-container/20 border border-luminous-primary/30 text-luminous-primary">
             Session: {sessionStats.correct}✅ {sessionStats.wrong}❌
           </Badge>
         </div>
-        <Button 
-          onClick={loadPracticeCards} 
-          variant="outline" 
+        <Button
+          onClick={loadPracticeCards}
+          variant="outline"
           size="sm"
-          className="text-sm"
+          className="text-sm bg-white/5 border-white/10 text-slate-200 hover:bg-white/10 hover:text-white"
         >
           🔄 Refresh Cards
         </Button>
@@ -216,7 +216,7 @@ const EnhancedFlashcardPractice: React.FC<EnhancedFlashcardPracticeProps> = ({ d
           variant="outline"
           size="sm"
           onClick={handlePrevious}
-          className="flex items-center gap-1"
+          className="flex items-center gap-1 bg-white/5 border-white/10 text-slate-200 hover:bg-white/10 hover:text-white"
         >
           <ChevronLeft className="h-4 w-4" />
           Previous
@@ -225,16 +225,16 @@ const EnhancedFlashcardPractice: React.FC<EnhancedFlashcardPracticeProps> = ({ d
           variant="outline"
           size="sm"
           onClick={handleNext}
-          className="flex items-center gap-1"
+          className="flex items-center gap-1 bg-white/5 border-white/10 text-slate-200 hover:bg-white/10 hover:text-white"
         >
           Next
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
 
-      <Card className={`transition-all duration-500 ${isFlipping ? 'animate-card-flip' : ''} hover:shadow-lg`}>
-        <CardHeader className="flex flex-row items-center justify-between border-b">
-          <CardTitle className="text-lg flex items-center gap-2">
+      <Card className={`transition-all duration-500 luminous-glass-card border-white/10 ${isFlipping ? 'animate-card-flip' : ''}`}>
+        <CardHeader className="flex flex-row items-center justify-between border-b border-white/10">
+          <CardTitle className="text-lg flex items-center gap-2 font-display text-white">
             <span className="text-2xl">🎯</span>
             Practice Card
           </CardTitle>
@@ -243,15 +243,15 @@ const EnhancedFlashcardPractice: React.FC<EnhancedFlashcardPracticeProps> = ({ d
               variant="ghost"
               size="icon"
               onClick={handleBookmark}
-              className={`transition-colors ${isBookmarked ? "text-yellow-500" : ""} hover:scale-110`}
+              className={`transition-colors text-slate-400 hover:text-white hover:bg-white/5 ${isBookmarked ? "text-yellow-400" : ""} hover:scale-110`}
             >
               <Bookmark className="h-4 w-4" />
             </Button>
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={handleReset}
-              className="hover:scale-110 transition-transform"
+              className="text-slate-400 hover:text-white hover:bg-white/5 hover:scale-110 transition-transform"
             >
               <RotateCcw className="h-4 w-4" />
             </Button>
@@ -259,39 +259,39 @@ const EnhancedFlashcardPractice: React.FC<EnhancedFlashcardPracticeProps> = ({ d
         </CardHeader>
         <CardContent className="p-6 space-y-6">
           <div className="min-h-[200px]">
-            <h3 className="font-semibold mb-4 text-primary text-lg">Question:</h3>
-            <ScrollArea className="h-[160px] w-full border rounded-lg p-4 bg-gray-50">
-              <div className="text-base leading-relaxed break-words whitespace-pre-wrap">
+            <h3 className="font-semibold mb-4 text-luminous-primary text-lg">Question:</h3>
+            <ScrollArea className="h-[160px] w-full border border-white/10 rounded-lg p-4 bg-midnight-900/70 luminous-scroll">
+              <div className="text-base leading-relaxed break-words whitespace-pre-wrap text-slate-100">
                 {currentCard?.question}
               </div>
             </ScrollArea>
           </div>
-          
+
           {showAnswer ? (
             <div className="space-y-6 animate-fade-in">
-              <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-lg border-l-4 border-primary">
-                <h3 className="font-semibold mb-4 text-primary text-lg">Answer:</h3>
-                <ScrollArea className="h-[200px] w-full">
-                  <div className="text-base leading-relaxed break-words whitespace-pre-wrap">
+              <div className="bg-emerald-500/[0.07] p-6 rounded-lg border-l-4 border-emerald-400 border border-white/10">
+                <h3 className="font-semibold mb-4 text-emerald-300 text-lg">Answer:</h3>
+                <ScrollArea className="h-[200px] w-full luminous-scroll">
+                  <div className="text-base leading-relaxed break-words whitespace-pre-wrap text-slate-100">
                     {currentCard?.answer}
                   </div>
                 </ScrollArea>
               </div>
-              
+
               <div className="flex gap-4 justify-center pt-4">
                 <Button
                   onClick={() => handleResponse(false)}
                   variant="outline"
                   size="lg"
-                  className="flex items-center gap-2 hover:scale-105 transition-transform hover:border-red-300 min-w-[140px]"
+                  className="flex items-center gap-2 hover:scale-105 transition-transform bg-white/5 border-white/10 text-slate-200 hover:border-rose-400/50 hover:text-white min-w-[140px]"
                 >
-                  <XCircle className="h-5 w-5 text-red-500" />
+                  <XCircle className="h-5 w-5 text-rose-400" />
                   I got it wrong
                 </Button>
                 <Button
                   onClick={() => handleResponse(true)}
                   size="lg"
-                  className="flex items-center gap-2 hover:scale-105 transition-transform bg-green-500 hover:bg-green-600 min-w-[140px]"
+                  className="flex items-center gap-2 hover:scale-105 transition-transform bg-emerald-600 hover:bg-emerald-500 text-white min-w-[140px]"
                 >
                   <CheckCircle className="h-5 w-5" />
                   I got it right
@@ -300,10 +300,10 @@ const EnhancedFlashcardPractice: React.FC<EnhancedFlashcardPracticeProps> = ({ d
             </div>
           ) : (
             <div className="text-center py-8">
-              <Button 
-                onClick={handleRevealAnswer} 
+              <Button
+                onClick={handleRevealAnswer}
                 size="lg"
-                className="flex items-center gap-2 hover:scale-105 transition-transform min-w-[140px]"
+                className="flex items-center gap-2 hover:scale-105 transition-transform min-w-[140px] bg-luminous-primary-container hover:brightness-110 text-white"
                 disabled={isFlipping}
               >
                 <Eye className="h-5 w-5" />
@@ -311,17 +311,17 @@ const EnhancedFlashcardPractice: React.FC<EnhancedFlashcardPracticeProps> = ({ d
               </Button>
             </div>
           )}
-          
+
           {cardStats && (
-            <div className="text-sm text-muted-foreground text-center bg-gray-50 p-4 rounded-lg animate-fade-in border-t">
+            <div className="text-sm text-slate-400 text-center bg-white/[0.03] p-4 rounded-lg animate-fade-in border-t border-white/10">
               <div className="flex justify-center gap-6 flex-wrap">
                 <span className="flex items-center gap-1">
-                  📊 <strong>{cardStats.times_reviewed}</strong> reviews
+                  📊 <strong className="text-slate-200">{cardStats.times_reviewed}</strong> reviews
                 </span>
-                <span className="text-green-600 flex items-center gap-1">
+                <span className="text-emerald-400 flex items-center gap-1">
                   ✅ <strong>{cardStats.correct_count}</strong> correct
                 </span>
-                <span className="text-red-600 flex items-center gap-1">
+                <span className="text-rose-400 flex items-center gap-1">
                   ❌ <strong>{cardStats.wrong_count}</strong> wrong
                 </span>
               </div>
@@ -332,7 +332,7 @@ const EnhancedFlashcardPractice: React.FC<EnhancedFlashcardPracticeProps> = ({ d
 
       {/* Exit Button */}
       <div className="text-center">
-        <Button onClick={onComplete} variant="outline" className="hover:scale-105 transition-transform">
+        <Button onClick={onComplete} variant="outline" className="hover:scale-105 transition-transform bg-white/5 border-white/10 text-slate-200 hover:bg-white/10 hover:text-white">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Return to Deck
         </Button>

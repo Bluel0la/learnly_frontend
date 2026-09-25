@@ -101,7 +101,7 @@ const QuizzesPage = () => {
   };
 
   return (
-    <div className="w-full min-h-screen bg-gray-50">
+    <div className="w-full min-h-screen">
       <div className="container max-w-7xl mx-auto py-4 lg:py-8 px-4">
         {quizState === 'selection' && (
           <QuizSelectionSection

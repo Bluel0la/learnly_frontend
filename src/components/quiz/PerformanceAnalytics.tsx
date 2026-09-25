@@ -95,11 +95,11 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Card className="w-full max-w-md">
+        <Card className="w-full max-w-md luminous-glass-card border-white/10">
           <CardContent className="flex flex-col items-center justify-center py-16">
-            <Loader2 className="h-12 w-12 animate-spin text-blue-500 mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Analyzing Your Performance</h3>
-            <p className="text-gray-600 text-center">Crunching the numbers to show your progress...</p>
+            <Loader2 className="h-12 w-12 animate-spin text-luminous-primary mb-4" />
+            <h3 className="text-xl font-semibold mb-2 font-display text-white">Analyzing Your Performance</h3>
+            <p className="text-slate-400 text-center">Crunching the numbers to show your progress...</p>
           </CardContent>
         </Card>
       </div>
@@ -109,30 +109,30 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
   if (!performance || performance.performance_by_topic.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Card className="w-full max-w-2xl">
+        <Card className="w-full max-w-2xl luminous-glass-card border-white/10">
           <CardHeader className="text-center">
-            <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-20 h-20 bg-gradient-to-br from-luminous-primary-container to-luminous-secondary-container rounded-full flex items-center justify-center mx-auto mb-4">
               <Brain className="h-10 w-10 text-white" />
             </div>
-            <CardTitle className="text-2xl">No Analytics Yet</CardTitle>
+            <CardTitle className="text-2xl font-display text-white">No Analytics Yet</CardTitle>
           </CardHeader>
           <CardContent className="text-center pb-8">
-            <p className="text-gray-600 mb-6 text-lg">Complete some quizzes to unlock detailed performance insights!</p>
+            <p className="text-slate-400 mb-6 text-lg">Complete some quizzes to unlock detailed performance insights!</p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-              <div className="flex flex-col items-center p-4 bg-blue-50 rounded-lg">
-                <Trophy className="h-8 w-8 text-blue-500 mb-2" />
-                <span className="font-medium text-blue-700">Track Progress</span>
+              <div className="flex flex-col items-center p-4 bg-luminous-secondary-container/[0.07] border border-luminous-secondary-container/20 rounded-lg">
+                <Trophy className="h-8 w-8 text-luminous-secondary mb-2" />
+                <span className="font-medium text-luminous-secondary">Track Progress</span>
               </div>
-              <div className="flex flex-col items-center p-4 bg-green-50 rounded-lg">
-                <Target className="h-8 w-8 text-green-500 mb-2" />
-                <span className="font-medium text-green-700">Find Strengths</span>
+              <div className="flex flex-col items-center p-4 bg-emerald-500/[0.07] border border-emerald-400/20 rounded-lg">
+                <Target className="h-8 w-8 text-emerald-400 mb-2" />
+                <span className="font-medium text-emerald-300">Find Strengths</span>
               </div>
-              <div className="flex flex-col items-center p-4 bg-purple-50 rounded-lg">
-                <Award className="h-8 w-8 text-purple-500 mb-2" />
-                <span className="font-medium text-purple-700">Improve Skills</span>
+              <div className="flex flex-col items-center p-4 bg-luminous-primary-container/[0.08] border border-luminous-primary/25 rounded-lg">
+                <Award className="h-8 w-8 text-luminous-primary mb-2" />
+                <span className="font-medium text-luminous-primary">Improve Skills</span>
               </div>
             </div>
-            <Button onClick={onClose} size="lg">
+            <Button onClick={onClose} size="lg" className="bg-luminous-primary-container hover:brightness-110 text-white">
               Start Your First Quiz
             </Button>
           </CardContent>
@@ -174,8 +174,8 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
     }));
 
   const getPerformanceLevel = (accuracy: number) => {
-    if (accuracy >= 85) return { label: 'Excellent', color: 'bg-green-500', icon: Trophy };
-    if (accuracy >= 70) return { label: 'Good', color: 'bg-blue-500', icon: Target };
+    if (accuracy >= 85) return { label: 'Excellent', color: 'bg-emerald-500/[0.07]0', icon: Trophy };
+    if (accuracy >= 70) return { label: 'Good', color: 'bg-luminous-secondary-container/[0.07]0', icon: Target };
     if (accuracy >= 50) return { label: 'Fair', color: 'bg-yellow-500', icon: Star };
     return { label: 'Needs Work', color: 'bg-red-500', icon: AlertCircle };
   };
@@ -187,13 +187,13 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
     if (active && payload && payload.length) {
       const accuracy = payload[0].value;
       return (
-        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-          <p className="font-medium capitalize">{`${label}`}</p>
-          <p className="text-blue-600">
+        <div className="bg-[#0d1c2d] p-3 border border-white/10 rounded-lg shadow-lg">
+          <p className="font-medium capitalize text-slate-100">{`${label}`}</p>
+          <p className="text-luminous-secondary">
             {accuracy == null ? 'No quizzes this week' : `Accuracy: ${Number(accuracy).toFixed(1)}%`}
           </p>
           {payload[1] && (
-            <p className="text-green-600">
+            <p className="text-emerald-400">
               {`Questions: ${payload[1].value}`}
             </p>
           )}
@@ -281,15 +281,15 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+          <h1 className="text-2xl lg:text-3xl font-bold flex items-center gap-3 font-display text-white">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-luminous-primary-container to-luminous-secondary-container flex items-center justify-center">
               <BarChart3 className="h-6 w-6 text-white" />
             </div>
             Performance Analytics
           </h1>
-          <p className="text-gray-600 mt-1">Detailed insights into your quiz performance</p>
+          <p className="text-slate-400 mt-1">Detailed insights into your quiz performance</p>
         </div>
-        <Button onClick={onClose} variant="outline" size="lg">
+        <Button onClick={onClose} variant="outline" size="lg" className="bg-white/5 border-white/10 text-slate-200 hover:bg-white/10 hover:text-white">
           Back to Quizzes
         </Button>
       </div>
@@ -329,10 +329,10 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
       </div>
 
       {/* Quiz accuracy over time - large chart at the top */}
-      <Card>
+      <Card className="luminous-glass-card border-white/10">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 font-display text-white">
+            <TrendingUp className="h-5 w-5 text-luminous-secondary" />
             Your quiz accuracy each week (last 5 weeks)
           </CardTitle>
         </CardHeader>
@@ -340,10 +340,10 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={weeklyAccuracyData}>
-                <XAxis dataKey="week" />
-                <YAxis domain={[0, 100]} />
-                <CartesianGrid strokeDasharray="3 3" />
-                <Bar dataKey="percent" fill="#60a5fa" radius={4} />
+                <XAxis dataKey="week" tick={{ fill: '#94a3b8', fontSize: 12 }} axisLine={{ stroke: 'rgba(255,255,255,0.1)' }} tickLine={false} />
+                <YAxis domain={[0, 100]} tick={{ fill: '#94a3b8', fontSize: 12 }} axisLine={false} tickLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
+                <Bar dataKey="percent" fill="#7952ff" radius={4} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -352,24 +352,24 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
 
       {/* Weekly Activity and Performance insights */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
+        <Card className="luminous-glass-card border-white/10">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 font-display text-white">
               <BarChart3 className="h-5 w-5" />
               Weekly Activity
             </CardTitle>
           </CardHeader>
           <CardContent>
             <WeeklyActivitySparkline data={recentAnswersByDay} />
-            <div className="mt-2 text-xs text-muted-foreground text-center">
+            <div className="mt-2 text-xs text-slate-500 text-center">
               Number of questions answered each day (last 7 days)
             </div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="luminous-glass-card border-white/10">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-purple-600">
+            <CardTitle className="flex items-center gap-2 text-luminous-primary">
               <Star className="h-5 w-5" /> Personal Bests & Suggestions
             </CardTitle>
           </CardHeader>
@@ -389,11 +389,11 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
                 {weakestTopic ? (
                   <span className="text-orange-700 font-semibold capitalize">{weakestTopic.topic}</span>
                 ) : (
-                  <span className="text-green-700 font-semibold">Keep up the great work!</span>
+                  <span className="text-emerald-300 font-semibold">Keep up the great work!</span>
                 )}
               </li>
             </ul>
-            <div className="mt-4 p-3 bg-blue-50 rounded-lg text-blue-800 text-sm">
+            <div className="mt-4 p-3 bg-luminous-secondary-container/[0.07] border border-luminous-secondary-container/20 rounded-lg text-luminous-secondary text-sm">
               {
                 weakestTopic
                   ? <>Tip: Practice more <span className="font-semibold capitalize">{weakestTopic.topic}</span> questions for a well-rounded performance.</>
@@ -406,9 +406,9 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
 
       {/* Best and Weak areas */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
+        <Card className="luminous-glass-card border-white/10">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-blue-600">
+            <CardTitle className="flex items-center gap-2 text-luminous-primary">
               <Award className="h-5 w-5" /> Your Best Area
             </CardTitle>
           </CardHeader>
@@ -420,15 +420,15 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
                 answered={mostImprovedTopic.total_answered}
               />
             ) : (
-              <p className="text-gray-500 text-center py-4">
+              <p className="text-slate-500 text-center py-4">
                 More data needed to highlight your best performing topic.
               </p>
             )}
           </CardContent>
         </Card>
-        <Card>
+        <Card className="luminous-glass-card border-white/10">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-orange-600">
+            <CardTitle className="flex items-center gap-2 text-amber-400">
               <Target className="h-5 w-5" />
               Needs Practice
             </CardTitle>
@@ -441,7 +441,7 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
                 answered={weakestTopic.total_answered}
               />
             ) : (
-              <p className="text-gray-500 text-center py-4">
+              <p className="text-slate-500 text-center py-4">
                 No weak topics detected yet—keep going!
               </p>
             )}
@@ -451,19 +451,19 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
 
       {/* Tabs for detailed analytics */}
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 lg:grid-cols-4">
-          <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
-          <TabsTrigger value="topics" className="text-xs sm:text-sm">By Topics</TabsTrigger>
-          <TabsTrigger value="insights" className="text-xs sm:text-sm">Insights</TabsTrigger>
-          <TabsTrigger value="progress" className="text-xs sm:text-sm">Progress</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3 lg:grid-cols-4 bg-white/5 border border-white/10">
+          <TabsTrigger value="overview" className="text-xs sm:text-sm data-[state=active]:bg-luminous-primary-container data-[state=active]:text-white text-slate-400">Overview</TabsTrigger>
+          <TabsTrigger value="topics" className="text-xs sm:text-sm data-[state=active]:bg-luminous-primary-container data-[state=active]:text-white text-slate-400">By Topics</TabsTrigger>
+          <TabsTrigger value="insights" className="text-xs sm:text-sm data-[state=active]:bg-luminous-primary-container data-[state=active]:text-white text-slate-400">Insights</TabsTrigger>
+          <TabsTrigger value="progress" className="text-xs sm:text-sm data-[state=active]:bg-luminous-primary-container data-[state=active]:text-white text-slate-400">Progress</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
           {/* Performance by Topic Bar Chart */}
-          <Card>
+          <Card className="luminous-glass-card border-white/10">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5" />
+              <CardTitle className="flex items-center gap-2 font-display text-white">
+                <BarChart3 className="h-5 w-5 text-luminous-primary" />
                 Performance by Topic
               </CardTitle>
             </CardHeader>
@@ -471,17 +471,19 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
-                      dataKey="topic" 
-                      tick={{ fontSize: 12 }}
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
+                    <XAxis
+                      dataKey="topic"
+                      tick={{ fontSize: 12, fill: '#94a3b8' }}
                       angle={-45}
                       textAnchor="end"
                       height={80}
+                      axisLine={{ stroke: 'rgba(255,255,255,0.1)' }}
+                      tickLine={false}
                     />
-                    <YAxis domain={[0, 100]} />
+                    <YAxis domain={[0, 100]} tick={{ fill: '#94a3b8', fontSize: 12 }} axisLine={false} tickLine={false} />
                     <CustomTooltip />
-                    <Bar dataKey="accuracy" fill="#3b82f6" radius={4} />
+                    <Bar dataKey="accuracy" fill="#7952ff" radius={4} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -490,9 +492,9 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
         </TabsContent>
 
         <TabsContent value="topics" className="space-y-4">
-          <Card>
+          <Card className="luminous-glass-card border-white/10">
             <CardHeader>
-              <CardTitle>Detailed Topic Analysis</CardTitle>
+              <CardTitle className="font-display text-white">Detailed Topic Analysis</CardTitle>
             </CardHeader>
             <CardContent>
               <TopicPerformanceList
@@ -506,9 +508,9 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
         <TabsContent value="insights" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Strongest Topics */}
-            <Card>
+            <Card className="luminous-glass-card border-white/10">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-green-600">
+                <CardTitle className="flex items-center gap-2 text-emerald-400">
                   <Trophy className="h-5 w-5" />
                   Your Strongest Topics
                 </CardTitle>
@@ -517,28 +519,28 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
                 {strongestTopics.length > 0 ? (
                   <div className="space-y-3">
                     {strongestTopics.map((topic, index) => (
-                      <div key={topic.topic} className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
-                        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                      <div key={topic.topic} className="flex items-center gap-3 p-3 bg-emerald-500/[0.07] rounded-lg">
+                        <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
                           {index + 1}
                         </div>
                         <div className="flex-1">
-                          <p className="font-medium capitalize">{topic.topic}</p>
-                          <p className="text-sm text-gray-600">{topic.accuracy_percent.toFixed(1)}% accuracy</p>
+                          <p className="font-medium capitalize text-slate-100">{topic.topic}</p>
+                          <p className="text-sm text-slate-400">{topic.accuracy_percent.toFixed(1)}% accuracy</p>
                         </div>
-                        <Trophy className="h-5 w-5 text-green-500" />
+                        <Trophy className="h-5 w-5 text-emerald-400" />
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-gray-500 text-center py-8">Complete more quizzes to identify your strengths!</p>
+                  <p className="text-slate-500 text-center py-8">Complete more quizzes to identify your strengths!</p>
                 )}
               </CardContent>
             </Card>
 
             {/* Areas for Improvement */}
-            <Card>
+            <Card className="luminous-glass-card border-white/10">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-orange-600">
+                <CardTitle className="flex items-center gap-2 text-amber-400">
                   <Target className="h-5 w-5" />
                   Areas for Improvement
                 </CardTitle>
@@ -547,23 +549,23 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
                 {weakestTopics.length > 0 ? (
                   <div className="space-y-3">
                     {weakestTopics.map((topic, index) => (
-                      <div key={topic.topic} className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg">
-                        <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                      <div key={topic.topic} className="flex items-center gap-3 p-3 bg-amber-500/[0.07] rounded-lg">
+                        <div className="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
                           {index + 1}
                         </div>
                         <div className="flex-1">
-                          <p className="font-medium capitalize">{topic.topic}</p>
-                          <p className="text-sm text-gray-600">{topic.accuracy_percent.toFixed(1)}% accuracy</p>
+                          <p className="font-medium capitalize text-slate-100">{topic.topic}</p>
+                          <p className="text-sm text-slate-400">{topic.accuracy_percent.toFixed(1)}% accuracy</p>
                         </div>
-                        <AlertCircle className="h-5 w-5 text-orange-500" />
+                        <AlertCircle className="h-5 w-5 text-amber-400" />
                       </div>
                     ))}
-                    <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                      <p className="text-sm text-blue-700 font-medium">💡 Tip: Focus on practicing these topics to improve your overall performance!</p>
+                    <div className="mt-4 p-3 bg-luminous-secondary-container/[0.07] rounded-lg">
+                      <p className="text-sm text-luminous-secondary font-medium">💡 Tip: Focus on practicing these topics to improve your overall performance!</p>
                     </div>
                   </div>
                 ) : (
-                  <p className="text-gray-500 text-center py-8">Great job! No weak areas identified yet.</p>
+                  <p className="text-slate-500 text-center py-8">Great job! No weak areas identified yet.</p>
                 )}
               </CardContent>
             </Card>
@@ -572,10 +574,10 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
 
         <TabsContent value="progress" className="space-y-6">
           {/* Progress Over Time */}
-          <Card>
+          <Card className="luminous-glass-card border-white/10">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
+              <CardTitle className="flex items-center gap-2 font-display text-white">
+                <TrendingUp className="h-5 w-5 text-luminous-secondary" />
                 Progress Over Time
               </CardTitle>
             </CardHeader>
@@ -583,20 +585,26 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
               <div className="h-64 mb-4">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={progressOverTime}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis domain={[0, 100]} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
+                    <XAxis dataKey="date" tick={{ fill: '#94a3b8', fontSize: 12 }} axisLine={{ stroke: 'rgba(255,255,255,0.1)' }} tickLine={false} />
+                    <YAxis domain={[0, 100]} tick={{ fill: '#94a3b8', fontSize: 12 }} axisLine={false} tickLine={false} />
+                    <defs>
+                      <linearGradient id="progressFill" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#7952ff" stopOpacity={0.45} />
+                        <stop offset="100%" stopColor="#7952ff" stopOpacity={0.02} />
+                      </linearGradient>
+                    </defs>
                     <Area
                       type="monotone"
                       dataKey="accuracy"
-                      stroke="#3b82f6"
-                      fill="#3b82f6"
-                      fillOpacity={0.2}
+                      stroke="#8b7bff"
+                      strokeWidth={2.5}
+                      fill="url(#progressFill)"
                     />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
-              <div className="text-sm text-gray-600 text-center">
+              <div className="text-sm text-slate-400 text-center">
                 Your cumulative accuracy after each session (last {progressOverTime.length || 12})
               </div>
             </CardContent>
@@ -604,9 +612,9 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Milestones */}
-            <Card>
+            <Card className="luminous-glass-card border-white/10">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-purple-600">
+                <CardTitle className="flex items-center gap-2 text-luminous-primary">
                   <Award className="h-5 w-5" />
                   Milestones
                 </CardTitle>
@@ -616,20 +624,20 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
                   {milestones.map((milestone, index) => (
                     <div key={index} className="flex items-center gap-3">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                        milestone.completed ? 'bg-green-500' : 'bg-gray-300'
+                        milestone.completed ? 'bg-emerald-500' : 'bg-white/20'
                       }`}>
                         {milestone.completed ? (
                           <CheckCircle className="h-5 w-5 text-white" />
                         ) : (
-                          <Clock className="h-5 w-5 text-gray-600" />
+                          <Clock className="h-5 w-5 text-slate-400" />
                         )}
                       </div>
                       <div className="flex-1">
                         <p className="font-medium">{milestone.title}</p>
-                        <p className="text-sm text-gray-600">{milestone.date}</p>
+                        <p className="text-sm text-slate-400">{milestone.date}</p>
                       </div>
                       {milestone.completed && (
-                        <Badge variant="secondary" className="bg-green-100 text-green-800">
+                        <Badge variant="secondary" className="bg-emerald-500/15 text-emerald-300 border border-emerald-400/30">
                           Completed
                         </Badge>
                       )}
@@ -640,9 +648,9 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
             </Card>
 
             {/* Goals */}
-            <Card>
+            <Card className="luminous-glass-card border-white/10">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-blue-600">
+                <CardTitle className="flex items-center gap-2 text-luminous-primary">
                   <Target className="h-5 w-5" />
                   Current Goals
                 </CardTitle>
@@ -653,15 +661,15 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
                     <div key={index} className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="font-medium">{goal.title}</span>
-                        <span className="text-sm text-gray-600">{goal.progress.toFixed(0)}%</span>
+                        <span className="text-sm text-slate-400">{goal.progress.toFixed(0)}%</span>
                       </div>
                       <Progress value={goal.progress} className="h-2" />
-                      <p className="text-xs text-gray-500">Target: {goal.target}</p>
+                      <p className="text-xs text-slate-500">Target: {goal.target}</p>
                     </div>
                   ))}
                 </div>
-                <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                  <p className="text-sm text-blue-700 font-medium">
+                <div className="mt-4 p-3 bg-luminous-secondary-container/[0.07] rounded-lg">
+                  <p className="text-sm text-luminous-secondary font-medium">
                     🎯 Keep practicing to reach your goals!
                   </p>
                 </div>
@@ -670,9 +678,9 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
           </div>
 
           {/* Streak Tracking */}
-          <Card>
+          <Card className="luminous-glass-card border-white/10">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-orange-600">
+              <CardTitle className="flex items-center gap-2 text-amber-400">
                 <Flame className="h-5 w-5" />
                 Study Streak
               </CardTitle>
@@ -683,22 +691,22 @@ const PerformanceAnalytics: React.FC<PerformanceAnalyticsProps> = ({ onClose }) 
                   <Flame className="h-10 w-10 text-white" />
                 </div>
                 <div className="text-3xl font-bold text-orange-600 mb-2">{streak} {streak === 1 ? 'Day' : 'Days'}</div>
-                <p className="text-gray-600 mb-4">Consecutive days with a quiz</p>
+                <p className="text-slate-400 mb-4">Consecutive days with a quiz</p>
                 <div className="grid grid-cols-7 gap-2 max-w-xs mx-auto">
                   {weekActivity.map((d) => (
                     <div key={d.date.toISOString()} className="flex flex-col items-center gap-1">
                       <div
                         className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${
-                          d.active ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-400'
+                          d.active ? 'bg-orange-500 text-white' : 'bg-white/10 text-slate-500'
                         }`}
                       >
                         {d.active ? '✓' : '○'}
                       </div>
-                      <span className="text-[10px] text-gray-500">{d.day.slice(0, 1)}</span>
+                      <span className="text-[10px] text-slate-500">{d.day.slice(0, 1)}</span>
                     </div>
                   ))}
                 </div>
-                <p className="text-xs text-gray-500 mt-2">Last 7 days</p>
+                <p className="text-xs text-slate-500 mt-2">Last 7 days</p>
               </div>
             </CardContent>
           </Card>

@@ -16,10 +16,7 @@ const Navbar = () => {
     .join('') || '?';
 
   return (
-    <nav className="w-full flex items-center justify-between gap-2">
-      <span className="font-display text-[15px] font-semibold text-slate-200 tracking-tight truncate">
-        Learnly <span className="text-luminous-primary">AI</span>
-      </span>
+    <nav className="w-full flex items-center justify-end gap-2">
       <Link
         to="/profile"
         title={displayName || 'Profile'}

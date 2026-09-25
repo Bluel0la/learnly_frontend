@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
+import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import AppSidebar from './AppSidebar';
 import Navbar from './Navbar';
 import MobileNav from './MobileNav';
@@ -26,7 +26,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <AppSidebar />
         <SidebarInset className="flex flex-col flex-1 min-h-screen max-h-screen bg-[#051424]">
           <header className="flex h-14 md:h-16 shrink-0 items-center gap-2 px-3 md:px-4 luminous-topbar sticky top-0 z-10">
-            <SidebarTrigger className="-ml-1 text-slate-400 hover:text-white hover:bg-white/5" />
             <div className="flex-1 min-w-0">
               <Navbar />
             </div>
