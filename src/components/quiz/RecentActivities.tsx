@@ -59,27 +59,28 @@ const RecentActivities: React.FC = () => {
 
   if (!history || history.sessions.length === 0) {
     return (
-      <Card className="luminous-glass-card border-white/10 w-full">
-        <CardContent className="p-6 lg:p-8">
-          <div className="text-center">
-            <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-full bg-gradient-to-tr from-luminous-primary-container to-luminous-secondary-container flex items-center justify-center mx-auto mb-4 lg:mb-6">
+      <Card className="luminous-glass-card border-white/10 w-full overflow-hidden">
+        <div className="h-1 w-full bg-gradient-to-r from-luminous-primary-container via-luminous-primary to-luminous-secondary-container" />
+        <CardContent className="p-6 lg:p-10">
+          <div className="text-center max-w-lg mx-auto">
+            <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-full bg-gradient-to-tr from-luminous-primary-container to-luminous-secondary-container flex items-center justify-center mx-auto mb-4 lg:mb-5 luminous-shadow-glow-purple">
               <Trophy className="h-8 w-8 lg:h-10 lg:w-10 text-white" />
             </div>
-            <h3 className="text-xl lg:text-2xl font-bold mb-3 text-white font-display">Start Your Quiz Journey!</h3>
-            <p className="text-slate-400 text-base lg:text-lg mb-4 lg:mb-6">Complete your first math quiz to see your progress here</p>
-            <div className="flex flex-col sm:flex-row justify-center gap-3 lg:gap-4 text-sm text-slate-400">
-              <div className="flex items-center justify-center gap-1">
-                <Star className="h-4 w-4 text-luminous-primary" />
-                <span>Track Progress</span>
-              </div>
-              <div className="flex items-center justify-center gap-1">
-                <Award className="h-4 w-4 text-luminous-secondary" />
-                <span>Earn Achievements</span>
-              </div>
-              <div className="flex items-center justify-center gap-1">
-                <TrendingUp className="h-4 w-4 text-emerald-400" />
-                <span>Improve Skills</span>
-              </div>
+            <h3 className="font-display text-xl lg:text-2xl font-extrabold text-white mb-2">Start Your Quiz Journey!</h3>
+            <p className="text-slate-400 text-sm lg:text-base mb-5 lg:mb-6">Complete your first math quiz to see your progress here</p>
+            <div className="flex flex-col sm:flex-row justify-center gap-2.5 lg:gap-3 text-xs text-slate-400">
+              <span className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/10">
+                <Star className="h-3.5 w-3.5 text-luminous-primary" />
+                Track Progress
+              </span>
+              <span className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/10">
+                <Award className="h-3.5 w-3.5 text-luminous-secondary" />
+                Earn Achievements
+              </span>
+              <span className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/10">
+                <TrendingUp className="h-3.5 w-3.5 text-emerald-400" />
+                Improve Skills
+              </span>
             </div>
           </div>
         </CardContent>
