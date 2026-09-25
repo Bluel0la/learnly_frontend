@@ -35,9 +35,6 @@ const ChatMessages = ({ sessionId: propSessionId, onNewMessage }: ChatMessagesPr
   const [messages, setMessages] = useState<UIMessage[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   
-  console.log('ChatMessages: sessionId =', sessionId);
-  console.log('ChatMessages: messages =', messages);
-  
   // Function to add new messages in real-time
   const addMessage = (newMessage: UIMessage) => {
     setMessages(prev => [...prev, newMessage]);
@@ -46,21 +43,20 @@ const ChatMessages = ({ sessionId: propSessionId, onNewMessage }: ChatMessagesPr
 
   // Expose addMessage function globally for ChatInput to use
   useEffect(() => {
-    (window as any).addChatMessage = addMessage;
+    const w = window as unknown as { addChatMessage?: (m: UIMessage) => void };
+    w.addChatMessage = addMessage;
     return () => {
-      delete (window as any).addChatMessage;
+      delete w.addChatMessage;
     };
   }, []);
   
   // Load messages based on sessionId
   useEffect(() => {
     if (sessionId) {
-      console.log('Loading messages for session:', sessionId);
       setIsLoading(true);
-      
+
       chatApi.getSessionMessages(sessionId)
         .then((chatMessages) => {
-          console.log('Received chat messages:', chatMessages);
           const formattedMessages = chatMessages.flatMap((message, index) => {
             const userMessage: UIMessage = {
               id: `${sessionId}-${index}a`,
@@ -79,8 +75,7 @@ const ChatMessages = ({ sessionId: propSessionId, onNewMessage }: ChatMessagesPr
             
             return [userMessage, aiMessage];
           });
-          
-          console.log('Formatted messages:', formattedMessages);
+
           setMessages(formattedMessages);
         })
         .catch((error) => {
@@ -96,7 +91,6 @@ const ChatMessages = ({ sessionId: propSessionId, onNewMessage }: ChatMessagesPr
           setIsLoading(false);
         });
     } else {
-      console.log('No sessionId, clearing messages');
       setMessages([]);
       setIsLoading(false);
     }
@@ -183,7 +177,7 @@ const ChatMessages = ({ sessionId: propSessionId, onNewMessage }: ChatMessagesPr
     return /\\begin\{aligned\}|\\text\{|\$\$[\s\S]*?\$\$|\$[^$\n]+?\$|\\rightarrow|\\leftarrow/.test(content);
   };
 
-  const userName = profile?.first_name || 'there';
+  const userName = profile?.first_name || profile?.firstname || 'there';
 
   return (
     <div className="flex flex-col h-full max-w-full">
@@ -191,39 +185,39 @@ const ChatMessages = ({ sessionId: propSessionId, onNewMessage }: ChatMessagesPr
         <div className="p-4 max-w-full">
           {isLoading ? (
             <div className="flex items-center justify-center h-64">
-              <div className="animate-pulse text-gray-500">Loading conversation...</div>
+              <div className="animate-pulse text-slate-500">Loading conversation...</div>
             </div>
           ) : messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-64">
-              <div className="text-center text-gray-500">
-                <div className="text-4xl font-serif font-bold text-gray-800 mb-4 flex items-center justify-center gap-2">
+            <div className="flex flex-col items-center justify-center min-h-[55vh] px-4">
+              <div className="w-full max-w-3xl flex flex-col items-center text-center">
+                <div className="font-display text-3xl md:text-[44px] leading-tight font-bold text-slate-100 tracking-tight mb-2.5 flex flex-wrap items-center justify-center gap-x-3">
                   <RotatingText
                     texts={greetings}
                     rotationInterval={2500}
                     staggerDuration={0.05}
-                    mainClassName="text-4xl font-serif font-bold"
+                    mainClassName="font-display text-3xl md:text-[44px] font-bold"
                     transition={{ type: "spring", damping: 20, stiffness: 200 }}
                     splitBy="words"
                   />
-                  <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-bold">
+                  <span className="luminous-gradient-text font-bold">
                     {userName}
                   </span>
                 </div>
-                <p className="text-lg text-gray-600 mb-4">
+                <p className="text-base md:text-lg text-slate-400 font-normal">
                   Ready to study something new today?
                 </p>
               </div>
             </div>
           ) : (
-            <div className="max-w-4xl mx-auto space-y-4">
+            <div className="max-w-3xl mx-auto space-y-4">
               {messages.map((message) => (
                 <div key={message.id} className="flex flex-col max-w-full">
                   <div className={`${getMessageClassName(message)} max-w-full word-wrap break-words`}>
                     <div className="mb-1 flex justify-between items-center">
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-slate-400">
                         {message.type === 'user' ? 'You' : 'AI Assistant'}
                       </span>
-                      <span className="text-xs text-gray-400">
+                      <span className="text-xs text-slate-600">
                         {formatTime(message.timestamp)}
                       </span>
                     </div>

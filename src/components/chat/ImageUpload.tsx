@@ -74,11 +74,11 @@ const ImageUpload = ({ onTextExtracted, onClose }: ImageUploadProps) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-md w-full p-6">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="luminous-glass-card rounded-2xl max-w-md w-full p-6 text-slate-200">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold">Upload Image</h3>
-          <Button variant="ghost" size="icon" onClick={onClose}>
+          <h3 className="font-display text-lg font-bold text-white">Upload Image</h3>
+          <Button variant="ghost" size="icon" onClick={onClose} className="text-slate-400 hover:text-white hover:bg-white/5">
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -94,31 +94,31 @@ const ImageUpload = ({ onTextExtracted, onClose }: ImageUploadProps) => {
         )}
 
         {isProcessing ? (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin mr-2" />
+          <div className="flex items-center justify-center py-8 text-slate-300">
+            <Loader2 className="h-8 w-8 animate-spin mr-2 text-luminous-primary" />
             <span>Extracting text from image...</span>
           </div>
         ) : (
           <div className="space-y-3">
-            <Button 
+            <Button
               onClick={handleUploadClick}
-              className="w-full flex items-center justify-center gap-2"
+              className="w-full flex items-center justify-center gap-2 bg-white/5 border-white/10 text-slate-200 hover:bg-white/10 hover:text-white"
               variant="outline"
             >
               <Upload className="h-4 w-4" />
               Upload from Gallery
             </Button>
 
-            <Button 
+            <Button
               onClick={handleCameraClick}
-              className="w-full flex items-center justify-center gap-2"
+              className="w-full flex items-center justify-center gap-2 bg-white/5 border-white/10 text-slate-200 hover:bg-white/10 hover:text-white"
               variant="outline"
             >
               <Camera className="h-4 w-4" />
               Take Photo
             </Button>
 
-            <p className="text-sm text-gray-500 text-center">
+            <p className="text-sm text-slate-500 text-center">
               Supported formats: JPEG, PNG, WEBP (max 10MB)
             </p>
           </div>
