@@ -18,6 +18,15 @@ import {
 } from "framer-motion";
 import { cn } from "@/lib/utils";
 
+type GraphemeSegmenter = {
+  segment: (text: string) => Iterable<{ segment: string }>;
+};
+
+type GraphemeSegmenterConstructor = new (
+  locales?: string | string[],
+  options?: { granularity: "grapheme" }
+) => GraphemeSegmenter;
+
 export interface RotatingTextRef {
   next: () => void;
   previous: () => void;
@@ -76,11 +85,14 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
     const [currentTextIndex, setCurrentTextIndex] = useState<number>(0);
 
     const splitIntoCharacters = (text: string): string[] => {
-      if (typeof Intl !== "undefined" && (Intl as any).Segmenter) {
-        const segmenter = new (Intl as any).Segmenter("en", { granularity: "grapheme" });
+      const Segmenter = (Intl as typeof Intl & {
+        Segmenter?: GraphemeSegmenterConstructor;
+      }).Segmenter;
+      if (Segmenter) {
+        const segmenter = new Segmenter("en", { granularity: "grapheme" });
         return Array.from(
           segmenter.segment(text),
-          (segment: any) => segment.segment
+          (segment) => segment.segment
         );
       }
       return Array.from(text);

@@ -34,16 +34,6 @@ function RouteAwareSkeleton() {
   const location = useLocation();
   const pathname = location.pathname;
 
-  // Import the new skeleton components
-  const ChatPageSkeleton = lazy(() => import("./components/skeletons/ChatPageSkeleton"));
-  const FlashcardsPageSkeleton = lazy(() => import("./components/skeletons/FlashcardsPageSkeleton"));
-  const QuizzesPageSkeleton = lazy(() => import("./components/skeletons/QuizzesPageSkeleton"));
-  const LoginPageSkeleton = lazy(() => import("./components/skeletons/LoginPageSkeleton"));
-  const IndexPageSkeleton = lazy(() => import("./components/skeletons/IndexPageSkeleton"));
-  const ProfilePageSkeleton = lazy(() => import("./components/skeletons/ProfilePageSkeleton"));
-  const ResourcesPageSkeleton = lazy(() => import("./components/skeletons/ResourcesPageSkeleton"));
-  const PageSkeleton = lazy(() => import("./components/skeletons/PageSkeleton"));
-
   if (pathname === "/login" || pathname === "/signup") {
     return <LoginPageSkeleton />;
   }

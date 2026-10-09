@@ -184,7 +184,7 @@ const LoginPage = () => {
                   {/* Sliding thumb */}
                   <span
                     aria-hidden="true"
-                    className={`absolute inset-y-1 left-1 w-[calc(50%-0.25rem)] rounded-lg bg-luminous-primary-container luminous-shadow-glow-purple transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+                    className={`absolute inset-y-1 left-1 w-[calc(50%-0.25rem)] rounded-lg bg-luminous-primary-container luminous-shadow-glow-purple transition-transform duration-300 ease-in-out ${
                       isSignup ? 'translate-x-full' : 'translate-x-0'
                     }`}
                   />
